@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=RFID Video Player
+GenericName=Video Player
+Exec=sudo python videoEngine.pyw
+Comment=RFID Video Player uses the PN532 to play videos and control them using the MPR121
+Icon=/home/pi/workspace/Engine_files/icon.png
+Terminal=false
+Categories=Application;Media;
+StartupNotify=true
+Path=/home/pi/workspace/Engine_files
