@@ -32,7 +32,7 @@ class Editor:
     USB_DEF='usb'
 
     # Info Defaults
-    LOG_FILE='editior.log'
+    LOG_FILE='editor.log'
     VIDEO_LIST='vids.csv'
     UUID_MAP='UUID_Table.csv'
     FK_KILL = -255
