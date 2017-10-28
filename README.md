@@ -15,14 +15,15 @@ Engine:
 ::REQUIRED HARDWARE::
 ---------------------
 PN532 - RFID Reader (Configured for Mifare Format)
-MPR121 - Capacitive Touch Sensor
+MPR121 - Capacitive Touch Sensor (Otherwise use GPIO Player)
 ========================================================================
 ---------------------
 ::REQUIRED SOFTWARE::
 ---------------------
 Python library for Adafruit_PN532
 Python library for Adafruit_MPR121
-Omxplayer
+Python library psutil, python-uinput
+Linux Distros: Omxplayer, python-imaging, and python-imaging-tk
 IMPORTS: atexit, logging, subprocess, sys, os, shutil, binascii, time
 pygame (for sound), Tkinter (GUIs), psutil, PIL.Image, PIL.ImageTk,
 uinput, RPi.GPIO
@@ -32,11 +33,13 @@ There are two python scripts contained with the engine files.
 
  - editor.pyw
  - videoEngine.pyw
+ - videoEngineGPIO.pyw
 
-editor.pyw: This script launches a GUI used to edit the vids.csv and
-UUID_Table.csv. It is also used to copy videos to the source usb.
-
+editor.pyw: This script launches a GUI used to edit the vids.csv and UUID_Table.csv, set the
+source USB, and copy videos from other USB's to the source USB.
 videoEngine.pyw: This script launches the video player.
+videoEngineGPIO.pyw: This script launches the video player using GPIO pins as
+	substitutes for the MPR121 capacitive touch sensor.
 ------------------------------------------------------------------------
 There are three info files.
 
@@ -78,7 +81,7 @@ To edit which files are discoverd/copied:
        since usb directories appear as sub-directories in this location.
 
  - To modifiy the key assignements that control the video engine during
-    runtime, edit the KEY_MAPPING array in videoEngine.pyw.
+    runtime, edit the KEY_MAPPING array in videoEngine.pyw (or videoEngineGPIO.pyw).
 ========================================================================
 ERRORS ? ? ? ?
 --------------

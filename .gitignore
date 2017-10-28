@@ -1,6 +1,7 @@
 # Ignore Log files #
 ####################
 *.log
+*.csv
 
 # and OS generated files #
 ######################
