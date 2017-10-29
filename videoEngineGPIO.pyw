@@ -35,10 +35,10 @@ KEY_ACTION = {
               }
 KEY_PINS = {
                 "quit":16,     # Stop Button
-                "skip":12,  # Skip forward
+                "skip":15,  # Skip forward
                 "play":14, # Play/Pause
                 "ff":13,   # Fast Forward
-                "rewind":15  #, # Rewind
+                "rewind":12  #, # Rewind
                 #0: uinput.KEY_UP,    # Fast Skip
               }
 
@@ -75,6 +75,9 @@ class Instance:
     ff = False
     lastplay = ''
 
+# Establish new intstance of the class
+inst = Instance()
+
 # Define Button Function
 def quitKey(evt):
     if Instance.KEY_GATE == 1:
@@ -90,11 +93,14 @@ def skipKey(evt):
 
 def playKey(evt):
     if Instance.KEY_GATE == 1:
+        Instance.sound.play()
         if Instance.ff:
-                Instance.device.emit_click(KEY_ACTION.get("play"))
-                Instance.time.sleep(.15)
-        Instance.ff = False
-        Instance.device.emit_click(KEY_ACTION.get("play"))
+            Instance.ff = False 
+            Instance.device.emit_click(KEY_ACTION.get("play"))
+            time.sleep(.15)
+            Instance.device.emit_click(KEY_ACTION.get("play"))
+        else:
+            Instance.device.emit_click(KEY_ACTION.get("play"))
 
 def ffKey(evt):
     if Instance.KEY_GATE == 1:
