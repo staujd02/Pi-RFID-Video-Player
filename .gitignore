@@ -1,7 +1,8 @@
-# Ignore Log files #
+# Ignore Log, Data, and ini files #
 ####################
 *.log
 *.csv
+*.ini
 
 # and OS generated files #
 ######################

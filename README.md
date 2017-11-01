@@ -82,6 +82,9 @@ To edit which files are discoverd/copied:
 
  - To modifiy the key assignements that control the video engine during
     runtime, edit the KEY_MAPPING array in videoEngine.pyw (or videoEngineGPIO.pyw).
+
+ - Adding the a startup script  to /etc/profile.d is a way
+	auto start the video player on user login
 ========================================================================
 ERRORS ? ? ? ?
 --------------
