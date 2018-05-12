@@ -20,9 +20,6 @@ class Editor:
     MOSI = 23
     MISO = 24
     SCLK = 25
-    
-    # Timeout
-    TIME_OUT = 5
 
     # Ini Info
     INI_FILE = 'library.ini'
@@ -38,7 +35,6 @@ class Editor:
     FK_KILL = -255
     SCAN_SOUND = '/opt/sonic-pi/etc/samples/ambi_soft_buzz.flac'
     
-    # Instance Variables
     USB = '< Not Set >'
     devices = []
     vidPK = []
@@ -49,7 +45,9 @@ class Editor:
     pn532 = PN532.PN532(cs=CS, sclk=SCLK, mosi=MOSI, miso=MISO)
         
     def __init__(self, master):
+        
         self.load()
+        
         frame = Frame(master)
         frame.pack()
         self.curR = StringVar()
@@ -59,13 +57,13 @@ class Editor:
         Label(frame,text='Video').grid(row=0, column=2)
         self.ee = Entry(frame,textvariable=self.curR,state=DISABLED,disabledforeground='black')
         self.ee.grid(row=1, column=0)
-        self.r = Button(frame, text='Read Card',command=self.readMiFare)
+        self.r = Button(frame, text='Read Card',command=self.startCardProcess)
         self.r.grid(row=1,column=1)
         self.box = Listbox(frame)
         for entry in self.vidNAME:
              self.box.insert(END, entry)
         self.box.bind("<<ListboxSelect>>", self.newselection)
-        self.box.grid(row=1,rowspan=5,column=2)
+        self.box.grid(row=1,rowspan=5,column=2,columnspan=2)
         self.scroll = Scrollbar(self.box,orient=VERTICAL)
         self.box.config(yscrollcommand=self.scroll.set)
         self.scroll.config(command=self.box.yview)
@@ -77,97 +75,125 @@ class Editor:
         self.spin.grid(row=5,column=0)
         self.status = Button(frame, text='Scan and Update', command=self.merge, disabledforeground='blue')
         self.status.grid(row=6, column=0)
-        Button(frame, text='Save and Close', command=self.close).grid(row=6, column=2)
+        Button(frame, text='Save', command=self.save).grid(row=6, column=2)
+        Button(frame, text='Quit', command=self.closeWithSavePrompt).grid(row=6, column=3)
+
+    def closeWithSavePrompt(self):
+        ans = tkMessageBox.askquestion('Save And Quit','Would you like to save your changes?')
+        if ans == 'yes':
+            self.save()
+        sys.exit(0) 
         
-        
-    def readMiFare(self):
-        # Disable button to prevent event stacking
-        self.r.config(state=DISABLED)
+    def startCardProcess(self):
+        self.r.config(state=DISABLED)  # Disable button to prevent event stacking
+        self.processCard()
+        self.r.config(state=NORMAL)
+
+    def processCard(self):
         # Scans RFID cards and sets them to text box
         try:
-            start = time.time()
-            uid = None
-            while (time.time() - start) < self.TIME_OUT and uid == None:
-                uid = self.pn532.read_passive_target()
-            if uid == None:
-                # Card was not scanned before timeout
-                self.r.config(state=NORMAL)
-                return;
-            self.soundS.play()
-            uidt = '0x' + binascii.hexlify(uid)
-            # Populate text box
-            self.curR.set(uidt)
-            # De-select anything active items in listbox
-            self.box.selection_clear(0,END)
-            try:
-                i=self.uuid.index(uidt)
-            except:
-                # New card (or lost)
-                self.uuid.append(uidt)
-                self.uuidFK.append(-1)
-                i = len(self.uuid) - 1
-            if self.uuidFK[i] == self.FK_KILL:
-                tkMessageBox.showinfo('Kill Card','This card is currently assigned to kill the application.')
-                self.r.config(state=NORMAL)
-                return
-            try:
-                i=self.vidPK.index(self.uuidFK[i])
-            except:
-                tkMessageBox.showinfo('Card Unassigned','Card is not currently assigned to a video')
-            else:
-                self.box.see(i)
-                self.box.selection_clear(0,END)
-                self.box.selection_set(i)
-                self.box.activate(i)
+            self.processCardUnchecked()
         except Exception as e:
-            tkMessageBox.showerror('Error Occurred','Error: ' + str(e))
-            logging.error('Scan Failed: ' + str(e))
-            
-        self.r.config(state=NORMAL)
-    
-    def close(self):
-        # Saves active memory to files and then closes app
-        # Write video CSV into temp file
+            self.displayScanError(e)
+
+    def processCardUnchecked(self):
+        cardScan = CardScan(self.soundS, self.pn532)
+        cardScan.runScan()
+        self.processResult(cardScan.getFormattedResult())
+
+    def processResult(self, scanResult):
+        if scanResult == None: # Card timeout results are not processed
+            return
+        self.curR.set(scanResult)     # Populate text box
+        self.box.selection_clear(0,END)    # De-select any active items in listbox
+        self.linkCardWithListbox(scanResult)
+
+    def linkCardWithListbox(self, scanResult):
+        index = self.verifyCard(scanResult)
+        if self.uuidFK[index] == self.FK_KILL:
+            tkMessageBox.showinfo('Kill Card','This card is currently assigned to kill the application.')
+            return
+        self.highlightItemInListbox(index)
+
+    def highlightItemInListbox(self, index):
         try:
-            f = open(self.VIDEO_LIST + '.temp','w')
-            i=0
-            while(i<len(self.vidPK) - 1):
-                f.write(str(self.vidPK[i]) + ',' + self.vidNAME[i] + ',' + self.vidPATH[i] + '\n')
-                i=i+1
-            f.write(str(self.vidPK[i]) + ',' + self.vidNAME[i] + ',' + self.vidPATH[i] + '\n')
-            f.close()
+            i=self.vidPK.index(self.uuidFK[index])
+        except:
+            tkMessageBox.showinfo('Card Unassigned','Card is not currently assigned to a video')
+        else:
+            self.box.see(i)
+            self.box.selection_clear(0,END)
+            self.box.selection_set(i)
+            self.box.activate(i)
+
+    def verifyCard(self, uidt):
+        try:
+            uuidIndex = self.uuid.index(uidt)
+        except:
+            uuidIndex = addNewCard(uidt)
+        return uuidIndex
+
+    def addNewCard(self, uidt):
+        self.uuid.append(uidt)
+        self.uuidFK.append(-1)
+        newIndex = len(self.uuid) - 1
+        return newIndex
+        
+    def displayScanError(self, e):
+        tkMessageBox.showerror('Error Occurred','Error: ' + str(e))
+        logging.error('Scan Failed: ' + str(e))       
+
+    def save(self):
+        toSaveList = self.makePairedList(self.vidPK, self.vidNAME, self.vidPATH)
+        self.safeSaveToFile(self.VIDEO_LIST, toSaveList)
+        toSaveList = self.makePairedList(self.uuid, self.uuidFK)
+        self.safeSaveToFile(self.UUID_MAP, toSaveList)
+
+    def makePairedList(self, *itemLists):
+        stop = len(itemLists)
+        subList = []
+        listAll = []
+        for listIndex in range(len(itemLists[0])):
+            del subList[:]
+            for indice in range(stop):
+                subList.append(itemLists[indice][listIndex])
+            listAll.append(list(subList))
+        return listAll
+
+    def safeSaveToFile(self, fileName, pairList):
+        try:
+            self.writePairedListToTempFile(fileName, pairList)
         except Exception as e:
             logging.error('Failed to create video list: ' + str(e))
         else:
-            # Replace old file with temp
-            try:
-                if os.path.isfile(self.VIDEO_LIST):
-                    os.remove(self.VIDEO_LIST)
-                os.rename(self.VIDEO_LIST + '.temp',self.VIDEO_LIST)
-            except Exception as e:
-                logging.error('Failed to replace old video list: ' + str(e))
-        
-        # Write uuid CSV into temp file
+            self.replaceOriginalFileWithItsTemp(fileName)
+
+    def replaceOriginalFileWithItsTemp(self, fileName):
         try:
-            f = open(self.UUID_MAP + '.temp','w')
-            i=0
-            while(i<len(self.uuid) - 1):
-                f.write(self.uuid[i] + ',' + str(self.uuidFK[i]) + '\n')
-                i=i+1
-            # Write the last line without the new line character
-            f.write(self.uuid[i] + ',' + str(self.uuidFK[i]))
-            f.close()
+            if os.path.isfile(fileName):
+                os.remove(fileName)
+            os.rename(fileName + '.temp', fileName)
         except Exception as e:
-            logging.error('Failed to create UUID list: ' + str(e))
-        else:
-            # Replace old file with temp
-            try:
-                if os.path.isfile(self.UUID_MAP):
-                    os.remove(self.UUID_MAP)
-                os.rename(self.UUID_MAP + '.temp',self.UUID_MAP)
-            except Exception as e:
-                logging.error('Failed to replace old uuid list: ' + str(e))
-        sys.exit(0)
+            logging.error('Failed to replace old video list: ' + str(e))
+
+    def writePairedListToTempFile(self, fileName, pairedList):
+        f = open(fileName + '.temp','w')
+        self.writePairedListGivenFile(f, pairedList)
+        f.close()
+
+    def writePairedListGivenFile(self, f, pairedList):
+        i = 0
+        while(i<len(pairedList) - 1):
+            self.writeSingleLineOfPairedListToOpenFile(f, pairedList, i)
+            f.write('\n')
+            i=i+1
+        self.writeSingleLineOfPairedListToOpenFile(f, pairedList, i)
+
+    def writeSingleLineOfPairedListToOpenFile(self, f, pairedList, itemIndex):
+        fLine = ""
+        for item in range(len(pairedList[itemIndex])):
+            fLine = fLine + str(pairedList[itemIndex][item]) + ','
+        f.write(fLine[:-1])
         
     def merge(self):
         # Runs a scan and merges files to usb list
@@ -300,7 +326,8 @@ class Editor:
         # Configure PN532 to communicate with MiFare cards.
         self.pn532.SAM_configuration()
         self.loadFiles()
-        self.loadUSB()
+        self.locateDevices()
+        self.loadDevice()
     
     def loadFiles(self):
         regen = False
@@ -372,46 +399,112 @@ class Editor:
         except:
             logging.error('Failed to regenerate ini file!')
 
-    def loadUSB(self):
+    def locateDevices(self):
         # Check if usb is set and present    
         try:
             scan = Scan()
         except Exception as e:
             logging.error('Device scan failed: ' + str(e))
         else:
-            if len(scan.NAME) == 0:
-                tkMessageBox.showerror('Scan Error','Initial scan detected no files. Open case and inspect USB, or perform a restart.')
-                logging.error('Scan failed to detect files. (Do none exist?)')
-            else:
-                # Scan detected files... Pull usb name from path
-                for path in scan.PATH:
-                    try:
-                        subpath = path.replace('/media/pi/','')
-                        if subpath[0:subpath.find('/')] not in self.devices:
-                            self.devices.append(subpath[0:subpath.find('/')])
-                    except:
-                        pass
-                # Check if devices were found
-                if len(self.devices) == 0:
-                    tkMessageBox.showerror('Improper Storage','Media files should not be stored in /media/pi.\nPlease move files to subfolder, or a USB device.')
-                    logging.error('User error: Files were stored on pi media root. Requested User Action...')
+            self.searchScanForDevices(scan)        
+
+    def loadDevice(self):
         if self.USB == '' and len(self.devices) == 0:
-            # Bad news, no usb is set and no devices were detected!
-            tkMessageBox.showerror('Storage Failure', 'No USB devices could be found, this editor will now close.')
-            logging.critical('Failed to find any devices with any media. Closing...')
-            sys.exit(1)
+            self.terminateWithNoDeviceFailureMessage()
         else:
-             # Either there is at least one device or usb is set
-             if self.USB == '' or self.USB == '< Not Set >':
-                 tkMessageBox.showwarning('No USB Set','Please select a USB as a source device and then perform a Scan and Update')
-                 logging.warning('No USB device is set!')
-             elif len(self.devices) == 0:
-                 tkMessageBox.showerror('No Devices Detected','No devices were detected including the current USB respository.\nPlease inspect USB device, or contact help.')
-                 logging.critical('Scanner detected no devices. Closing...')
-                 sys.exit(1)
-             elif self.USB not in self.devices:
-                 tkMessageBox.showwarning('Missing USB Source','WARNING: The current USB repository was not found amoung the available devices.')
-                 logging.warning('Current USB repository was not located in device scan!')
+            self.handleAnyDeviceSearchFailures()
+
+    def handleAnyDeviceSearchFailures(self):
+        if self.USB == '' or self.USB == '< Not Set >':
+            self.showNoDeviceSetWarning()
+        elif len(self.devices) == 0:
+            self.terminateWithCurrentDeviceNotFoundMsg()
+        elif self.USB not in self.devices:
+            self.showCurrentDeviceNotFoundWarning()
+
+    def showNoDeviceSetWarning(self):
+        tkMessageBox.showwarning('No USB Set','Please select a USB as a source device and then perform a Scan and Update')
+        logging.warning('No USB device is set!')
+
+    def showCurrentDeviceNotFoundWarning(self):
+        tkMessageBox.showwarning('Missing USB Source','WARNING: The current USB repository was not found amoung the available devices.')
+        logging.warning('Current USB repository was not located in device scan!')
+
+    def terminateWithCurrentDeviceNotFoundMsg(self):
+        tkMessageBox.showerror('No Devices Detected','No devices were detected including the current USB respository.\nPlease inspect USB device, or contact help.')
+        logging.critical('Scanner detected no devices. Closing...')
+        sys.exit(1)
+
+    def terminateWithNoDeviceFailureMessage(self):
+        tkMessageBox.showerror('Storage Failure', 'No USB devices could be found, this editor will now close.')
+        logging.critical('Failed to find any devices with any media. Closing...')
+        sys.exit(1)    
+
+    def searchScanForDevices(self, scan):
+        if len(scan.NAME) == 0:
+            self.showEmptyScanError()
+        else:
+            self.pullDeviceNamesFromPath(scan)
+            self.ensureDeviceWasFound()
+
+    def pullDeviceNamesFromPath(self, scan):
+        for path in scan.PATH:
+            try:
+                subpath = path.replace('/media/pi/','')
+                if subpath[0:subpath.find('/')] not in self.devices:
+                    self.devices.append(subpath[0:subpath.find('/')])
+            except:
+                pass
+
+    def ensureDeviceWasFound(self):
+        if len(self.devices) == 0:
+            tkMessageBox.showerror('Improper Storage','Media files should not be stored in /media/pi.\nPlease move files to subfolder, or a USB device.')
+            logging.error('User error: Files were stored on pi media root. Requested User Action...')
+               
+    def showEmptyScanError(self):
+        tkMessageBox.showerror('Scan Error','Initial scan detected no files. Open case and inspect USB, or perform a restart.')
+        logging.error('Scan failed to detect files. (Do none exist?)')
+
+class CardScan:
+
+    TIME_OUT = 5
+
+    uid = None
+    noisy = True
+    soundS = None
+    pn532 = None
+    
+    def __init__(self, soundS, pn532):
+        self.uid = None
+        self.noisy = True
+        self.soundS = soundS
+        self.pn532 = pn532
+
+    def runScan(self):
+        if self.noisy:
+            self.uid = self.noisyScanForCard()
+        else:
+            self.uid = self.scanForCard()
+
+    def getFormattedResult(self):
+        result = self.uid
+        if result:
+            result = '0x' + binascii.hexlify(self.uid)
+        return result
+
+    def noisyScanForCard(self):
+        uid = self.scanForCard()
+        if uid:
+            self.soundS.play()
+        return uid
+
+    def scanForCard(self):
+        start = time.time()
+        uid = None
+        while (time.time() - start) < self.TIME_OUT and uid == None:
+            uid = self.pn532.read_passive_target()
+        return uid
+        
 
 class WaitPrompt:
     def __init__(self, master):
@@ -428,6 +521,7 @@ class WaitPrompt:
             self.update()
         except Exception as e:
             logging.error('Message ' + str(Message) + ' failed to set.\n' + str(e))
+
 
 class Scan:
     
