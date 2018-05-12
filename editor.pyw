@@ -73,7 +73,7 @@ class Editor:
         self.spin.delete(0,END)
         self.spin.insert(0,self.USB)
         self.spin.grid(row=5,column=0)
-        self.status = Button(frame, text='Scan and Update', command=self.merge, disabledforeground='blue')
+        self.status = Button(frame, text='Update Device Repository', command=self.updateDevice, disabledforeground='blue')
         self.status.grid(row=6, column=0)
         Button(frame, text='Save', command=self.save).grid(row=6, column=2)
         Button(frame, text='Quit', command=self.closeWithSavePrompt).grid(row=6, column=3)
@@ -194,106 +194,136 @@ class Editor:
         for item in range(len(pairedList[itemIndex])):
             fLine = fLine + str(pairedList[itemIndex][item]) + ','
         f.write(fLine[:-1])
-        
-    def merge(self):
-        # Runs a scan and merges files to usb list
-        try:
-            self.status.config(text = 'Scanning...',state=DISABLED)
-            self.status.update_idletasks()
-            scan = Scan()
-        except Exception as e:
-            tkMessageBox.showerror('Scan Failed','Scan error: ' + str(e))
-            logging.error(str(e))
-            return
-        # Read contents of scan
-        try:
-            # Check if a scan turned up any results
-            if len(scan.NAME) == 0:
-                tkMessageBox.showwarning('No Files Found','A scan failed to find any files.')
-                logging.warning('Empty Scan occurred when attempting a merge')
-                return
-            # Set and verifiy USB device
-            if self.USB != self.spin.get():
-                self.USB = self.spin.get()
-                self.regenINI()
-            i = 0
-            j = 0
-            newPK = []
-            newName = []
-            newPath = []
-            self.status.config(text = 'Reading Files...')
-            self.status.update_idletasks()
-            # Iterate through list
-            while i < len(scan.NAME):
-                # Verifiy File
-                try:
-                    if scan.PATH[i].find(self.USB) >= 0:
-                        # File resides on repository - update FK
-                        try:
-                            # Locate matching entry
-                            fkk = self.vidNAME.index(scan.NAME[i])
-                        except Exception as e:
-                            # No matching entry
-                            logging.info('New file found in repository: ' + str(e))
-                            pass
-                        else:
-                            # Update FK on uuid table
-                            for uu in self.uuidFK:
-                                if uu == self.vidPK[fkk]:
-                                    uu = scan.PK[i]
-                        # Store entry in new Tables
-                        newPK.append(scan.PK[i])
-                        newName.append(scan.NAME[i])
-                        newPath.append(scan.PATH[i])
-                    else:
-                        # Video resides on updating device - check if file already copied
-                        found = False
-                        while j < len(scan.NAME):
-                            if str(scan.NAME[i]) == str(scan.NAME[j]) and scan.PATH[j].find(self.USB) >= 0:
-                                found = True
-                                break
-                            j = j +1
-                        if not found:
-                            # Copy file and append
-                            try:
-                                # Get device name
-                                device = scan.PATH[i].replace('/media/pi/','')
-                                device = device[0:device.find('/')]
-                                # Copy
-                                self.status.config(text = 'Copying ' + scan.NAME[i] + '...')
-                                self.status.update_idletasks()
-                                shutil.copyfile(scan.PATH[i],scan.PATH[i].replace(device,self.USB))
-                            except Exception as e:
-                                logging.error('Failed to copy' + scan.NAME[i] + ': ' + str(e))
-                            else:
-                                # Add to new array
-                                newPK.append(scan.PK[i])
-                                newName.append(scan.NAME[i])
-                                newPath.append(scan.PATH[i].replace(device, self.USB))
-                except Exception as e:
-                    logging.error(str(e))
-                i=i+1
-            # Clone array over
-            del self.vidNAME[:]
-            del self.vidPATH[:]
-            del self.vidPK[:]
-            self.vidNAME = newName
-            self.vidPATH = newPath
-            self.vidPK = newPK
-            # Update box
-            self.box.delete(0,END)
-            for entry in self.vidNAME:
-             self.box.insert(END, entry) 
-        except Exception as e:
-            tkMessageBox.showerror('Error','Error: ' + str(e))
-            logging.error(str(e))
-        self.status.config(text = 'Scan and Update', state=NORMAL)
+
+    def updateDevice(self):
+        scan = self.safeScan()
+        if scan != None:
+            self.safeProcessScan(scan)
+        self.status.config(text = 'Update Device Repository', state=NORMAL)
         self.status.update_idletasks()
+
+    def safeScan(self):
+        scan = None
+        try:
+            scan = self.runScannerWithNotification()
+        except Exception as e:
+            self.showScanErrorMessage(e)
+        return scan
+
+    def runScannerWithNotification(self):
+        self.status.config(text = 'Scanning...',state=DISABLED)
+        self.status.update_idletasks()
+        scan = Scan()
+        return scan
+
+    def showScanErrorMessage(self, e):
+        tkMessageBox.showerror('Scan Failed','Scan error: ' + str(e))
+        logging.error(str(e))
+
+    def safeProcessScan(self, scan):
+        try:
+            self.processScan(scan)
+        except Exception as e:
+            self.showErrorMessage(e)
+
+    def showErrorMessage(self, e):
+        tkMessageBox.showerror('Error','Error: ' + str(e))
+        logging.error(str(e))
+
+    def processScan(self, scan):
+        # Check if a scan turned up any results
+        if self.scanIsEmpty(scan):
+            self.showAbortScanMessage()
+            return
+        self.verifyUSB()  
+        self.processScanFiles(scan)
+        self.refreshListbox()
+
+    def showAbortScanMessage(self):
+        tkMessageBox.showwarning('No Files Found','A scan failed to find any files.')
+        logging.warning('Empty Scan occurred when attempting a merge')
+
+    def scanIsEmpty(self, scan):
+        return len(scan.NAME) == 0
+
+    def verifyUSB(self):
+        if self.USB != self.spin.get():
+            self.USB = self.spin.get()
+            self.regenINI()
+
+    def processScanFiles(self, scan):
+        i = 0
+        j = 0
+        newPK = []
+        newName = []
+        newPath = []
+        self.status.config(text = 'Reading Files...')
+        self.status.update_idletasks()
+        # Iterate through list
+        while i < len(scan.NAME):
+            # Verifiy File
+            try:
+                if scan.PATH[i].find(self.USB) >= 0:
+                    # File resides on repository - update FK
+                    try:
+                        # Locate matching entry
+                        fkk = self.vidNAME.index(scan.NAME[i])
+                    except Exception as e:
+                        # No matching entry
+                        logging.info('New file found in repository: ' + str(e))
+                        pass
+                    else:
+                        # Update FK on uuid table
+                        for uu in self.uuidFK:
+                            if uu == self.vidPK[fkk]:
+                                uu = scan.PK[i]
+                    # Store entry in new Tables
+                    newPK.append(scan.PK[i])
+                    newName.append(scan.NAME[i])
+                    newPath.append(scan.PATH[i])
+                else:
+                    # Video resides on updating device - check if file already copied
+                    found = False
+                    while j < len(scan.NAME):
+                        if str(scan.NAME[i]) == str(scan.NAME[j]) and scan.PATH[j].find(self.USB) >= 0:
+                            found = True
+                            break
+                        j = j +1
+                    if not found:
+                        # Copy file and append
+                        try:
+                            # Get device name
+                            device = scan.PATH[i].replace('/media/pi/','')
+                            device = device[0:device.find('/')]
+                            # Copy
+                            self.status.config(text = 'Copying ' + scan.NAME[i] + '...')
+                            self.status.update_idletasks()
+                            shutil.copyfile(scan.PATH[i],scan.PATH[i].replace(device,self.USB))
+                        except Exception as e:
+                            logging.error('Failed to copy' + scan.NAME[i] + ': ' + str(e))
+                        else:
+                            # Add to new array
+                            newPK.append(scan.PK[i])
+                            newName.append(scan.NAME[i])
+                            newPath.append(scan.PATH[i].replace(device, self.USB))
+            except Exception as e:
+                logging.error(str(e))
+            i=i+1
+        del self.vidNAME[:]
+        del self.vidPATH[:]
+        del self.vidPK[:]
+        self.vidNAME = newName
+        self.vidPATH = newPath
+        self.vidPK = newPK
+
+    def refreshListBox(self):
+        self.box.delete(0,END)
+        for entry in self.vidNAME:
+            self.box.insert(END, entry)
     
     def newselection(self, event):
         # Fires when a new item is selected in the listbox
-        widget = event.widget
-        selection=widget.curselection()
+        selection = event.widget.curselection()
         try:
             txt = self.ee.get()
             if txt == '':
@@ -303,15 +333,21 @@ class Editor:
         except Exception as e:
             tkMessageBox('Error During Set','Error: ' + str(e))
             logging.error(str(e))
-        
+         
     def createKiller(self):
         try:
-            i = self.uuid.index(self.ee.get())
-            self.uuidFK[i] = self.FK_KILL
+            self.assignCurrentCardAsKiller()
             self.box.selection_clear(0,END)
         except Exception as e:
-            tkMessageBox.showinfo('Card Not Scanned','Please scan a card to assign it a [Kill Application] code.' + str(e))
-            logging.error(str(e))
+            self.handleCardNotScannedError(e)
+
+    def assignCurrentCardAsKiller(self):
+        i = self.uuid.index(self.ee.get())
+        self.uuidFK[i] = self.FK_KILL
+
+    def handleCardNotScannedError(self, e):
+        tkMessageBox.showinfo('Card Not Scanned','Please scan a card to assign it a [Kill Application] code.' + str(e))
+        logging.error(str(e))
     
     def load(self):
         # Generate Log
@@ -330,62 +366,61 @@ class Editor:
         self.loadDevice()
     
     def loadFiles(self):
-        regen = False
-        
-        # Read ini file for file names
+        self.loadIniFile(self.INI_FILE)
+        self.readCSV(self.VIDEO_LIST, (int, self.vidPK), (str, self.vidNAME), (str, self.vidPATH))
+        self.readCSV(self.UUID_MAP, (str, self.uuid), (int, self.uuidFK))
+
+    def loadIniFile(self, fileName):
         try:
             logging.info("Loading ini file...")
-            f = open(self.INI_FILE,'r')
-            lines = f.read().splitlines()
-            f.close()
-            for setting in lines:
-                s = setting.split('=')
-                if s[0] == self.USB_DEF:
-                    self.USB = s[1]
-                elif s[0] == self.VIDEO_DEF:
-                    self.VIDEO_LIST = s[1]
-                elif s[0] == self.UUID_DEF:
-                    self.UUID_MAP = s[1]
-                elif s[0] == self.KILL_DEF:
-                    self.FK_KILL = int(s[1])
+            self.processIniFile(fileName)
         except Exception as e:
-            logging.error('Failed to read ini file: ' + str(e))
-            regen = True
-        
-        # Re-create file if neccessary
-        if regen == True:
-            self.regenINI()
-        
-        # Load video CSV into memory
+            self.handleFailedIniLoad(e)
+
+    def processIniFile(self, fileName):
+        lines = self.splitFileContentsIntoLines(fileName)
+        self.processIniDictonary(lines)
+
+    def processIniDictonary(self, lines):
+        for setting in lines:
+            s = setting.split('=')
+            if s[0] == self.USB_DEF:
+                self.USB = s[1]
+            elif s[0] == self.VIDEO_DEF:
+                self.VIDEO_LIST = s[1]
+            elif s[0] == self.UUID_DEF:
+                self.UUID_MAP = s[1]
+            elif s[0] == self.KILL_DEF:
+                self.FK_KILL = int(s[1])
+
+    def handleFailedIniLoad(self, e):
+        logging.error('Failed to read ini file: ' + str(e))
+        self.regenINI()
+
+    def readCSV(self, fileName, *storageList):
         try:
-            f = open(self.VIDEO_LIST,'r')
-            vids = f.read().splitlines()
-            f.close()
+            fileContents = self.splitFileContentsIntoLines(fileName)
         except Exception as e:
             logging.error('Failed to load video list: ' + str(e))
         else:
-            i=0
-            while(i<len(vids)):
-                split = vids[i].split(',')
-                self.vidNAME.append(split[1])
-                self.vidPATH.append(split[2])
-                self.vidPK.append(int(split[0]))
-                i=i+1
-        try: 
-           # Load UUID CSV into memory
-           f = open(self.UUID_MAP,'r')
-           rfid = f.read().splitlines()
-           f.close()
-        except Exception as e:
-           logging.error('Failed to load UUID list: ' + str(e))
-        else:
-           i=0
-           l = len(rfid)
-           while (i < l):
-               split = rfid[i].split(',')
-               self.uuid.append(split[0])
-               self.uuidFK.append(int(split[1]))
-               i=i+1
+            self.processCSV(fileContents, storageList)
+
+    def splitFileContentsIntoLines(self, fileName):
+        f = open(fileName, 'r')
+        fileContents = f.read().splitlines()
+        f.close()
+        return fileContents
+
+    def processCSV(self, fileContents, storageList):
+        i = 0
+        while (i < len(fileContents)):
+           split = fileContents[i].split(',')
+           for item in range(len(storageList)):
+               if storageList[item][0] is int:
+                   storageList[item][1].append(int(split[item]))
+               else:
+                   storageList[item][1].append(split[item])     
+           i=i+1
 
     def regenINI(self):
         try:
@@ -399,8 +434,7 @@ class Editor:
         except:
             logging.error('Failed to regenerate ini file!')
 
-    def locateDevices(self):
-        # Check if usb is set and present    
+    def locateDevices(self):   
         try:
             scan = Scan()
         except Exception as e:
