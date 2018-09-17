@@ -2,24 +2,20 @@ This software was developed by Joel Stauffer.
 Developed: 08/25/2017
 Engine Version: 1.1
 Editor Version: 1.0
-========================================================================
->>>>>>>><<<<<<<<
-:: Change Log ::
->>>>>>>><<<<<<<<
+
+Change Log
+
 Engine:
    1.1:
       - Kill Cards now kill all running oxmplayer processes
       - Card scan window was added to prevent rapid (millisecond) switches
-========================================================================
----------------------
+
 ::REQUIRED HARDWARE::
----------------------
+
 PN532 - RFID Reader (Configured for Mifare Format)
 MPR121 - Capacitive Touch Sensor (Otherwise use GPIO Player)
-========================================================================
----------------------
+
 ::REQUIRED SOFTWARE::
----------------------
 Python library for Adafruit_PN532
 Python library for Adafruit_MPR121
 Python library psutil, python-uinput
@@ -27,7 +23,6 @@ Linux Distros: Omxplayer, python-imaging, and python-imaging-tk
 IMPORTS: atexit, logging, subprocess, sys, os, shutil, binascii, time
 pygame (for sound), Tkinter (GUIs), psutil, PIL.Image, PIL.ImageTk,
 uinput, RPi.GPIO
-========================================================================
 
 There are two python scripts contained with the engine files.
 
@@ -38,9 +33,8 @@ There are two python scripts contained with the engine files.
 editor.pyw: This script launches a GUI used to edit the vids.csv and UUID_Table.csv, set the
 source USB, and copy videos from other USB's to the source USB.
 videoEngine.pyw: This script launches the video player.
-videoEngineGPIO.pyw: This script launches the video player using GPIO pins as
-	substitutes for the MPR121 capacitive touch sensor.
-------------------------------------------------------------------------
+videoEngineGPIO.pyw: This script launches the video player using GPIO pins as substitutes for the MPR121 capacitive touch sensor.
+
 There are three info files.
 
  - library.ini
@@ -66,9 +60,9 @@ also line deliminated. The foreign key corresponds to a video primary
 key. If the foreign key is not set during the editing process, the
 blank card error will occur if the card is scanned when the video 
 engine is running.
-========================================================================
-Considerations for Modifications
-========================================================================
+
+
+- Considerations for Modifications
 To edit which files are discoverd/copied:
 
  - The easiest way to modifiy the files discovered and/or copied is by
@@ -86,6 +80,5 @@ To edit which files are discoverd/copied:
  - Adding the a startup script  to /etc/profile.d is a way
 	auto start the video player on user login
 ========================================================================
-ERRORS ? ? ? ?
---------------
+ERRORS?
 => check the .log file for the python script you ran...
