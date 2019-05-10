@@ -1,0 +1,21 @@
+{
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "./source",
+        "-p",
+        "*_test.py"
+    ],
+    "python.testing.pyTestEnabled": true,
+    "python.testing.nosetestsEnabled": false,
+    "python.testing.unittestEnabled": false,
+    "python.testing.pyTestArgs": [
+        "source"
+    ],
+    "cSpell.words": [
+        "atexit",
+        "rfid",
+        "shutil",
+        "tkinter"
+    ]
+}
