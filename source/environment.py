@@ -3,10 +3,15 @@ import logging
 class Environment(object):
 
     ENVIRONMENT_LOG = "environment.log"
+    SCAN_SOUND = '/opt/sonic-pi/etc/samples/ambi_soft_buzz.flac'
     KillCommand = "-255"
     VideoList = "vids.csv"
     UuidTable = "UUID_Table.csv"
     Usb = "< Not Set >"
+    CHIP_SELECT_PIN = "18"
+    MASTER_OUTPUT_SLAVE_INPUT_PIN = "23"
+    MASTER_INPUT_SLAVE_OUTPUT_PIN = "24"
+    SERIAL_CLOCK_PIN = "25"
 
     def __init__(self, fileName=".env"):
         self.configureLogging()

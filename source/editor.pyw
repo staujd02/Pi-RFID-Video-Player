@@ -14,16 +14,10 @@ from soundProvider import SoundProvider
 from rfidScannerProvider import RFIDScannerProvider
 from environment import Environment
 
-
 class Editor:
-    CHIP_SELECT_PIN = 18
-    MASTER_OUTPUT_SLAVE_INPUT_PIN = 23
-    MASTER_INPUT_SLAVE_OUTPUT_PIN = 24
-    SERIAL_CLOCK_PIN = 25
 
     # Info Defaults
     LOG_FILE = 'editor.log'
-    SCAN_SOUND = '/opt/sonic-pi/etc/samples/ambi_soft_buzz.flac'
 
     devices = []
     vidPK = []
@@ -33,11 +27,9 @@ class Editor:
     uuidFK = []
 
     def __init__(self, master, soundGenerator, rfidScanner):
-        self.soundProvider = SoundProvider(soundGenerator)
-        self.RFIDScannerProvider = RFIDScannerProvider(rfidScanner)
-        self.RFIDScannerProvider = RFIDScannerProvider.PN532(
-            self.CHIP_SELECT_PIN, self.SERIAL_CLOCK_PIN, self.MASTER_OUTPUT_SLAVE_INPUT_PIN, self.MASTER_INPUT_SLAVE_OUTPUT_PIN)
         self.environment = Environment()
+        self.soundProvider = SoundProvider(soundGenerator)
+        self.configureScannerProvider(rfidScanner)
         self.load()
         frame = Frame(master)
         frame.pack()
@@ -72,6 +64,15 @@ class Editor:
         Button(frame, text='Save', command=self.save).grid(row=6, column=2)
         Button(frame, text='Quit', command=self.closeWithSavePrompt).grid(
             row=6, column=3)
+    
+    def configureScannerProvider(self, rfidScanner):
+        self.RFIDScannerProvider = RFIDScannerProvider(rfidScanner)
+        pin1 = int(self.environment.CHIP_SELECT_PIN)
+        pin2 = int(self.environment.SERIAL_CLOCK_PIN)
+        pin3 = int(self.environment.MASTER_OUTPUT_SLAVE_INPUT_PIN)
+        pin4 = int(self.environment.MASTER_INPUT_SLAVE_OUTPUT_PIN)
+        self.RFIDScannerProvider = RFIDScannerProvider.PN532(
+            pin1, pin2, pin3, pin4)
 
     def closeWithSavePrompt(self):
         ans = MessageBox.askquestion(
@@ -365,7 +366,7 @@ class Editor:
         # Load Sound file
         self.soundProvider.mixer.pre_init(44100, -16, 12, 512)
         # pygame.init() IS this only for linux distribution?
-        self.soundS = self.soundProvider.mixer.Sound(self.SCAN_SOUND)
+        self.soundS = self.soundProvider.mixer.Sound(self.environment.SCAN_SOUND)
         self.soundS.set_volume(1)
         # Create an instance of the PN532 class.
         self.RFIDScannerProvider.begin()
@@ -378,7 +379,8 @@ class Editor:
     def loadFiles(self):
         self.readCSV(self.environment.VideoList, (int, self.vidPK),
                      (str, self.vidNAME), (str, self.vidPATH))
-        self.readCSV(self.environment.UuidTable, (str, self.uuid), (int, self.uuidFK))
+        self.readCSV(self.environment.UuidTable,
+                     (str, self.uuid), (int, self.uuidFK))
 
     def readCSV(self, fileName, *storageList):
         try:
