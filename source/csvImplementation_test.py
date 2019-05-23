@@ -18,11 +18,12 @@ class CSVImplementation_test(unittest.TestCase):
         self.db.update("5", ["Horse", "Starlight"])
         self.assertEqual(self.db.query("5"), ["Horse", "Starlight"])
     
-    # def test_csv_can_save_modifications_to_data(self):
-    #     self.db.update({"5", "Horse", "Dusty"})
-    #     self.db.save()
-    #     self.db.load(self.TEST_DB)
-    #     self.assertEqual(self.db.query("5"), ["5", "Horse", "Dusty"])
+    def test_csv_can_save_modifications_to_data(self):
+        self.db.update("5", ["Horse", "Dusty"])
+        self.db.save(self.TEST_DB)
+        self.db.load(self.TEST_DB)
+        self.assertEqual(self.db.query("5"), ["Horse", "Dusty"])
+        self.assertEqual(self.db.query("2"), ["Donkey", "Dreary"])
 
     def setUp(self):
         self.createTestCSV()

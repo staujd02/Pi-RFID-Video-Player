@@ -9,8 +9,8 @@ class Database(object):
     def load(self, databaseName):
         self.concrete.load(databaseName)
 
-    def save(self):
-        self.concrete.save()
+    def save(self, name):
+        self.concrete.save(name)
 
     def query(self, key):
         return self.concrete.query(key)

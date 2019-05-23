@@ -12,7 +12,7 @@ class Database_test(unittest.TestCase):
         def load(self, name):
             pass
 
-        def save(self):
+        def save(self, name):
             pass
 
         def query(self, command):
@@ -25,7 +25,7 @@ class Database_test(unittest.TestCase):
         self.db.load("MyDb")
 
     def test_the_database_can_save(self):
-        self.db.save()
+        self.db.save("MyDb")
     
     def test_the_database_query(self):
         self.assertEqual("Lab", self.db.query("MyDog"))
