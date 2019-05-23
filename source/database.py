@@ -12,8 +12,8 @@ class Database(object):
     def save(self):
         self.concrete.save()
 
-    def query(self, command):
-        return self.concrete.query(command)
+    def query(self, key):
+        return self.concrete.query(key)
     
-    def update(self, command):
-        self.concrete.update(command)
+    def update(self, key, value):
+        self.concrete.update(key, value)

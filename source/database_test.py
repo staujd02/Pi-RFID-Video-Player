@@ -18,7 +18,7 @@ class Database_test(unittest.TestCase):
         def query(self, command):
             return "Lab"
         
-        def update(self, command):
+        def update(self, key, value):
             pass
 
     def test_the_database_load_a_specific_database(self):
@@ -31,7 +31,7 @@ class Database_test(unittest.TestCase):
         self.assertEqual("Lab", self.db.query("MyDog"))
 
     def test_the_database_can_update(self):
-        self.db.update("MyDog")
+        self.db.update("MyDog", "Beagle")
 
     def setUp(self):
         self.db = Database(self.TestableDb())
