@@ -9,6 +9,9 @@ class CSVImplementation(object):
         self.readStream(f)
         f.close()
 
+    def iterate(self):
+        return iter(self.data)
+
     def readStream(self, stream):
         for line in stream.readlines():
             self.storeLineIntoList(line)

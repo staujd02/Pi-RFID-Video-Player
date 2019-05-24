@@ -218,7 +218,8 @@ class Editor:
     def runScannerWithNotification(self):
         self.status.config(text='Scanning...', state=DISABLED)
         self.status.update_idletasks()
-        scan = Scan()
+        scan = Scan(subprocess)
+        scan.scan("scanner.sh")
         return scan
 
     def showScanErrorMessage(self, e):
@@ -409,7 +410,8 @@ class Editor:
 
     def locateDevices(self):
         try:
-            scan = Scan()
+            scan = Scan(subprocess)
+            scan.scan("scanner.sh")
         except Exception as e:
             logging.error('Device scan failed: ' + str(e))
         else:

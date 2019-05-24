@@ -25,6 +25,13 @@ class CSVImplementation_test(unittest.TestCase):
         self.assertEqual(self.db.query("5"), ["Horse", "Dusty"])
         self.assertEqual(self.db.query("2"), ["Donkey", "Dreary"])
 
+    def test_csv_can_be_iterated(self):
+        iterator = self.db.iterate()
+        self.assertEqual(["Monkey", "Melvin"], self.db.query(next(iterator)))
+        self.assertEqual(["Donkey", "Dreary"], self.db.query(next(iterator)))
+        self.assertEqual(["Horse", "Champion"], self.db.query(next(iterator)))
+
+
     def setUp(self):
         self.createTestCSV()
         self.db = Database(CSVImplementation())

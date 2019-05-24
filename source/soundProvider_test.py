@@ -2,7 +2,6 @@ import unittest
 
 from soundProvider import SoundProvider
 
-
 class SoundProvider_test(unittest.TestCase):
 
     def test_theClassCanBeInitialized(self):

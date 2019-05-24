@@ -17,3 +17,6 @@ class Database(object):
     
     def update(self, key, value):
         self.concrete.update(key, value)
+
+    def iterate(self):
+        return self.concrete.iterate()
