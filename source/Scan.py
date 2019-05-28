@@ -3,12 +3,7 @@ import os
 from database import Database
 from csvImplementation import CSVImplementation
 
-
 class Scan:
-
-    # NAME = []
-    # PATH = []
-    # PK = []
 
     # processProvider = subprocess  ==> Main Class Consideration
     def __init__(self, processProvider):
