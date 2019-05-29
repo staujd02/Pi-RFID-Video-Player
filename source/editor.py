@@ -6,7 +6,8 @@ import os
 import shutil
 import binascii
 import time
-from Tkinter import Tk, MessageBox, Frame, Label, Entry, Button, Listbox, Scrollbar, Spinbox, END, DISABLED, StringVar, VERTICAL, NORMAL
+
+from tkinter import Tk, messagebox, Frame, Label, Entry, Button, Listbox, Scrollbar, Spinbox, END, DISABLED, StringVar, VERTICAL, NORMAL
 
 from Scan import Scan
 from cardScan import CardScan
@@ -66,13 +67,12 @@ class Editor:
             row=6, column=3)
     
     def configureScannerProvider(self, rfidScanner):
-        self.RFIDScannerProvider = RFIDScannerProvider(rfidScanner)
-        pin1 = int(self.environment.CHIP_SELECT_PIN)
-        pin2 = int(self.environment.SERIAL_CLOCK_PIN)
-        pin3 = int(self.environment.MASTER_OUTPUT_SLAVE_INPUT_PIN)
-        pin4 = int(self.environment.MASTER_INPUT_SLAVE_OUTPUT_PIN)
-        self.RFIDScannerProvider = RFIDScannerProvider.PN532(
-            pin1, pin2, pin3, pin4)
+        provider = RFIDScannerProvider(rfidScanner)
+        self.RFIDScannerProvider = provider.PN532(
+            int(self.environment.CHIP_SELECT_PIN),
+            int(self.environment.MASTER_OUTPUT_SLAVE_INPUT_PIN),
+            int(self.environment.MASTER_INPUT_SLAVE_OUTPUT_PIN),
+            int(self.environment.SERIAL_CLOCK_PIN))
 
     def closeWithSavePrompt(self):
         ans = MessageBox.askquestion(
@@ -365,6 +365,7 @@ class Editor:
         # Generate Log
         logging.basicConfig(filename=self.LOG_FILE, level=logging.INFO)
         # Load Sound file
+        self.soundProvider.init()
         self.soundProvider.mixer.pre_init(44100, -16, 12, 512)
         # pygame.init() IS this only for linux distribution?
         self.soundS = self.soundProvider.mixer.Sound(self.environment.SCAN_SOUND)

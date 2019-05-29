@@ -49,7 +49,7 @@ class CSVImplementation(object):
     def getAllButLastColumn(self, key):
         body = ''
         for item in self.data[key][:-1]:
-            body += f'{item},'
+            body += item + ','
         return body
     
     def getLastColumn(self, key):

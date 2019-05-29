@@ -1,8 +1,8 @@
-from Tkinter import *
+from tkinter import *
 from editor import Editor
 
 import pygame
-import Adafruit_Python_PN532 as PN532
+import Adafruit_PN532 as PN532
 
 root = Tk()
 root.wm_title('RFID Editor')

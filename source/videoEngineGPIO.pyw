@@ -55,15 +55,15 @@ VIDEO_DEF='VideoList'
 UUID_DEF='UuidTable'
 
 # Info Defaults
-VIDEO_LIST='vids.csv'
-UUID_MAP='UUID_Table.csv'
+VIDEO_LIST='../vids.csv'
+UUID_MAP='../UUID_Table.csv'
 FK_KILL = -255
 
 # Program Constants
 LOG_FILE='engine.log'
-IDLE = 'bg.jpg'
-BROKE = 'broke.png'
-BROKE_LINK = 'brokenLink.png'
+IDLE = '../bg.jpg'
+BROKE = '../broke.png'
+BROKE_LINK = '../brokenLink.png'
 TOUCH_SOUND = '/opt/sonic-pi/etc/samples/elec_plip.flac'
 BROKE_SOUND = '/opt/sonic-pi/etc/samples/bass_dnb_f.flac'
 

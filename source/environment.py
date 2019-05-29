@@ -58,7 +58,7 @@ class Environment(object):
     def update(self, fileName=".env"):
         stream = open(fileName, "w")
         for key in self.getNonGenericClassMembers():
-            stream.write(f"{key}={getattr(self, key)}\n")
+            stream.write(key + "=" + getattr(self, key) + "\n")
         stream.close()
         
     def getNonGenericClassMembers(self):
