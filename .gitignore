@@ -2,7 +2,7 @@
 ####################
 *.log
 *.csv
-*.ini
+.env
 
 # and OS generated files #
 ######################
