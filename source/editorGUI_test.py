@@ -51,3 +51,21 @@ class EditorGUI_test(unittest.TestCase):
 
     def NOTHING(self):
         pass
+
+    # can disable button r?
+    # can enable button r?
+        # perhaps, disable while running is appropriate
+
+    # Can deselect an active Box item
+    #     self.videoList.selection_clear(0, END)
+    # Can Highlight an box item
+    #         self.videoList.see(i)
+    #         self.videoList.selection_clear(0, END)
+    #         self.videoList.selection_set(i)
+    #         self.videoList.activate(i)
+    # Can refresh list box contents
+    #     self.videoList.delete(0, END)
+    #     for entry in self.vidNAME:
+    #         self.videoList.insert(END, entry)
+    # Can know when an item is selected
+    #     selection = event.widget.curselection()
