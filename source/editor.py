@@ -1,4 +1,3 @@
-import atexit
 import logging
 import subprocess
 import sys
@@ -9,11 +8,11 @@ import time
 
 from tkinter import Tk, messagebox, Frame, Label, Entry, Button, Listbox, Scrollbar, Spinbox, END, DISABLED, StringVar, VERTICAL, NORMAL
 
-from Scan import Scan
-from cardScan import CardScan
-from soundProvider import SoundProvider
-from rfidScannerProvider import RFIDScannerProvider
-from environment import Environment
+from providers.scriptedFileSearch import ScriptedFileSearch
+from wrappers.cardScanWrapper import CardScanWrapper
+from providers.soundProvider import SoundProvider
+from providers.rfidScannerProvider import RFIDScannerProvider
+from environment.environment import Environment
 
 class Editor:
 
@@ -75,7 +74,7 @@ class Editor:
             int(self.environment.SERIAL_CLOCK_PIN))
 
     def closeWithSavePrompt(self):
-        ans = MessageBox.askquestion(
+        ans = messagebox.askquestion(
             'Save And Quit', 'Would you like to save your changes?')
         if ans == 'yes':
             self.save()
@@ -95,7 +94,7 @@ class Editor:
             self.displayScanError(e)
 
     def processCardUnchecked(self):
-        cardScan = CardScan(self.soundS, self.RFIDScannerProvider)
+        cardScan = CardScanWrapper(self.soundS, self.RFIDScannerProvider)
         cardScan.runScan()
         self.processResult(cardScan.getFormattedResult())
 
@@ -113,7 +112,7 @@ class Editor:
     def linkCardWithListbox(self, scanResult):
         index = self.verifyCard(scanResult)
         if str(self.uuidFK[index]) == self.environment.KillCommand:
-            MessageBox.showinfo(
+            messagebox.showinfo(
                 'Kill Card', 'This card is currently assigned to kill the application.')
             return
         self.highlightItemInListbox(index)
@@ -122,7 +121,7 @@ class Editor:
         try:
             i = self.vidPK.index(self.uuidFK[index])
         except:
-            MessageBox.showinfo('Card Unassigned',
+            messagebox.showinfo('Card Unassigned',
                                 'Card is not currently assigned to a video')
         else:
             self.box.see(i)
@@ -144,7 +143,7 @@ class Editor:
         return newIndex
 
     def displayScanError(self, e):
-        MessageBox.showerror('Error Occurred', 'Error: ' + str(e))
+        messagebox.showerror('Error Occurred', 'Error: ' + str(e))
         logging.error('Scan Failed: ' + str(e))
 
     def save(self):
@@ -218,12 +217,12 @@ class Editor:
     def runScannerWithNotification(self):
         self.status.config(text='Scanning...', state=DISABLED)
         self.status.update_idletasks()
-        scan = Scan(subprocess)
+        scan = ScriptedFileSearch(subprocess)
         scan.scan("scanner.sh")
         return scan
 
     def showScanErrorMessage(self, e):
-        MessageBox.showerror('Scan Failed', 'Scan error: ' + str(e))
+        messagebox.showerror('Scan Failed', 'Scan error: ' + str(e))
         logging.error(str(e))
 
     def safeProcessScan(self, scan):
@@ -233,7 +232,7 @@ class Editor:
             self.showErrorMessage(e)
 
     def showErrorMessage(self, e):
-        MessageBox.showerror('Error', 'Error: ' + str(e))
+        messagebox.showerror('Error', 'Error: ' + str(e))
         logging.error(str(e))
 
     def refreshListBox(self):
@@ -251,7 +250,7 @@ class Editor:
         self.refreshListBox()
 
     def showAbortScanMessage(self):
-        MessageBox.showwarning(
+        messagebox.showwarning(
             'No Files Found', 'A scan failed to find any files.')
         logging.warning('Empty Scan occurred when attempting a merge')
 
@@ -342,7 +341,7 @@ class Editor:
             i = self.uuid.index(txt)
             self.uuidFK[i] = self.vidPK[selection[0]]
         except Exception as e:
-            MessageBox.showerror('Error During Set', 'Error: ' + str(e))
+            messagebox.showerror('Error During Set', 'Error: ' + str(e))
             logging.error(str(e))
 
     def createKiller(self):
@@ -357,7 +356,7 @@ class Editor:
         self.uuidFK[i] = int(self.environment.KillCommand)
 
     def handleCardNotScannedError(self, e):
-        MessageBox.showinfo(
+        messagebox.showinfo(
             'Card Not Scanned', 'Please scan a card to assign it a [Kill Application] code.' + str(e))
         logging.error(str(e))
 
@@ -411,7 +410,7 @@ class Editor:
 
     def locateDevices(self):
         try:
-            scan = Scan(subprocess)
+            scan = ScriptedFileSearch(subprocess)
             scan.scan("scanner.sh")
         except Exception as e:
             logging.error('Device scan failed: ' + str(e))
@@ -433,24 +432,24 @@ class Editor:
             self.showCurrentDeviceNotFoundWarning()
 
     def showNoDeviceSetWarning(self):
-        MessageBox.showwarning(
+        messagebox.showwarning(
             'No USB Set', 'Please select a USB as a source device and then perform a Scan and Update')
         logging.warning('No USB device is set!')
 
     def showCurrentDeviceNotFoundWarning(self):
-        MessageBox.showwarning(
+        messagebox.showwarning(
             'Missing USB Source', 'WARNING: The current USB repository was not found amoung the available devices.')
         logging.warning(
             'Current USB repository was not located in device scan!')
 
     def terminateWithCurrentDeviceNotFoundMsg(self):
-        MessageBox.showerror(
+        messagebox.showerror(
             'No Devices Detected', 'No devices were detected including the current USB respository.\nPlease inspect USB device, or contact help.')
         logging.critical('Scanner detected no devices. Closing...')
         sys.exit(1)
 
     def terminateWithNoDeviceFailureMessage(self):
-        MessageBox.showerror(
+        messagebox.showerror(
             'Storage Failure', 'No USB devices could be found, this editor will now close.')
         logging.critical(
             'Failed to find any devices with any media. Closing...')
@@ -474,12 +473,12 @@ class Editor:
 
     def ensureDeviceWasFound(self):
         if len(self.devices) == 0:
-            MessageBox.showerror(
+            messagebox.showerror(
                 'Improper Storage', 'Media files should not be stored in /media/pi.\nPlease move files to subfolder, or a USB device.')
             logging.error(
                 'User error: Files were stored on pi media root. Requested User Action...')
 
     def showEmptyScanError(self):
-        MessageBox.showerror(
+        messagebox.showerror(
             'Scan Error', 'Initial scan detected no files. Open case and inspect USB, or perform a restart.')
         logging.error('Scan failed to detect files. (Do none exist?)')

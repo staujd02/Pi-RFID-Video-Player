@@ -1,7 +1,7 @@
 import binascii
 import time
 
-class CardScan:
+class CardScanWrapper:
 
     TIME_OUT = 5
     HEX_CODE_PREFIX = '0x'

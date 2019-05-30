@@ -1,6 +1,6 @@
 import logging
 
-from screenProvider import ScreenProvider
+from providers.screenProvider import ScreenProvider
 from tkinterImplementation import TkinterImplementation
 from tkinterImage import TkinterImage
 

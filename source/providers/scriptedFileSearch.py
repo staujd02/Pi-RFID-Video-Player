@@ -1,9 +1,9 @@
 import os
 
-from database import Database
-from csvImplementation import CSVImplementation
+from dataManagers.database import Database
+from dataManagers.csvImplementation import CSVImplementation
 
-class Scan:
+class ScriptedFileSearch:
 
     # processProvider = subprocess  ==> Main Class Consideration
     def __init__(self, processProvider):
