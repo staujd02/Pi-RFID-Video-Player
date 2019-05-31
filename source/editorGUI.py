@@ -3,13 +3,16 @@ from tkinter import Tk, messagebox, Frame, Label, Entry, Button, Listbox, Scroll
 class EditorGUI:
 
     def __init__(self, master, activeUSB, activeDevices, videoNames, events):
-        self.activeCardNumber = StringVar()
-        self.activeUSB = StringVar()
-        self.eventDictionary = events
+        self.initializeStringVars()
+        self.master = master
         self.activeUSB.set(activeUSB)
         self.activeDevices = activeDevices
-        self.master = master
         self.initialVideoNames = videoNames
+        self.eventDictionary = events
+    
+    def initializeStringVars(self):
+        self.activeUSB = StringVar()
+        self.activeCardNumber = StringVar()
 
     def start(self):
         self.createGUIByParts(self.master, self.initialVideoNames)
@@ -81,7 +84,11 @@ class EditorGUI:
         observerEventHook(videoName)
 
     def getTextOfCurrentListBoxSelection(self):
-        return self.videoList.get(self.videoList.curselection())
+        selected = self.videoList.curselection()
+        print(selected)
+        if selected == ():
+            return None
+        return self.videoList.get(selected)
 
     def createListbox(self, frame):
         ls = Listbox(frame)
@@ -108,6 +115,9 @@ class EditorGUI:
         self.readCardButton.update_idletasks()
         scanProcess()
         self.readCardButton.config(state=NORMAL, text='Read Card')
+        
+    def clearCurrentSelection(self):
+        self.videoList.selection_clear(0, END)
 
     # def processCard(self, scan):
     #     # Scans RFID cards and sets them to text box

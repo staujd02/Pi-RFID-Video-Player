@@ -12,13 +12,15 @@ class EditorGUI_test(unittest.TestCase):
     repositoryClickable = False
     itemClickRegistered = False
     itemClicked = ""
+    itemSelected = ""
+    itemAfterClearingSelection = ""
 
     def setUp(self):
         self.root = Tk()
         self.root.wm_title('RFID Editor')
 
     def test_editor_gui_is_functional(self):
-        gui = EditorGUI(self.root, "Mine Is", [],
+        gui = EditorGUI(self.root, "Mine Is", ["Extra Device", "Mine Is"],
                         self.createVideoList(), self.eventDictionary())
         gui.start()
         self.gui = gui
@@ -28,6 +30,8 @@ class EditorGUI_test(unittest.TestCase):
         self.assertEqual(True, self.repositoryClickable)
         self.assertEqual("Card Was Set", gui.getCurrentCard())
         self.assertNotEqual("", self.itemClicked)
+        self.assertEqual(self.itemSelected, self.itemClicked)
+        self.assertEqual(None, self.itemAfterClearingSelection)
 
     def eventDictionary(self):
         return {
@@ -69,18 +73,19 @@ class EditorGUI_test(unittest.TestCase):
     def canDetectSelectionEvent(self, item):
         self.canDetectVideoClick = True
         self.itemClicked = item
+        self.itemSelected = self.gui.getTextOfCurrentListBoxSelection()
+        self.gui.clearCurrentSelection()
+        self.itemAfterClearingSelection = self.gui.getTextOfCurrentListBoxSelection()
 
-    # Can deselect an active Box item
-    #     self.videoList.selection_clear(0, END)
+    # Can Know what USB device is active
 
     # Can Highlight an box item
     #         self.videoList.see(i)
     #         self.videoList.selection_clear(0, END)
     #         self.videoList.selection_set(i)
     #         self.videoList.activate(i)
+
     # Can refresh list box contents
     #     self.videoList.delete(0, END)
     #     for entry in self.vidNAME:
     #         self.videoList.insert(END, entry)
-    # Can know when an item is selected
-    #     selection = event.widget.curselection()
