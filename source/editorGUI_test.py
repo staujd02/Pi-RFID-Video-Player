@@ -1,4 +1,5 @@
 import unittest
+import time
 from tkinter import Tk
 
 from editorGUI import EditorGUI
@@ -29,7 +30,7 @@ class EditorGUI_test(unittest.TestCase):
         return {
             "save": self.performAllTests,
             "quit": self.quit,
-            "assignKill": self.NOTHING,
+            "assignKill": self.canAssignKiller,
             "beginCardScan": self.canScanCard,
             "updateRepository": self.canUpdateRepository
         }
@@ -39,6 +40,12 @@ class EditorGUI_test(unittest.TestCase):
 
     def canScanCard(self):
         self.gui.setCurrentCard("Card Was Set")
+        self.gui.startCardScan(self.timerFunction)
+        
+    def timerFunction(self):
+        t = time.time()
+        while time.time() - t < 5:
+            pass
 
     def canAssignKiller(self):
         self.killerClickable = True
@@ -48,9 +55,6 @@ class EditorGUI_test(unittest.TestCase):
 
     def quit(self):
         self.root.quit()
-
-    def NOTHING(self):
-        pass
 
     # can disable button r?
     # can enable button r?

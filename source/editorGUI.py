@@ -52,17 +52,17 @@ class EditorGUI:
         self.videoList = self.createVideoListBox(
             self.frame, videoNames, events.get("selectionEvent"))
         self.spin = self.createUSBSpinBox(self.frame, self.activeDevices, self.activeUSB.get())
-        self.r, self.s = self.createStatusButtons(
+        self.readCardButton, self.searchDevicesButton = self.createStatusButtons(
             self.frame, self.eventDictionary)
 
     def createStatusButtons(self, frame, events):
         readCardButton = Button(frame, text='Read Card',
                                 command=events.get("beginCardScan"))
         readCardButton.grid(row=1, column=1)
-        scanDevicesButton = Button(frame, text='Update Device Repository',
+        searchDevicesButton = Button(frame, text='Update Device Repository',
                                    command=events.get("updateRepository"), disabledforeground='blue')
-        scanDevicesButton.grid(row=6, column=0)
-        return {readCardButton, scanDevicesButton}
+        searchDevicesButton.grid(row=6, column=0)
+        return readCardButton, searchDevicesButton
 
     def createCardEntry(self, frame, cardNumber):
         e = Entry(frame, textvariable=cardNumber,
@@ -90,11 +90,11 @@ class EditorGUI:
     def getCurrentCard(self):
         return self.activeCardNumber.get()
 
-    # def startCardProcess(self):
-    #     # Disable button to prevent event stacking
-    #     self.r.config(state=DISABLED)
-    #     self.processCard()
-    #     self.r.config(state=NORMAL)
+    def startCardScan(self, scanProcess):
+        self.readCardButton.config(state=DISABLED, text='Scanning')
+        self.readCardButton.update_idletasks()
+        scanProcess()
+        self.readCardButton.config(state=NORMAL)
 
     # def processCard(self, scan):
     #     # Scans RFID cards and sets them to text box
