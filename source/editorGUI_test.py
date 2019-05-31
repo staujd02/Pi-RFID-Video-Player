@@ -10,14 +10,16 @@ class EditorGUI_test(unittest.TestCase):
     saveClickable = False
     killerClickable = False
     repositoryClickable = False
+    itemClickRegistered = False
+    itemClicked = ""
 
     def setUp(self):
         self.root = Tk()
         self.root.wm_title('RFID Editor')
 
     def test_editor_gui_is_functional(self):
-        gui = EditorGUI(self.root, "Mine Is", [], [
-                        "Burlap", "Sandlot"], self.eventDictionary())
+        gui = EditorGUI(self.root, "Mine Is", [],
+                        self.createVideoList(), self.eventDictionary())
         gui.start()
         self.gui = gui
         self.root.mainloop()
@@ -25,6 +27,7 @@ class EditorGUI_test(unittest.TestCase):
         self.assertEqual(True, self.killerClickable)
         self.assertEqual(True, self.repositoryClickable)
         self.assertEqual("Card Was Set", gui.getCurrentCard())
+        self.assertNotEqual("", self.itemClicked)
 
     def eventDictionary(self):
         return {
@@ -32,7 +35,8 @@ class EditorGUI_test(unittest.TestCase):
             "quit": self.quit,
             "assignKill": self.canAssignKiller,
             "beginCardScan": self.canScanCard,
-            "updateRepository": self.canUpdateRepository
+            "updateRepository": self.canUpdateRepository,
+            "videoSelectedEvent": self.canDetectSelectionEvent
         }
 
     def performAllTests(self):
@@ -41,10 +45,10 @@ class EditorGUI_test(unittest.TestCase):
     def canScanCard(self):
         self.gui.setCurrentCard("Card Was Set")
         self.gui.startCardScan(self.timerFunction)
-        
+
     def timerFunction(self):
         t = time.time()
-        while time.time() - t < 5:
+        while time.time() - t < 1:
             pass
 
     def canAssignKiller(self):
@@ -56,12 +60,19 @@ class EditorGUI_test(unittest.TestCase):
     def quit(self):
         self.root.quit()
 
-    # can disable button r?
-    # can enable button r?
-        # perhaps, disable while running is appropriate
+    def createVideoList(self):
+        l = ["Burlap", "Sandlot"]
+        for x in range(10):
+            l.append("Unnamed: " + str(x))
+        return l
+
+    def canDetectSelectionEvent(self, item):
+        self.canDetectVideoClick = True
+        self.itemClicked = item
 
     # Can deselect an active Box item
     #     self.videoList.selection_clear(0, END)
+
     # Can Highlight an box item
     #         self.videoList.see(i)
     #         self.videoList.selection_clear(0, END)

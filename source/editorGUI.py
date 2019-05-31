@@ -1,6 +1,5 @@
 from tkinter import Tk, messagebox, Frame, Label, Entry, Button, Listbox, Scrollbar, Spinbox, END, DISABLED, StringVar, VERTICAL, NORMAL
 
-
 class EditorGUI:
 
     def __init__(self, master, activeUSB, activeDevices, videoNames, events):
@@ -50,7 +49,7 @@ class EditorGUI:
         self.cardLabelBox = self.createCardEntry(
             self.frame, self.activeCardNumber)
         self.videoList = self.createVideoListBox(
-            self.frame, videoNames, events.get("selectionEvent"))
+            self.frame, videoNames, events.get("videoSelectedEvent"))
         self.spin = self.createUSBSpinBox(self.frame, self.activeDevices, self.activeUSB.get())
         self.readCardButton, self.searchDevicesButton = self.createStatusButtons(
             self.frame, self.eventDictionary)
@@ -71,19 +70,33 @@ class EditorGUI:
         return e
 
     def createVideoListBox(self, frame, videoNames, selectEvent):
-        videoList = Listbox(frame)
-        for entry in videoNames:
-            videoList.insert(END, entry)
-        videoList.bind("<<ListboxSelect>>", selectEvent)
-        videoList.grid(row=1, rowspan=5, column=2, columnspan=2)
-        self.pairVideoListScrollbar(videoList)
-        return videoList
+        videoListbox = self.createListbox(frame)
+        self.insertEntries(videoListbox, videoNames)
+        self.pairVideoListWithScrollbar(videoListbox)
+        videoListbox.bind("<<ListboxSelect>>", lambda event: self.processListClickEvent(event, selectEvent))
+        return videoListbox
 
-    def pairVideoListScrollbar(self, listBox):
+    def processListClickEvent(self, event, observerEventHook):
+        videoName = self.getTextOfCurrentListBoxSelection()
+        observerEventHook(videoName)
+
+    def getTextOfCurrentListBoxSelection(self):
+        return self.videoList.get(self.videoList.curselection())
+
+    def createListbox(self, frame):
+        ls = Listbox(frame)
+        ls.grid(row=1, rowspan=5, column=2, columnspan=2)
+        return ls
+
+    def insertEntries(self, listBox, videoList):
+        for entry in videoList:
+            listBox.insert(END, entry)
+
+    def pairVideoListWithScrollbar(self, listBox):
         scroll = Scrollbar(listBox, orient=VERTICAL)
         listBox.config(yscrollcommand=scroll.set)
         scroll.config(command=listBox.yview)
-
+    
     def setCurrentCard(self, card):
         self.activeCardNumber.set(card)
 
@@ -94,7 +107,7 @@ class EditorGUI:
         self.readCardButton.config(state=DISABLED, text='Scanning')
         self.readCardButton.update_idletasks()
         scanProcess()
-        self.readCardButton.config(state=NORMAL)
+        self.readCardButton.config(state=NORMAL, text='Read Card')
 
     # def processCard(self, scan):
     #     # Scans RFID cards and sets them to text box
