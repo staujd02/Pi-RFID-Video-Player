@@ -4,22 +4,24 @@ from tkinter import Tk
 
 from editorGUI import EditorGUI
 
-
 class EditorGUI_test(unittest.TestCase):
 
     saveClickable = False
     killerClickable = False
     repositoryClickable = False
     itemClickRegistered = False
+    threwCustomError = False
     itemClicked = ""
     itemSelected = ""
     itemAfterClearingSelection = ""
+    itemAfterMakingSelection = ""
+    selectionSuccessfullyMade = ""
 
     def setUp(self):
         self.root = Tk()
         self.root.wm_title('RFID Editor')
 
-    def test_editor_gui_is_functional(self):
+    def DISABLED_test_editor_gui_is_functional(self):
         gui = EditorGUI(self.root, "Mine Is", ["Extra Device", "Mine Is"],
                         self.createVideoList(), self.eventDictionary())
         gui.start()
@@ -32,6 +34,10 @@ class EditorGUI_test(unittest.TestCase):
         self.assertNotEqual("", self.itemClicked)
         self.assertEqual(self.itemSelected, self.itemClicked)
         self.assertEqual(None, self.itemAfterClearingSelection)
+        self.assertEqual("Extra Device", gui.currentDeviceName())
+        self.assertEqual("Lost World", self.itemAfterMakingSelection)
+        self.assertEqual(True, self.threwCustomError)
+        self.assertEqual("Jurassic Park", self.selectionSuccessfullyMade)
 
     def eventDictionary(self):
         return {
@@ -68,6 +74,7 @@ class EditorGUI_test(unittest.TestCase):
         l = ["Burlap", "Sandlot"]
         for x in range(10):
             l.append("Unnamed: " + str(x))
+        l.append("Lost World")
         return l
 
     def canDetectSelectionEvent(self, item):
@@ -76,16 +83,15 @@ class EditorGUI_test(unittest.TestCase):
         self.itemSelected = self.gui.getTextOfCurrentListBoxSelection()
         self.gui.clearCurrentSelection()
         self.itemAfterClearingSelection = self.gui.getTextOfCurrentListBoxSelection()
+        self.gui.setListBoxSelection("Lost World")
+        self.itemAfterMakingSelection = self.gui.getTextOfCurrentListBoxSelection()
+        try:
+            self.gui.setListBoxSelection("Jurassic Park")
+        except self.gui.VideoUnavailable:
+            self.threwCustomError = True
+        self.gui.setVideoList(self.secondVideoList())
+        self.gui.setListBoxSelection("Jurassic Park")
+        self.selectionSuccessfullyMade = self.gui.getTextOfCurrentListBoxSelection()
 
-    # Can Know what USB device is active
-
-    # Can Highlight an box item
-    #         self.videoList.see(i)
-    #         self.videoList.selection_clear(0, END)
-    #         self.videoList.selection_set(i)
-    #         self.videoList.activate(i)
-
-    # Can refresh list box contents
-    #     self.videoList.delete(0, END)
-    #     for entry in self.vidNAME:
-    #         self.videoList.insert(END, entry)
+    def secondVideoList(self):
+        return ["Jurassic Park", "Jaws", "Star Wars", "Indiana Jones"]
