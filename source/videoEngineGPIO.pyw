@@ -61,9 +61,9 @@ FK_KILL = -255
 
 # Program Constants
 LOG_FILE='engine.log'
-IDLE = '../bg.jpg'
-BROKE = '../broke.png'
-BROKE_LINK = '../brokenLink.png'
+IDLE = '../resources/images/bg.jpg'
+BROKE = '../resources/images/broke.png'
+BROKE_LINK = '../resources/images/brokenLink.png'
 TOUCH_SOUND = '/opt/sonic-pi/etc/samples/elec_plip.flac'
 BROKE_SOUND = '/opt/sonic-pi/etc/samples/bass_dnb_f.flac'
 

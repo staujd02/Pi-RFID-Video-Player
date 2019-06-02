@@ -8,9 +8,9 @@ from tkinterImage import TkinterImage
 logging.basicConfig(filename='engine.log',level=logging.INFO)
 
 # Wrap Images
-idleImage = TkinterImage('../bg.jpg')
-brokeImage = TkinterImage('../broke.jpg')
-brokeLinkImage = TkinterImage('../brokenLink.png')
+idleImage = TkinterImage('../resources/images/bg.jpg')
+brokeImage = TkinterImage('../resources/images/broke.jpg')
+brokeLinkImage = TkinterImage('../resources/images/brokenLink.png')
 
 # Load GUI screen
 screen = ScreenProvider(TkinterImplementation(idleImage))
