@@ -3,6 +3,7 @@
 *.log
 *.csv
 .env
+ssh.sh
 
 # and OS generated files #
 ######################
