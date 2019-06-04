@@ -10,12 +10,47 @@ class EditorGUI:
         self.initialVideoNames = videoNames
         self.eventDictionary = events
 
+    def start(self):
+        self.__createGUIByParts(self.master, self.initialVideoNames)
+
+    def getTextOfCurrentListBoxSelection(self):
+        selected = self.videoList.curselection()
+        if selected == ():
+            return None
+        return self.videoList.get(selected)
+
+    def setCurrentCard(self, card):
+        self.activeCardNumber.set(card)
+
+    def getCurrentCard(self):
+        return self.activeCardNumber.get()
+
+    def startCardScan(self, scanProcess):
+        self.readCardButton.config(state=DISABLED, text='Scanning')
+        self.readCardButton.update_idletasks()
+        scanProcess()
+        self.readCardButton.config(state=NORMAL, text='Read Card')
+
+    def clearCurrentSelection(self):
+        self.videoList.selection_clear(0, END)
+
+    def currentDeviceName(self):
+        return self.deviceSpin.get()
+
+    def setListBoxSelection(self, name):
+        i =  self.__getVideoIndexMatchingName(name)
+        self.videoList.see(i)
+        self.videoList.selection_clear(0, END)
+        self.videoList.selection_set(i)
+        self.videoList.activate(i)
+
+    def setVideoList(self, newList):
+        self.videoList.delete(0, END)
+        self.__insertEntries(self.videoList, newList)
     def __initializeStringVars(self):
         self.activeUSB = StringVar()
         self.activeCardNumber = StringVar()
 
-    def start(self):
-        self.__createGUIByParts(self.master, self.initialVideoNames)
 
     def __createUSBSpinBox(self, frame, deviceList, activeUSB):
         spin = Spinbox(frame, values=deviceList)
@@ -100,40 +135,6 @@ class EditorGUI:
         videoName = self.getTextOfCurrentListBoxSelection()
         observerEventHook(videoName)
 
-    def getTextOfCurrentListBoxSelection(self):
-        selected = self.videoList.curselection()
-        if selected == ():
-            return None
-        return self.videoList.get(selected)
-
-    def setCurrentCard(self, card):
-        self.activeCardNumber.set(card)
-
-    def getCurrentCard(self):
-        return self.activeCardNumber.get()
-
-    def startCardScan(self, scanProcess):
-        self.readCardButton.config(state=DISABLED, text='Scanning')
-        self.readCardButton.update_idletasks()
-        scanProcess()
-        self.readCardButton.config(state=NORMAL, text='Read Card')
-
-    def clearCurrentSelection(self):
-        self.videoList.selection_clear(0, END)
-
-    def currentDeviceName(self):
-        return self.deviceSpin.get()
-
-    def setListBoxSelection(self, name):
-        i =  self.__getVideoIndexMatchingName(name)
-        self.videoList.see(i)
-        self.videoList.selection_clear(0, END)
-        self.videoList.selection_set(i)
-        self.videoList.activate(i)
-
-    def setVideoList(self, newList):
-        self.videoList.delete(0, END)
-        self.__insertEntries(self.videoList, newList)
 
     def __getVideoIndexMatchingName(self, name):
         try:
@@ -146,70 +147,3 @@ class EditorGUI:
         def __init__(self, requestedVideo, message):
             self.requestedVideo = requestedVideo
             self.message = message
-
-    # def processResult(self, scanResult):
-    #     if scanResult == None:
-    #         return
-    #     self.activeCardNumber.set(scanResult)     # Populate text box
-    #     self.deselectActiveListboxItems()
-    #     self.linkCardWithListbox(scanResult)
-
-    # def deselectActiveListboxItems(self):
-    #     # De-select any active items in listbox
-    #     self.videoList.selection_clear(0, END)
-
-    # def linkCardWithListbox(self, scanResult):
-    #     index = self.verifyCard(scanResult)
-    #     if str(self.uuidFK[index]) == self.environment.KillCommand:
-    #         messagebox.showinfo(
-    #             'Kill Card', 'This card is currently assigned to kill the application.')
-    #         return
-    #     self.highlightItemInListbox(index)
-
-    # def highlightItemInListbox(self, index):
-    #     try:
-    #         i = self.vidPK.index(self.uuidFK[index])
-    #     except:
-    #         messagebox.showinfo('Card Unassigned',
-    #                             'Card is not currently assigned to a video')
-    #     else:
-    #         self.videoList.see(i)
-    #         self.videoList.selection_clear(0, END)
-    #         self.videoList.selection_set(i)
-    #         self.videoList.activate(i)
-
-    # def verifyCard(self, uidt):
-    #     try:
-    #         uuidIndex = self.uuid.index(uidt)
-    #     except:
-    #         uuidIndex = self.addNewCard(uidt)
-    #     return uuidIndex
-
-    # def refreshListBox(self):
-    #     self.videoList.delete(0, END)
-    #     for entry in self.vidNAME:
-    #         self.videoList.insert(END, entry)
-
-    # def newselection(self, event):
-    #     # Fires when a new item is selected in the listbox
-    #     selection = event.widget.curselection()
-    #     try:
-    #         txt = self.cardLabelBox.get()
-    #         if txt == '':
-    #             return
-    #         i = self.uuid.index(txt)
-    #         self.uuidFK[i] = self.vidPK[selection[0]]
-    #     except Exception as e:
-    #         messagebox.showerror('Error During Set', 'Error: ' + str(e))
-    #         logging.error(str(e))
-
-    # def createKiller(self):
-    #     try:
-    #         self.assignCurrentCardAsKiller()
-    #         self.videoList.selection_clear(0, END)
-    #     except Exception as e:
-    #         self.handleCardNotScannedError(e)
-
-    # def assignCurrentCardAsKiller(self):
-    #     i = self.uuid.index(self.cardLabelBox.get())
-    #     self.uuidFK[i] = int(self.environment.KillCommand)
