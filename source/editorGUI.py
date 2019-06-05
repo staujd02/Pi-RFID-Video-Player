@@ -2,7 +2,7 @@ from tkinter import Tk, messagebox, Frame, Label, Entry, Button, Listbox, Scroll
 
 class EditorGUI:
 
-    def __init__(self, master, activeUSB, activeDevices, videoNames, events):
+    def __init__(self, master, events, activeUSB="Unidentified", activeDevices=[], videoNames=[]):
         self.__initializeStringVars()
         self.master = master
         self.activeUSB.set(activeUSB)
@@ -37,6 +37,25 @@ class EditorGUI:
     def currentDeviceName(self):
         return self.deviceSpin.get()
 
+    def setDeviceList(self, devices):
+        self.activeDevices.clear()
+        for device in devices:
+            self.activeDevices.append(device)
+        self.updateSpinBox() 
+
+    def updateSpinBox(self):
+        self.deviceSpin.config(values=self.activeDevices)
+        self.setActiveDevice(self.activeDevices[0])
+
+    def setActiveDevice(self, device):
+        self.deviceSpin.delete(0, END)
+        self.deviceSpin.insert(0, device)
+
+    # self.spin = Spinbox(frame, values=self.devices)
+    # self.spin.delete(0, END)
+    # self.spin.insert(0, self.environment.Usb)
+    # self.spin.grid(row=5, column=0)
+    
     def setListBoxSelection(self, name):
         i =  self.__getVideoIndexMatchingName(name)
         self.videoList.see(i)
@@ -47,6 +66,7 @@ class EditorGUI:
     def setVideoList(self, newList):
         self.videoList.delete(0, END)
         self.__insertEntries(self.videoList, newList)
+
     def __initializeStringVars(self):
         self.activeUSB = StringVar()
         self.activeCardNumber = StringVar()

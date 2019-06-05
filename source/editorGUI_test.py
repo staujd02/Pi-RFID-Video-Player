@@ -21,9 +21,31 @@ class EditorGUI_test(unittest.TestCase):
         self.root = Tk()
         self.root.wm_title('RFID Editor')
 
+    def DISABLED_test_editor_is_functional_with_optional_args(self):
+        gui = EditorGUI(self.root, self.eventDictionary())
+        gui.start()
+        self.gui = gui
+        self.root.mainloop()
+    
+    def test_usb_devices_are_accessible(self):
+        gui = EditorGUI(self.root, self.eventDictionary())
+        gui.start()
+        self.gui = gui
+        devices = ["USB1", "USB2"]
+        gui.setDeviceList(devices)
+        self.assertEqual(gui.activeDevices,  devices)
+        self.assertEqual(gui.currentDeviceName(),  devices[0])
+        gui.setActiveDevice("USB2")
+        self.assertEqual(devices[1], gui.currentDeviceName())
+        self.root.mainloop()
+        # try:
+        #     gui.setActiveUsb("USB1")
+        # except expression as identifier:
+        #     pass
+
     def DISABLED_test_editor_gui_is_functional(self):
-        gui = EditorGUI(self.root, "Mine Is", ["Extra Device", "Mine Is"],
-                        self.createVideoList(), self.eventDictionary())
+        gui = EditorGUI(self.root, self.eventDictionary(), "Mine Is", ["Extra Device", "Mine Is"],
+                        self.createVideoList())
         gui.start()
         self.gui = gui
         self.root.mainloop()
@@ -46,7 +68,7 @@ class EditorGUI_test(unittest.TestCase):
             "assignKill": self.canAssignKiller,
             "beginCardScan": self.canScanCard,
             "updateRepository": self.canUpdateRepository,
-            "videoSelectedEvent": self.canDetectSelectionEvent
+            "videoSelectedEvent": self.canManageSelectionList
         }
 
     def performAllTests(self):
@@ -77,7 +99,7 @@ class EditorGUI_test(unittest.TestCase):
         l.append("Lost World")
         return l
 
-    def canDetectSelectionEvent(self, item):
+    def canManageSelectionList(self, item):
         self.canDetectVideoClick = True
         self.itemClicked = item
         self.itemSelected = self.gui.getTextOfCurrentListBoxSelection()
