@@ -48,8 +48,15 @@ class EditorGUI:
         self.setActiveDevice(self.activeDevices[0])
 
     def setActiveDevice(self, device):
+        self.verifyDeviceExistence(device)
         self.deviceSpin.delete(0, END)
         self.deviceSpin.insert(0, device)
+
+    def verifyDeviceExistence(self, device):
+        try:
+            self.activeDevices.index(device)
+        except ValueError:
+            raise self.DeviceNotFound(device)
 
     # self.spin = Spinbox(frame, values=self.devices)
     # self.spin.delete(0, END)
@@ -167,3 +174,8 @@ class EditorGUI:
         def __init__(self, requestedVideo, message):
             self.requestedVideo = requestedVideo
             self.message = message
+    
+    class DeviceNotFound(Exception):
+
+        def __init__(self, device):
+            self.device = device

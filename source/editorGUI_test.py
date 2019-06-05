@@ -27,7 +27,7 @@ class EditorGUI_test(unittest.TestCase):
         self.gui = gui
         self.root.mainloop()
     
-    def test_usb_devices_are_accessible(self):
+    def DISABLED_test_usb_devices_are_accessible(self):
         gui = EditorGUI(self.root, self.eventDictionary())
         gui.start()
         self.gui = gui
@@ -37,11 +37,13 @@ class EditorGUI_test(unittest.TestCase):
         self.assertEqual(gui.currentDeviceName(),  devices[0])
         gui.setActiveDevice("USB2")
         self.assertEqual(devices[1], gui.currentDeviceName())
+        errorThrown = False
+        try:
+            gui.setActiveDevice("Missing_USB")
+        except gui.DeviceNotFound:
+            errorThrown = True
+        self.assertTrue(errorThrown)
         self.root.mainloop()
-        # try:
-        #     gui.setActiveUsb("USB1")
-        # except expression as identifier:
-        #     pass
 
     def DISABLED_test_editor_gui_is_functional(self):
         gui = EditorGUI(self.root, self.eventDictionary(), "Mine Is", ["Extra Device", "Mine Is"],
