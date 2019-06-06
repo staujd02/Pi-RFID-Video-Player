@@ -58,7 +58,11 @@ class Editor:
         sys.exit(0)
 
     def _assignKill(self):
-        pass
+        try:
+            self.assignCurrentCardAsKiller()
+            self.gui.clearCurrentSelection()
+        except Exception as e:
+            self.handleCardNotScannedError(e)
 
     def _beginCardScan(self):
         self.processCard()
@@ -311,12 +315,6 @@ class Editor:
             messagebox.showerror('Error During Set', 'Error: ' + str(e))
             logging.error(str(e))
 
-    def createKiller(self):
-        try:
-            self.assignCurrentCardAsKiller()
-            self.gui.clearCurrentSelection()
-        except Exception as e:
-            self.handleCardNotScannedError(e)
 
     def assignCurrentCardAsKiller(self):
         i = self.uuid.index(self.gui.getCurrentCard)
