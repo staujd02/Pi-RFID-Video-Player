@@ -58,11 +58,6 @@ class EditorGUI:
         except ValueError:
             raise self.DeviceNotFound(device)
 
-    # self.spin = Spinbox(frame, values=self.devices)
-    # self.spin.delete(0, END)
-    # self.spin.insert(0, self.environment.Usb)
-    # self.spin.grid(row=5, column=0)
-    
     def setListBoxSelection(self, name):
         i =  self.__getVideoIndexMatchingName(name)
         self.videoList.see(i)
@@ -74,10 +69,14 @@ class EditorGUI:
         self.videoList.delete(0, END)
         self.__insertEntries(self.videoList, newList)
 
+    def setDeviceControlText(self, text, enabled = True):
+        state = NORMAL if enabled else DISABLED
+        self.searchDevicesButton.config(text=text, state=state)
+        self.searchDevicesButton.update_idletasks()
+
     def __initializeStringVars(self):
         self.activeUSB = StringVar()
         self.activeCardNumber = StringVar()
-
 
     def __createUSBSpinBox(self, frame, deviceList, activeUSB):
         spin = Spinbox(frame, values=deviceList)
@@ -140,7 +139,6 @@ class EditorGUI:
         ls.grid(row=1, rowspan=5, column=2, columnspan=2)
         return ls
 
-
     def __createVideoListBox(self, frame, videoNames, selectEvent):
         videoListbox = self.__createListbox(frame)
         self.__insertEntries(videoListbox, videoNames)
@@ -161,7 +159,6 @@ class EditorGUI:
     def __processListClickEvent(self, event, observerEventHook):
         videoName = self.getTextOfCurrentListBoxSelection()
         observerEventHook(videoName)
-
 
     def __getVideoIndexMatchingName(self, name):
         try:

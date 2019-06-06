@@ -1,8 +1,8 @@
 import logging
 
 from providers.screenProvider import ScreenProvider
-from tkinterImplementation import TkinterImplementation
-from tkinterImage import TkinterImage
+from guiComponents.tkinterImplementation import TkinterImplementation
+from guiComponents.tkinterImage import TkinterImage
 
 # Set Up Logging
 logging.basicConfig(filename='engine.log',level=logging.INFO)

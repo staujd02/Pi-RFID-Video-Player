@@ -21,16 +21,18 @@ class EditorGUI_test(unittest.TestCase):
         self.root = Tk()
         self.root.wm_title('RFID Editor')
 
-    def DISABLED_test_editor_is_functional_with_optional_args(self):
+    def startGUI(self):
         gui = EditorGUI(self.root, self.eventDictionary())
         gui.start()
-        self.gui = gui
+        return gui
+
+    def DISABLED_test_device_button_text_can_be_set(self):
+        gui = self.startGUI()
+        gui.setDeviceControlText("Scanning..", False)
         self.root.mainloop()
-    
+
     def DISABLED_test_usb_devices_are_accessible(self):
-        gui = EditorGUI(self.root, self.eventDictionary())
-        gui.start()
-        self.gui = gui
+        gui = self.startGUI()
         devices = ["USB1", "USB2"]
         gui.setDeviceList(devices)
         self.assertEqual(gui.activeDevices,  devices)
@@ -43,22 +45,18 @@ class EditorGUI_test(unittest.TestCase):
         except gui.DeviceNotFound:
             errorThrown = True
         self.assertTrue(errorThrown)
-        self.root.mainloop()
 
     def DISABLED_test_editor_gui_is_functional(self):
-        gui = EditorGUI(self.root, self.eventDictionary(), "Mine Is", ["Extra Device", "Mine Is"],
-                        self.createVideoList())
-        gui.start()
-        self.gui = gui
+        self.gui = self.startGUI()
         self.root.mainloop()
         self.assertEqual(True, self.saveClickable)
         self.assertEqual(True, self.killerClickable)
         self.assertEqual(True, self.repositoryClickable)
-        self.assertEqual("Card Was Set", gui.getCurrentCard())
+        self.assertEqual("Card Was Set", self.gui.getCurrentCard())
         self.assertNotEqual("", self.itemClicked)
         self.assertEqual(self.itemSelected, self.itemClicked)
         self.assertEqual(None, self.itemAfterClearingSelection)
-        self.assertEqual("Extra Device", gui.currentDeviceName())
+        self.assertEqual("Extra Device", self.gui.currentDeviceName())
         self.assertEqual("Lost World", self.itemAfterMakingSelection)
         self.assertEqual(True, self.threwCustomError)
         self.assertEqual("Jurassic Park", self.selectionSuccessfullyMade)

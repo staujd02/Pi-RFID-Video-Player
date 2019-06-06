@@ -9,10 +9,11 @@ import time
 from tkinter import Tk, messagebox, Frame, Label, Entry, Button, Listbox, Scrollbar, Spinbox, END, DISABLED, StringVar, VERTICAL, NORMAL
 
 from providers.scriptedFileSearch import ScriptedFileSearch
-from wrappers.cardScanWrapper import CardScanWrapper
+from wrapper.cardScanWrapper import CardScanWrapper
 from providers.soundProvider import SoundProvider
 from providers.rfidScannerProvider import RFIDScannerProvider
 from environment.environment import Environment
+from messenger.messenger import Messenger
 from editorGUI import EditorGUI
 
 class Editor:
@@ -30,14 +31,43 @@ class Editor:
     def __init__(self, master, soundGenerator, rfidScanner):
         self.environment = Environment()
         self.soundProvider = SoundProvider(soundGenerator)
+        self.messenger = Messenger(logging, messagebox)
         self.configureScannerProvider(rfidScanner)
         self.load()
         self.gui = EditorGUI(master, self._getEvents())
         self.gui.start()
 
     def _getEvents(self):
+        return {
+            "save": self._save,
+            "quit": self._quit,
+            "assignKill": self._assignKill,
+            "beginCardScan": self._beginCardScan,
+            "updateRepository": self._updateRepository,
+            "videoSelectedEvent": self._handleVideoSelectedEvent
+        }
+    
+    def _save(self):
         pass
 
+    def _quit(self):
+        ans = messagebox.askquestion(
+            'Save And Quit', 'Would you like to save your changes?')
+        if ans == 'yes':
+            self.save()
+        sys.exit(0)
+
+    def _assignKill(self):
+        pass
+
+    def _beginCardScan(self):
+        self.processCard()
+    
+    def _updateRepository(self):
+        pass
+
+    def _handleVideoSelectedEvent(self):
+        pass
     
     def configureScannerProvider(self, rfidScanner):
         provider = RFIDScannerProvider(rfidScanner)
@@ -47,25 +77,12 @@ class Editor:
             int(self.environment.MASTER_INPUT_SLAVE_OUTPUT_PIN),
             int(self.environment.SERIAL_CLOCK_PIN))
 
-    def closeWithSavePrompt(self):
-        ans = messagebox.askquestion(
-            'Save And Quit', 'Would you like to save your changes?')
-        if ans == 'yes':
-            self.save()
-        sys.exit(0)
-
-    def startCardProcess(self):
-        # Disable button to prevent event stacking
-        self.r.config(state=DISABLED)
-        self.processCard()
-        self.r.config(state=NORMAL)
-
     def processCard(self):
         # Scans RFID cards and sets them to text box
         try:
             self.processCardUnchecked()
         except Exception as e:
-            self.displayScanError(e)
+            self.messenger.displayScanError(e)
 
     def processCardUnchecked(self):
         cardScan = CardScanWrapper(self.soundS, self.RFIDScannerProvider)
@@ -75,13 +92,12 @@ class Editor:
     def processResult(self, scanResult):
         if scanResult == None:
             return
-        self.activeCardNumber.set(scanResult)     # Populate text box
+        self.gui.setCurrentCard(scanResult)
         self.deselectActiveListboxItems()
         self.linkCardWithListbox(scanResult)
 
     def deselectActiveListboxItems(self):
-        # De-select any active items in listbox
-        self.box.selection_clear(0, END)
+        self.gui.clearCurrentSelection()
 
     def linkCardWithListbox(self, scanResult):
         index = self.verifyCard(scanResult)
@@ -115,10 +131,6 @@ class Editor:
         self.uuidFK.append(-1)
         newIndex = len(self.uuid) - 1
         return newIndex
-
-    def displayScanError(self, e):
-        messagebox.showerror('Error Occurred', 'Error: ' + str(e))
-        logging.error('Scan Failed: ' + str(e))
 
     def save(self):
         toSaveList = self.makePairedList(
@@ -177,63 +189,47 @@ class Editor:
         scan = self.safeScan()
         if scan != None:
             self.safeProcessScan(scan)
-        self.status.config(text='Update Device Repository', state=NORMAL)
-        self.status.update_idletasks()
+        self.gui.setDeviceControlText('Update Device Repository')
 
     def safeScan(self):
         scan = None
         try:
             scan = self.runScannerWithNotification()
         except Exception as e:
-            self.showScanErrorMessage(e)
+            self.messenger.showScanErrorMessage(e)
         return scan
 
     def runScannerWithNotification(self):
-        self.status.config(text='Scanning...', state=DISABLED)
-        self.status.update_idletasks()
+        self.gui.setDeviceControlText('Scanning...', False)
         scan = ScriptedFileSearch(subprocess)
         scan.scan("scanner.sh")
         return scan
-
-    def showScanErrorMessage(self, e):
-        messagebox.showerror('Scan Failed', 'Scan error: ' + str(e))
-        logging.error(str(e))
 
     def safeProcessScan(self, scan):
         try:
             self.processScan(scan)
         except Exception as e:
-            self.showErrorMessage(e)
-
-    def showErrorMessage(self, e):
-        messagebox.showerror('Error', 'Error: ' + str(e))
-        logging.error(str(e))
+            self.messenger.showScanErrorMessage(e)
 
     def refreshListBox(self):
-        self.box.delete(0, END)
-        for entry in self.vidNAME:
-            self.box.insert(END, entry)
+        self.gui.setVideoList(self.vidNAME)
 
     def processScan(self, scan):
         # Check if a scan turned up any results
         if self.scanIsEmpty(scan):
-            self.showAbortScanMessage()
+            self.messenger.showAbortScanMessage()
             return
         self.verifyUSB()
         self.processScanFiles(scan)
         self.refreshListBox()
 
-    def showAbortScanMessage(self):
-        messagebox.showwarning(
-            'No Files Found', 'A scan failed to find any files.')
-        logging.warning('Empty Scan occurred when attempting a merge')
-
     def scanIsEmpty(self, scan):
         return len(scan.NAME) == 0
 
     def verifyUSB(self):
-        if self.environment.Usb != self.spin.get():
-            self.Usb = self.spin.get()
+        currentDevice = self.gui.currentDeviceName()
+        if self.environment.Usb != currentDevice:
+            self.Usb = currentDevice
             self.environment.update()
 
     def processScanFiles(self, scan):
@@ -242,8 +238,7 @@ class Editor:
         newPK = []
         newName = []
         newPath = []
-        self.status.config(text='Reading Files...')
-        self.status.update_idletasks()
+        self.gui.setDeviceControlText('Reading Files...', False)
         # Iterate through list
         while i < len(scan.NAME):
             # Verifiy File
@@ -281,9 +276,7 @@ class Editor:
                             device = scan.PATH[i].replace('/media/pi/', '')
                             device = device[0:device.find('/')]
                             # Copy
-                            self.status.config(
-                                text='Copying ' + scan.NAME[i] + '...')
-                            self.status.update_idletasks()
+                            self.gui.setDeviceControlText('Copying ' + scan.NAME[i] + '...', False)
                             shutil.copyfile(
                                 scan.PATH[i], scan.PATH[i].replace(device, self.environment.Usb))
                         except Exception as e:
@@ -309,7 +302,7 @@ class Editor:
         # Fires when a new item is selected in the listbox
         selection = event.widget.curselection()
         try:
-            txt = self.ee.get()
+            txt = self.gui.getCurrentCard()
             if txt == '':
                 return
             i = self.uuid.index(txt)
@@ -321,12 +314,12 @@ class Editor:
     def createKiller(self):
         try:
             self.assignCurrentCardAsKiller()
-            self.box.selection_clear(0, END)
+            self.gui.clearCurrentSelection()
         except Exception as e:
             self.handleCardNotScannedError(e)
 
     def assignCurrentCardAsKiller(self):
-        i = self.uuid.index(self.ee.get())
+        i = self.uuid.index(self.gui.getCurrentCard)
         self.uuidFK[i] = int(self.environment.KillCommand)
 
     def handleCardNotScannedError(self, e):
@@ -393,45 +386,23 @@ class Editor:
 
     def loadDevice(self):
         if self.environment.Usb == '' and len(self.devices) == 0:
-            self.terminateWithNoDeviceFailureMessage()
+            self.messenger.terminateWithNoDeviceFailureMessage()
+            sys.exit(1)
         else:
             self.handleAnyDeviceSearchFailures()
 
     def handleAnyDeviceSearchFailures(self):
         if self.environment.Usb == '' or self.environment.Usb == '< Not Set >':
-            self.showNoDeviceSetWarning()
+            self.messenger.showNoDeviceSetWarning()
         elif len(self.devices) == 0:
-            self.terminateWithCurrentDeviceNotFoundMsg()
+            self.messenger.terminateWithCurrentDeviceNotFoundMsg()
+            sys.exit(1)
         elif self.environment.Usb not in self.devices:
-            self.showCurrentDeviceNotFoundWarning()
-
-    def showNoDeviceSetWarning(self):
-        messagebox.showwarning(
-            'No USB Set', 'Please select a USB as a source device and then perform a Scan and Update')
-        logging.warning('No USB device is set!')
-
-    def showCurrentDeviceNotFoundWarning(self):
-        messagebox.showwarning(
-            'Missing USB Source', 'WARNING: The current USB repository was not found amoung the available devices.')
-        logging.warning(
-            'Current USB repository was not located in device scan!')
-
-    def terminateWithCurrentDeviceNotFoundMsg(self):
-        messagebox.showerror(
-            'No Devices Detected', 'No devices were detected including the current USB respository.\nPlease inspect USB device, or contact help.')
-        logging.critical('Scanner detected no devices. Closing...')
-        sys.exit(1)
-
-    def terminateWithNoDeviceFailureMessage(self):
-        messagebox.showerror(
-            'Storage Failure', 'No USB devices could be found, this editor will now close.')
-        logging.critical(
-            'Failed to find any devices with any media. Closing...')
-        sys.exit(1)
+            self.messenger.showCurrentDeviceNotFoundWarning()
 
     def searchScanForDevices(self, scan):
         if len(scan.NAME) == 0:
-            self.showEmptyScanError()
+            self.messenger.showEmptyScanError()
         else:
             self.pullDeviceNamesFromPath(scan)
             self.ensureDeviceWasFound()
@@ -447,13 +418,4 @@ class Editor:
 
     def ensureDeviceWasFound(self):
         if len(self.devices) == 0:
-            messagebox.showerror(
-                'Improper Storage', 'Media files should not be stored in /media/pi.\nPlease move files to subfolder, or a USB device.')
-            logging.error(
-                'User error: Files were stored on pi media root. Requested User Action...')
-
-    def showEmptyScanError(self):
-        messagebox.showerror(
-            'Scan Error', 'Initial scan detected no files. Open case and inspect USB, or perform a restart.')
-        logging.error('Scan failed to detect files. (Do none exist?)')
- 
+            self.messenger.showImproperStorageWarning()
