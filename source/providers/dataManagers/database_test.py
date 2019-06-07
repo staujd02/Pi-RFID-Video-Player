@@ -35,7 +35,7 @@ class Database_test(unittest.TestCase):
 
     def test_the_database_can_update(self):
         self.db.update("MyDog", "Beagle")
-    
+
     def test_the_database_can_be_iterated(self):
         iterator = self.db.iterate()
         for x in ["dog", "cat"]:

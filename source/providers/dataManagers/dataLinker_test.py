@@ -8,10 +8,12 @@ from csvImplementation import CSVImplementation
 class DataLinker_test(unittest.TestCase):
 
     FILE='test.csv'
+    STORE_FILE='videos.csv'
 
     def setUp(self):
-        self.fakeVideos = self.initDatabase("videos.csv", self.videos)
+        self.fakeVideos = self.initDatabase(self.STORE_FILE, self.videos)
         self.linker = DataLinker(self.fakeVideos, self.FILE)
+        self.linker.init()
 
     def test_datalinker_can_pair_entries(self):
         self.linker.pair("Green_card", "Indiana Jones")
@@ -22,8 +24,11 @@ class DataLinker_test(unittest.TestCase):
         self.linker.pair("Green_card", "Star Wars")
         self.assertEqual(["Star Wars", "C:/DVDs", "False"], self.linker.resolve("Green_card"))
 
-    def test_datalinker_loads_an_existing_list(self):
-        pass
+    def test_datalinker_can_loads_an_existing_list(self):
+        self.linker.pair("Red_Card", "Indiana Jones")
+        self.linker = DataLinker(self.fakeVideos, self.FILE)
+        self.linker.init()
+        self.assertEqual(["Indiana Jones", "C:/Videos","True"], self.linker.resolve("Red_Card"))
     
     def test_multiple_keys_can_link_to_the_same_stored_object(self):
         self.linker.pair("Green_Card", "Indiana Jones")
@@ -51,3 +56,8 @@ class DataLinker_test(unittest.TestCase):
         f.writelines(lines)
         f.close()
 
+    def tearDown(self):
+        if os.path.isfile(self.FILE):
+            os.remove(self.FILE)
+        if os.path.isfile(self.STORE_FILE):
+            os.remove(self.STORE_FILE)
