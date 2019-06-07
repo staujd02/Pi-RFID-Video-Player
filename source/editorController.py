@@ -16,6 +16,16 @@ from environment.environment import Environment
 from messenger.messenger import Messenger
 from editorGUI import EditorGUI
 
+# Top TODO:
+#     == Finish cardToVideoLinkerWrapper (
+#         > Handle Kill Code Case
+#         > Thrown exceptions for pairing to inactive cards
+#     )
+#     == Create Migrator (
+#         > Handle moving file list from one device to another
+#         > Verify with monster scan function
+#     )
+
 class Editor:
 
     # Info Defaults
