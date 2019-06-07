@@ -7,17 +7,37 @@ from csvImplementation import CSVImplementation
 
 class DataLinker_test(unittest.TestCase):
 
-    def test_datalinker_exists(self):
-        self.createStores()
-        linker = DataLinker(self.fakeVideos, self.fakeCards)
-        self.assertNotEqual(None, linker)
-    
-    videos = ["1,Monkey,Melvin\n", "2,Donkey,Dreary\n", "5,Horse,Champion"]
-    cards = ["1,Monkey,Melvin\n", "2,Donkey,Dreary\n", "5,Horse,Champion"]
+    FILE='test.csv'
 
-    def createStores(self):
-        self.fakeCards = self.initDatabase("vids.csv", self.cards)
-        self.fakeVideos = self.initDatabase("cards.csv", self.videos)
+    def setUp(self):
+        self.fakeVideos = self.initDatabase("videos.csv", self.videos)
+        self.linker = DataLinker(self.fakeVideos, self.FILE)
+
+    def test_datalinker_can_pair_entries(self):
+        self.linker.pair("Green_card", "Indiana Jones")
+        self.assertEqual(["Indiana Jones", "C:/Videos","True"], self.linker.resolve("Green_card"))
+
+    def test_datalinker_can_overwrite_a_previous_pair(self):
+        self.linker.pair("Green_card", "Indiana Jones")
+        self.linker.pair("Green_card", "Star Wars")
+        self.assertEqual(["Star Wars", "C:/DVDs", "False"], self.linker.resolve("Green_card"))
+
+    def test_datalinker_loads_an_existing_list(self):
+        pass
+    
+    def test_multiple_keys_can_link_to_the_same_stored_object(self):
+        self.linker.pair("Green_Card", "Indiana Jones")
+        self.linker.pair("Red_Card", "Indiana Jones")
+        self.assertEqual(["Indiana Jones", "C:/Videos","True"], self.linker.resolve("Green_Card"))
+        self.assertEqual(["Indiana Jones", "C:/Videos","True"], self.linker.resolve("Red_Card"))
+
+    def test_multiple_keys_can_link_to_the_different_stored_objects(self):
+        self.linker.pair("Green_card", "Indiana Jones")
+        self.linker.pair("Red_Card", "Star Wars")
+        self.assertEqual(["Indiana Jones", "C:/Videos","True"], self.linker.resolve("Green_card"))
+        self.assertEqual(["Star Wars", "C:/DVDs", "False"], self.linker.resolve("Red_Card"))
+
+    videos = ["1,Jurassic Park,C:/Videos,True\n", "2,Star Wars,C:/DVDs,False\n", "5,Indiana Jones,C:/Videos,True"]
 
     def initDatabase(self, name, data):
         self.createTestCSV(name, data)     
