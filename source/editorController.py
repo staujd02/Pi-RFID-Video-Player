@@ -22,9 +22,9 @@ class EditorController:
 
     def __init__(self, master, SoundResource, RFIDResource):
         self.env = Environment()
-        self.soundProvider = SoundProvider(SoundResource)
+        sound = self.configureSoundProvider(SoundResource)
         self.rfid = self.configureScannerProvider(RFIDResource)
-        self.cardScan = CardScanWrapper(SoundProvider(SoundResource), self.rfid)
+        self.cardScan = CardScanWrapper(sound, self.rfid)
         self.messenger = Messenger(logging, messagebox)
         self.gui = EditorGUI(master, self.events(), self.env.Usb)
         self.gui.start()
@@ -38,11 +38,12 @@ class EditorController:
             int(self.env.SERIAL_CLOCK_PIN))
 
     def configureSoundProvider(self, SoundProvider):
-        self.soundProvider.init()
-        self.soundProvider.mixer.pre_init(44100, -16, 12, 512)
-        # pygame.init() IS this only for linux distribution?
-        self.soundS = self.soundProvider.mixer.Sound(self.env.SCAN_SOUND)
-        self.soundS.set_volume(1)
+        SoundProvider.init()
+        SoundProvider.mixer.pre_init(44100, -16, 12, 512)
+        print(self.env.SCAN_SOUND)
+        scanSound = SoundProvider.mixer.Sound(self.env.SCAN_SOUND)
+        scanSound.set_volume(1)
+        return scanSound
 
     def events(self):
         return {
