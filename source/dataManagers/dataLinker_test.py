@@ -15,6 +15,23 @@ class DataLinker_test(unittest.TestCase):
         self.linker = DataLinker(self.fakeVideos, self.FILE)
         self.linker.init()
 
+    def test_dataLinker_can_do_custom_checks_for_pairing(self):
+        errorThrown = False
+        try:
+            self.linker.pair("Green_card", "Indiana Jones", precheck=lambda pair: pair[0][0] != 'J')
+            self.linker.pair("Green_card", "Indiana Jones", precheck=lambda pair: pair[0][0] != 'I')
+        except self.linker.PairPreCheckFailed:
+            errorThrown = True
+        self.assertTrue(errorThrown, msg="Expected exception to have been thrown")
+
+    def test_datalinker_throws_error_for_unlinked_cards(self):
+        errorThrown = False
+        try:
+            self.linker.resolve("Green_card")
+        except self.linker.CardNotLinked:
+            errorThrown = True
+        self.assertTrue(errorThrown, msg="Expected exception to have been thrown")
+
     def test_datalinker_can_pair_entries(self):
         self.linker.pair("Green_card", "Indiana Jones")
         self.assertEqual(["Indiana Jones", "C:/Videos","True"], self.linker.resolve("Green_card"))

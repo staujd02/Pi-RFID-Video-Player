@@ -19,7 +19,6 @@ from editorGUI import EditorGUI
 # Top TODO:
 #     == Finish cardToVideoLinkerWrapper (
 #         > Handle Kill Code Case
-#         > Thrown exceptions for pairing to inactive cards
 #     )
 #     == Create Migrator (
 #         > Handle moving file list from one device to another
