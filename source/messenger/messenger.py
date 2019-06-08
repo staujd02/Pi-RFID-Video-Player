@@ -5,6 +5,10 @@ class Messenger(object):
         self.logger = logger
         self.messageDisplay = messageDisplay
 
+    def showSaveAndExit(self):
+        return self.messageDisplay.askquestion(
+            'Save And Quit', 'Would you like to save your changes?')
+
     def showNoDeviceSetWarning(self):
         self.messageDisplay.showwarning(
             'No USB Set', 'Please select a USB as a source device and then perform a Scan and Update')

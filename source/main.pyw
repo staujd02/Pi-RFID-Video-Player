@@ -1,10 +1,23 @@
 from tkinter import *
-from editor import Editor
+from editorController import EditorController
 
 import pygame
-import Adafruit_PN532 as PN532
+# import Adafruit_PN532 as PN532
+
+class DummyRFID(object):
+
+    class StandInPN532:
+        def begin(self):
+            pass
+        def SAM_configuration(self):
+            pass
+        def read_passive_target(self):
+            return bytes.fromhex("aaaa")
+
+    def PN532(self, cs=11, sclk=22, mosi=11, miso=55):
+        return self.StandInPN532()
 
 root = Tk()
 root.wm_title('RFID Editor')
-app = Editor(root, pygame, PN532)
+app = EditorController(root, pygame, DummyRFID())
 root.mainloop()

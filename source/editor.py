@@ -370,7 +370,7 @@ class Editor:
         self.soundS = self.soundProvider.mixer.Sound(self.environment.SCAN_SOUND)
         self.soundS.set_volume(1)
         # Create an instance of the PN532 class.
-        self.RFIDScannerProvider.begin()
+        self.RFIDScannerProvider.begin())
         # Configure PN532 to communicate with MiFare cards.
         self.RFIDScannerProvider.SAM_configuration()
         self.loadFiles()
