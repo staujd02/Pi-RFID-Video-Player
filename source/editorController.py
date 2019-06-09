@@ -57,6 +57,7 @@ class EditorController:
     
     def save(self):
         pass
+        # environment, cardDB, videoDB, linkerDB
 
     def quit(self):
         ans = self.messenger.showSaveAndExit()
@@ -69,8 +70,9 @@ class EditorController:
     
     def beginCardScan(self):
         self.cardScan.runScan()
-        if cardScan.getFormattedResult():
-            pass
+        res = self.cardScan.getFormattedResult()
+        if res != None:
+            self.gui.setCurrentCard(res)
             
     def videoSelectedEvent(self, event):
         pass

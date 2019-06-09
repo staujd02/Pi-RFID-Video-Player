@@ -17,7 +17,7 @@ class CardScanWrapper_test(unittest.TestCase):
 
     class PositiveDummyScanner(object):
         def read_passive_target(self):
-            return bytes.fromhex("aaaa")
+            return bytearray([0xaa,0xaa])
 
     class SlowDummyScanner(object):
         timer = None
@@ -28,7 +28,7 @@ class CardScanWrapper_test(unittest.TestCase):
                 self.triggered = True
                 self.timer = time.time()
             if (time.time() - self.timer) >= 0.5:
-                return bytes.fromhex("aaaa")
+                return bytearray([0xaa,0xaa])
             return None
 
     def test_scan_needs_sound_and_a_scanner_interface(self):
@@ -46,12 +46,12 @@ class CardScanWrapper_test(unittest.TestCase):
     def test_scan_can_return_the_results_of_a_good_scan(self):
         cardScanner = CardScanWrapper(self.NoiseMaker(), self.PositiveDummyScanner())
         cardScanner.runScan()
-        self.assertEqual("0xb'aaaa'", cardScanner.getFormattedResult())
+        self.assertEqual("0xaaaa", cardScanner.getFormattedResult())
 
     def test_the_scan_is_patient_and_will_wait_a_while_for_a_scan(self):
         cardScanner = CardScanWrapper(self.NoiseMaker(), self.SlowDummyScanner())
         cardScanner.runScan()
-        self.assertEqual("0xb'aaaa'", cardScanner.getFormattedResult())
+        self.assertEqual("0xaaaa", cardScanner.getFormattedResult())
 
     def test_when_a_card_is_scanned_a_sound_plays(self):
         noise = self.NoiseMaker()
