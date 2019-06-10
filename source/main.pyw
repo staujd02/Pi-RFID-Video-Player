@@ -1,5 +1,5 @@
 from tkinter import *
-from editorController import EditorController
+from editorPilot import EditorPilot
 
 import pygame
 # import Adafruit_PN532 as PN532
@@ -19,5 +19,5 @@ class DummyRFID(object):
 
 root = Tk()
 root.wm_title('RFID Editor')
-app = EditorController(root, pygame, DummyRFID())
+app = EditorPilot(root, pygame, DummyRFID())
 root.mainloop()

@@ -43,9 +43,21 @@ class DataLinker_test(unittest.TestCase):
 
     def test_datalinker_can_loads_an_existing_list(self):
         self.linker.pair("Red_Card", "Indiana Jones")
+        self.linker.save()
         self.linker = DataLinker(self.fakeVideos, self.FILE)
         self.linker.init()
         self.assertEqual(["Indiana Jones", "C:/Videos","True"], self.linker.resolve("Red_Card"))
+    
+    def test_datalinker_only_saves_when_told_too(self):
+        self.linker.pair("Red_Card", "Indiana Jones")
+        self.linker = DataLinker(self.fakeVideos, self.FILE)
+        self.linker.init()
+        errorThrown = False
+        try:
+            self.linker.resolve("Red_Card")
+        except self.linker.CardNotLinked:
+            errorThrown = True
+        self.assertTrue(errorThrown, msg="Expected exception to have been thrown")
     
     def test_multiple_keys_can_link_to_the_same_stored_object(self):
         self.linker.pair("Green_Card", "Indiana Jones")

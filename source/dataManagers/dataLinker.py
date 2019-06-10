@@ -28,7 +28,7 @@ class DataLinker(object):
         except KeyError:
             raise self.CardNotLinked(key)
 
-    def __save(self):
+    def save(self):
         self.linkage.save(self.dataFile)
     
     def __passByDefault(self, ignore):
@@ -36,7 +36,6 @@ class DataLinker(object):
 
     def __pair(self, key, target, precheck):
         self.__updateLink(key, target, precheck)
-        self.__save()
     
     def __updateLink(self, key, target, precheck):
         for item in self.primaryStore.iterate():

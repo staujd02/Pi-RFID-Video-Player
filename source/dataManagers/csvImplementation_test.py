@@ -34,9 +34,7 @@ class CSVImplementation_test(unittest.TestCase):
 
     def setUp(self):
         self.createTestCSV()
-        self.db = Database(CSVImplementation())
-        self.db.init()
-        self.db.load(self.TEST_DB)
+        self.db = CSVImplementation.openDB(Database, self.TEST_DB)
 
     def createTestCSV(self):
         f = open(self.TEST_DB, "w")

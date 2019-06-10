@@ -1,16 +1,15 @@
 import logging
 from tkinter import messagebox
-from sys import exit
 
 from environment.environment import Environment
 from editorGUI import EditorGUI
 from messenger.messenger import Messenger
 from providers.rfidScannerProvider import RFIDScannerProvider
 from providers.soundProvider import SoundProvider
-
+from dataManagers.database import Database
+from dataManagers.csvImplementation import CSVImplementation
+from dataManagers.cardToVideoLinker import CardToVideoLinker
 from wrapper.cardScanWrapper import CardScanWrapper
-
-# from providers.rfidScannerProvider import RFIDScannerProvider from providers.soundProvider import SoundProvider
 
 # Top TODO:
 #     == Create Migrator (
@@ -18,17 +17,30 @@ from wrapper.cardScanWrapper import CardScanWrapper
 #         > Verify with monster scan function
 #     )
 
+
 class EditorController:
 
     def __init__(self, master, SoundResource, RFIDResource):
         self.env = Environment()
+        self.configureDataProviders()
+        self.configureScanners(SoundResource, RFIDResource)
+        self.messenger = Messenger(logging, messagebox)
+        self.configureGUI(master)
+
+    def configureGUI(self, master):
+        self.gui = EditorGUI(master, self.events(), self.env.Usb)
+        self.gui.start()
+
+    def configureScanners(self, SoundResource, RFIDResource):
         sound = self.configureSoundProvider(SoundResource)
         self.rfid = self.configureScannerProvider(RFIDResource)
         self.cardScan = CardScanWrapper(sound, self.rfid)
-        self.messenger = Messenger(logging, messagebox)
-        self.gui = EditorGUI(master, self.events(), self.env.Usb)
-        self.gui.start()
-    
+
+    def configureDataProviders(self):
+        self.cards = CSVImplementation.openDB(Database, self.env.UuidTable)
+        self.videos = CSVImplementation.openDB(Database, self.env.VideoList)
+        self.linker = CardToVideoLinker(self.videos, self.env.LinkedTable)
+
     def configureScannerProvider(self, rfidScanner):
         provider = RFIDScannerProvider(rfidScanner)
         return provider.PN532(
@@ -47,35 +59,13 @@ class EditorController:
 
     def events(self):
         return {
-            "save": self.save,
-            "quit": self.quit,
-            "assignKill": self.assignKill,
-            "beginCardScan": self.beginCardScan,
-            "updateRepository": self.updateRepository,
-            "videoSelectedEvent": self.videoSelectedEvent
+            "save": self.empty,
+            "quit": self.empty,
+            "assignKill": self.empty,
+            "beginCardScan": self.empty,
+            "updateRepository": self.empty,
+            "videoSelectedEvent": self.empty
         }
-    
-    def save(self):
-        pass
-        # environment, cardDB, videoDB, linkerDB
 
-    def quit(self):
-        ans = self.messenger.showSaveAndExit()
-        if ans == 'yes':
-            self.save()
-        exit(0)
-    
-    def assignKill(self):
-        pass
-    
-    def beginCardScan(self):
-        self.cardScan.runScan()
-        res = self.cardScan.getFormattedResult()
-        if res != None:
-            self.gui.setCurrentCard(res)
-            
-    def videoSelectedEvent(self, event):
-        pass
-    
-    def updateRepository(self):
+    def empty(self, opt="nothing"):
         pass

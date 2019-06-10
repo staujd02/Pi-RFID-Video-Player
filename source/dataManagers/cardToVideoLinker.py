@@ -1,6 +1,5 @@
 from dataLinker import DataLinker
 
-
 class CardToVideoLinker(DataLinker):
 
     KillCode = "<STOP APPLICATION>"

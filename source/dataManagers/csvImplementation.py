@@ -1,5 +1,12 @@
 class CSVImplementation(object):
 
+    @staticmethod
+    def openDB(wrapper, name):
+        c = wrapper(CSVImplementation())
+        c.init()
+        c.load(name)
+        return c
+
     def init(self):
         self.data = {}
 
