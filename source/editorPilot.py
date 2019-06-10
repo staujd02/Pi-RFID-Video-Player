@@ -37,6 +37,9 @@ class EditorPilot(EditorController):
             self.gui.clearCurrentSelection()
             try:
                 l = Video(self.linker.resolve(res))
+                if l == self.linker.KillCode:
+                    self.messenger.showCardScannedIsAKiller()
+                    return
                 self.gui.setListBoxSelection(l.name)
             except self.linker.CardNotLinked:
                 pass

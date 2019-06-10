@@ -52,7 +52,6 @@ class EditorController:
     def configureSoundProvider(self, SoundProvider):
         SoundProvider.init()
         SoundProvider.mixer.pre_init(44100, -16, 12, 512)
-        print(self.env.SCAN_SOUND)
         scanSound = SoundProvider.mixer.Sound(self.env.SCAN_SOUND)
         scanSound.set_volume(1)
         return scanSound
