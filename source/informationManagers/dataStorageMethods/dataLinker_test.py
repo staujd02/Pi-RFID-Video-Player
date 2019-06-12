@@ -1,9 +1,9 @@
 import unittest
 import os
 
-from dataLinker import DataLinker
 from database import Database
 from csvImplementation import CSVImplementation
+from dataLinker import DataLinker
 
 class DataLinker_test(unittest.TestCase):
 

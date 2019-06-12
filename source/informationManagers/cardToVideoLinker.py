@@ -1,4 +1,4 @@
-from dataLinker import DataLinker
+from source.informationManagers.dataStorageMethods.dataLinker import DataLinker
 
 class CardToVideoLinker(DataLinker):
 

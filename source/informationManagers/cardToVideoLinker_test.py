@@ -3,8 +3,8 @@ import os
 
 from cardToVideoLinker import CardToVideoLinker
 
-from database import Database
-from csvImplementation import CSVImplementation
+from dataStorageMethods.database import Database
+from dataStorageMethods.csvImplementation import CSVImplementation
 
 class CardToVideoLinker_test(unittest.TestCase):
     
@@ -12,7 +12,7 @@ class CardToVideoLinker_test(unittest.TestCase):
     STORE_FILE='videos.csv'
     videos = ["1,Jurassic Park,C:/Videos,True\n", "2,Star Wars,C:/DVDs,False\n", "5,Indiana Jones,C:/Videos,True"]
     
-    def test_datalinker_can_loads_an_existing_list(self):
+    def test_linker_can_loads_an_existing_list(self):
         self.linker.pair("Red_Card", "Indiana Jones")
         self.linker.save()
         self.linker = CardToVideoLinker(self.fakeVideos, self.FILE)

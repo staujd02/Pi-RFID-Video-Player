@@ -6,8 +6,8 @@ from editorGUI import EditorGUI
 from messenger.messenger import Messenger
 from providers.rfidScannerProvider import RFIDScannerProvider
 from providers.soundProvider import SoundProvider
-from informationManagers.database import Database
-from informationManagers.csvImplementation import CSVImplementation
+from informationManagers.dataStorageMethods.database import Database
+from informationManagers.dataStorageMethods.csvImplementation import CSVImplementation
 from informationManagers.cardToVideoLinker import CardToVideoLinker
 from wrapper.cardScanWrapper import CardScanWrapper
 
