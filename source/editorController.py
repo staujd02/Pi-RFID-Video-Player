@@ -6,9 +6,9 @@ from editorGUI import EditorGUI
 from messenger.messenger import Messenger
 from providers.rfidScannerProvider import RFIDScannerProvider
 from providers.soundProvider import SoundProvider
-from dataManagers.database import Database
-from dataManagers.csvImplementation import CSVImplementation
-from dataManagers.cardToVideoLinker import CardToVideoLinker
+from informationManagers.database import Database
+from informationManagers.csvImplementation import CSVImplementation
+from informationManagers.cardToVideoLinker import CardToVideoLinker
 from wrapper.cardScanWrapper import CardScanWrapper
 
 # Top TODO:
@@ -39,7 +39,7 @@ class EditorController:
     def configureDataProviders(self):
         self.cards = CSVImplementation.openDB(Database, self.env.UuidTable)
         self.videos = CSVImplementation.openDB(Database, self.env.VideoList)
-        self.linker = CardToVideoLinker(self.videos, self.env.LinkedTable)
+        self.linker = CardToVideoLinker.openFullInstance(self.videos, self.env.LinkedTable)
 
     def configureScannerProvider(self, rfidScanner):
         provider = RFIDScannerProvider(rfidScanner)

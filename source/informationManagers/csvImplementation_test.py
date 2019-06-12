@@ -31,7 +31,6 @@ class CSVImplementation_test(unittest.TestCase):
         self.assertEqual(["Donkey", "Dreary"], self.db.query(next(iterator)))
         self.assertEqual(["Horse", "Champion"], self.db.query(next(iterator)))
 
-
     def setUp(self):
         self.createTestCSV()
         self.db = CSVImplementation.openDB(Database, self.TEST_DB)

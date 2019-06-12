@@ -3,6 +3,12 @@ from dataLinker import DataLinker
 class CardToVideoLinker(DataLinker):
 
     KillCode = "<STOP APPLICATION>"
+    
+    @staticmethod
+    def openFullInstance(primaryDb, path):
+        l = CardToVideoLinker(primaryDb, path)
+        l.init()
+        return l
 
     def resolve(self, key):
         try:

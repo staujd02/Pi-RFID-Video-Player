@@ -11,6 +11,13 @@ class CardToVideoLinker_test(unittest.TestCase):
     FILE='test.csv'
     STORE_FILE='videos.csv'
     videos = ["1,Jurassic Park,C:/Videos,True\n", "2,Star Wars,C:/DVDs,False\n", "5,Indiana Jones,C:/Videos,True"]
+    
+    def test_datalinker_can_loads_an_existing_list(self):
+        self.linker.pair("Red_Card", "Indiana Jones")
+        self.linker.save()
+        self.linker = CardToVideoLinker(self.fakeVideos, self.FILE)
+        self.linker.init()
+        self.assertEqual(["Indiana Jones", "C:/Videos","True"], self.linker.resolve("Red_Card"))
 
     def test_cards_can_be_linked_to_kill_code(self):
         self.linker.pair("Green_Card", self.linker.KillCode)

@@ -5,9 +5,9 @@ class Environment(object):
     ENVIRONMENT_LOG = "environment.log"
     SCAN_SOUND = '/opt/sonic-pi/etc/samples/ambi_soft_buzz.flac'
     KillCommand = "-255"
-    VideoList = "vids.csv"
-    UuidTable = "UUID_Table.csv"
-    LinkedTable = "CardsToVideos.csv"
+    VideoList = "../data/vids.csv"
+    UuidTable = "../data/UUID_Table.csv"
+    LinkedTable = "../data/CardsToVideos.csv"
     Usb = "< Not Set >"
     CHIP_SELECT_PIN = "18"
     MASTER_OUTPUT_SLAVE_INPUT_PIN = "23"

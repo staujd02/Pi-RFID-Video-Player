@@ -17,8 +17,9 @@ class EditorPilot(EditorController):
 
     def save(self):
         self.env.update()
-        for obj in [self.videos, self.cards, self.linker]:
-            obj.save()
+        self.videos.save(self.env.VideoList)
+        self.cards.save(self.env.UuidTable)
+        self.cards.save(self.env.LinkedTable)
 
     def quit(self):
         ans = self.messenger.showSaveAndExit()
@@ -27,7 +28,9 @@ class EditorPilot(EditorController):
         exit(0)
     
     def assignKill(self):
-        pass
+        currentCard = self.gui.getCurrentCard()
+        if currentCard:
+            self.linker.pair(currentCard, self.linker.KillCode)
     
     def beginCardScan(self):
         self.cardScan.runScan()

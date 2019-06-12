@@ -1,7 +1,7 @@
 import os
 
-from dataManagers.database import Database
-from dataManagers.csvImplementation import CSVImplementation
+from database import Database
+from csvImplementation import CSVImplementation
 
 class ScriptedFileSearch:
 

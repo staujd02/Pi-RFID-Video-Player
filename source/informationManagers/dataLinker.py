@@ -5,7 +5,7 @@ from csvImplementation import CSVImplementation
 
 
 class DataLinker(object):
-
+    
     def __init__(self, primaryStore, dataFile):
         self.dataFile = dataFile
         self.linkage = Database(CSVImplementation())
