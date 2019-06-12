@@ -1,7 +1,7 @@
 from sys import exit
 
-from editorController import EditorController
-from dataStructures import Video
+from source.editorController import EditorController
+from source.dataStructures import Video
 
 class EditorPilot(EditorController):
     

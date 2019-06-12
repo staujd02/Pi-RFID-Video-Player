@@ -1,5 +1,5 @@
 from tkinter import *
-from editorPilot import EditorPilot
+from source.editorPilot import EditorPilot
 
 import pygame
 # import Adafruit_PN532 as PN532

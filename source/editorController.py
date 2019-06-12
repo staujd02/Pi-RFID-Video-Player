@@ -1,15 +1,15 @@
 import logging
 from tkinter import messagebox
 
-from environment.environment import Environment
-from editorGUI import EditorGUI
-from messenger.messenger import Messenger
-from providers.rfidScannerProvider import RFIDScannerProvider
-from providers.soundProvider import SoundProvider
-from informationManagers.dataStorageMethods.database import Database
-from informationManagers.dataStorageMethods.csvImplementation import CSVImplementation
-from informationManagers.cardToVideoLinker import CardToVideoLinker
-from wrapper.cardScanWrapper import CardScanWrapper
+from source.environment.environment import Environment
+from source.editorGUI import EditorGUI
+from source.messenger.messenger import Messenger
+from source.providers.rfidScannerProvider import RFIDScannerProvider
+from source.providers.soundProvider import SoundProvider
+from source.informationManagers.dataStorageMethods.database import Database
+from source.informationManagers.dataStorageMethods.csvImplementation import CSVImplementation
+from source.informationManagers.cardToVideoLinker import CardToVideoLinker
+from source.wrapper.cardScanWrapper import CardScanWrapper
 
 # Top TODO:
 #     == Create Migrator (
