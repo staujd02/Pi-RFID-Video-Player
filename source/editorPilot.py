@@ -19,7 +19,7 @@ class EditorPilot(EditorController):
         self.env.update()
         self.videos.save(self.env.VideoList)
         self.cards.save(self.env.UuidTable)
-        self.cards.save(self.env.LinkedTable)
+        self.linker.save(self.env.LinkedTable)
 
     def quit(self):
         ans = self.messenger.showSaveAndExit()
@@ -36,16 +36,20 @@ class EditorPilot(EditorController):
         self.cardScan.runScan()
         res = self.cardScan.getFormattedResult()
         if res != None:
-            self.gui.setCurrentCard(res)
-            self.gui.clearCurrentSelection()
-            try:
-                l = Video(self.linker.resolve(res))
-                if l == self.linker.KillCode:
-                    self.messenger.showCardScannedIsAKiller()
-                    return
-                self.gui.setListBoxSelection(l.name)
-            except self.linker.CardNotLinked:
-                pass
+            self.resolveCardScanToGui(res)
+        #     try:
+        #         l = Video(self.linker.resolve(res))
+        #         if l == self.linker.KillCode:
+        #             self.messenger.showCardScannedIsAKiller()
+        #             return
+        #         self.gui.setListBoxSelection(l.name)
+        #     except self.linker.CardNotLinked:
+        #         pass
+
+    def resolveCardScanToGui(self, res):
+        self.gui.setCurrentCard(res)
+        self.gui.clearCurrentSelection()
+        self.gui.setListBoxSelection("Jurassic Park")
             
     def videoSelectedEvent(self, event):
         pass
