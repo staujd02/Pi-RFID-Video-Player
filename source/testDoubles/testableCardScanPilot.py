@@ -5,6 +5,17 @@ class TestableCardScanPilot(EditorPilot):
     def __init__(self, cardBits="XXBB"):
         self.cardScan = self.TestableCardScan(cardBits)
         self.gui = self.TestableGui()
+        self.messenger = self.TestableMessenger()
+
+    class TestableMessenger(object):
+        showedMessage = False
+        showedCardMessage = False
+
+        def showCardScannedIsAKiller(self):
+            self.showedCardMessage = True
+
+        def showCardIsNotPaired(self):
+            self.showedMessage = True
 
     class TestableCardScan(object):
         scanWasCalled = False

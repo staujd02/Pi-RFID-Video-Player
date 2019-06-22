@@ -10,7 +10,7 @@ class EditorPilot(EditorController):
             "save": self.save,
             "quit": self.quit,
             "assignKill": self.assignKill,
-            "beginCardScan": self.beginCardScan,
+            "beginCardScan": self.scanButtonHandler,
             "updateRepository": self.updateRepository,
             "videoSelectedEvent": self.videoSelectedEvent
         }
@@ -32,27 +32,39 @@ class EditorPilot(EditorController):
         if currentCard:
             self.linker.pair(currentCard, self.linker.KillCode)
     
-    def beginCardScan(self):
+    def scanButtonHandler(self):
         self.cardScan.runScan()
-        res = self.cardScan.getFormattedResult()
-        if res != None:
-            self.resolveCardScanToGui(res)
-        #     try:
-        #         l = Video(self.linker.resolve(res))
-        #         if l == self.linker.KillCode:
-        #             self.messenger.showCardScannedIsAKiller()
-        #             return
-        #         self.gui.setListBoxSelection(l.name)
-        #     except self.linker.CardNotLinked:
-        #         pass
+        cardKey = self.cardScan.getFormattedResult()
+        if cardKey != None:
+            self.resolvePositiveScanResults(cardKey)
 
-    def resolveCardScanToGui(self, res):
-        self.gui.setCurrentCard(res)
+    def resolvePositiveScanResults(self, cardKey):
+        self.gui.setCurrentCard(cardKey)
         self.gui.clearCurrentSelection()
-        self.gui.setListBoxSelection("Jurassic Park")
+        entry = self.lookUpMatchingEntry(cardKey)
+        self.resolveEntry(entry)
+
+    def resolveEntry(self, entry):
+        if entry == self.linker.CardNotLinked:
+            self.messenger.showCardIsNotPaired()
+            return
+        if entry == self.linker.KillCode:
+            self.messenger.showCardScannedIsAKiller()
+            return
+        self.highlightMatchingVideo(Video(entry))
+
+    def lookUpMatchingEntry(self, cardKey):
+        try:
+            return self.linker.resolve(cardKey)
+        except self.linker.CardNotLinked:
+            return self.linker.CardNotLinked
+
+    def highlightMatchingVideo(self, video):
+        self.gui.setListBoxSelection(video.name)
             
     def videoSelectedEvent(self, event):
-        pass
+        if self.gui.getCurrentCard() != "":
+            self.linker.pair(self.gui.getCurrentCard(), event)
     
     def updateRepository(self):
         pass

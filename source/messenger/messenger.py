@@ -9,6 +9,10 @@ class Messenger(object):
         return self.messageDisplay.askquestion(
             'Save And Quit', 'Would you like to save your changes?')
 
+    def showCardIsNotPaired(self):
+        self.messageDisplay.showinfo('Card Unassigned',
+                                     'Card is not currently assigned to a video')
+
     def showCardScannedIsAKiller(self):
         self.messageDisplay.showinfo(
             'Kill Card', 'This card is currently assigned to kill the application.')
