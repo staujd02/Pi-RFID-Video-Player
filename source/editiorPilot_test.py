@@ -9,7 +9,6 @@ from informationManagers.cardToVideoLinker import CardToVideoLinker
 from informationManagers.dataStorageMethods.database import Database
 from informationManagers.dataStorageMethods.csvImplementation import CSVImplementation
 
-
 class EditorGUI_test(unittest.TestCase):
     FILE = 'test.csv'
     STORE_FILE = 'videos.csv'
@@ -17,13 +16,15 @@ class EditorGUI_test(unittest.TestCase):
               "2,Star Wars,C:/DVDs,False\n",
               "5,Indiana Jones,C:/Videos,True"]
 
+    def setUp(self):
+        self.createTest("DUMMY_CARD_ID")
+
     def test_cards_can_be_scanned(self):
         self.createTest(None)
         self.test.scanButtonHandler()
         self.assertTrue(self.test.cardScan.scanWasCalled)
     
     def test_given_a_card_was_scanned_whenAVideoIsSelected_its_linked(self):
-        self.createTest("DUMMY_CARD_ID")
         self.test.scanButtonHandler()
         self.test.videoSelectedEvent("Jurassic Park")
         self.assertEqual("Jurassic Park", Video(self.test.linker.resolve("DUMMY_CARD_ID")).name)
@@ -45,12 +46,19 @@ class EditorGUI_test(unittest.TestCase):
             error = True
         self.assertTrue(error)
 
-    # Rejects pairing when an inactive video is selected - old pair is selected    
-    # def test_given_a_card_was_scanned_when_multiple_VideoIsSelected_the_last_is_linked(self):
-    #     self.createTest("NEW_DUMMY_CARD_ID")
-    #     self.test.scanButtonHandler()
-    #     self.test.videoSelectedEvent("Star Wars")
-    #     self.assertEqual("Star Wars", Video(self.test.linker.resolve("DUMMY_CARD_ID")).name)
+    def test_when_a_pairing_is_rejected_the_old_link_is_highlighted(self):
+        self.test.linker.pair("DUMMY_CARD_ID", "Indiana Jones")
+        self.test.scanButtonHandler()
+        self.test.videoSelectedEvent("Indiana Jones")
+        self.test.videoSelectedEvent("Star Wars")
+        self.assertEqual("Indiana Jones", Video(self.test.linker.resolve("DUMMY_CARD_ID")).name)
+        self.assertEqual("Indiana Jones", self.test.gui.selectedVideo)
+
+    def when_no_video_was_linked_and_pairing_is_rejected_it_reverts_to_no_selection(self, parameter_list):
+        self.test.linker.pair("DUMMY_CARD_ID", self.test.linker.KillCode)
+        self.test.scanButtonHandler()
+        self.test.videoSelectedEvent("Star Wars")
+        self.assertEqual(None, self.test.gui.selectedVideo)
     
     def test_when_no_card_is_scanned_the_display_is_blank(self):
         self.createTest(None)
@@ -58,37 +66,33 @@ class EditorGUI_test(unittest.TestCase):
         self.assertEqual("", self.test.gui.getCurrentCard())
 
     def test_scanned_cards_are_set_to_the_display(self):
-        self.createTest("DUMMY_CARD_ID")
         self.test.linker.pair("DUMMY_CARD_ID", self.test.linker.KillCode)
         self.test.scanButtonHandler()
         self.assertEqual("DUMMY_CARD_ID", self.test.gui.getCurrentCard())
 
     def test_when_a_valid_card_is_scanned_the_video_list_is_cleared(self):
-        self.createTest("DUMMY_CARD_ID")
         self.test.linker.pair("DUMMY_CARD_ID", self.test.linker.KillCode)
         self.test.scanButtonHandler()
         self.assertTrue(self.test.gui.wasCleared)
     
     def test_when_a_valid_kill_card_is_scanned_it_has_nothing_selected(self):
-        self.createTest("DUMMY_CARD_ID")
+        self.test.lastSelection = "Ghost Busters"
         self.test.linker.pair("DUMMY_CARD_ID", self.test.linker.KillCode)
         self.test.scanButtonHandler()
-        self.assertEqual("", self.test.gui.selectedVideo)
+        self.test.videoSelectedEvent("Star Wars")
+        self.assertEqual(None, self.test.gui.selectedVideo)
     
     def test_when_a_valid_kill_card_is_scanned_it_shows_a_message(self):
-        self.createTest("DUMMY_CARD_ID")
         self.test.linker.pair("DUMMY_CARD_ID", self.test.linker.KillCode)
         self.test.scanButtonHandler()
         self.assertTrue(self.test.messenger.showedCardMessage)
 
     def test_when_a_valid_card_is_scanned_it_highlights_a_video_pair(self):
-        self.createTest("DUMMY_CARD_ID")
         self.test.linker.pair("DUMMY_CARD_ID", "Jurassic Park")
         self.test.scanButtonHandler()
         self.assertEqual("Jurassic Park", self.test.gui.selectedVideo)
 
     def test_when_an_unlinked_card_is_scanned_it_shows_a_message(self):
-        self.createTest("DUMMY_CARD_ID")
         self.test.scanButtonHandler()
         self.assertEqual("", self.test.gui.selectedVideo)
         self.assertTrue(self.test.messenger.showedMessage)

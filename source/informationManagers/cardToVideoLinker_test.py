@@ -22,6 +22,14 @@ class CardToVideoLinker_test(unittest.TestCase):
     def test_cards_can_be_linked_to_kill_code(self):
         self.linker.pair("Green_Card", self.linker.KillCode)
         self.assertEqual(self.linker.KillCode, self.linker.resolve("Green_Card"))
+    
+    def test_cards_linked_to_the_kill_code_can_be_saved(self):
+        self.linker.pair("Green_Card", self.linker.KillCode)
+        self.linker.save()
+        self.fakeVideos = self.initDatabase(self.STORE_FILE)
+        self.linker = CardToVideoLinker(self.fakeVideos, self.FILE)
+        self.linker.init()
+        self.assertEqual(self.linker.KillCode, self.linker.resolve("Green_Card"))
 
     def test_cardToVideoLinker_exists(self):
         self.assertIsNotNone(self.linker)
@@ -36,12 +44,12 @@ class CardToVideoLinker_test(unittest.TestCase):
         self.assertTrue(errorThrown)
 
     def setUp(self):
-        self.fakeVideos = self.initDatabase(self.STORE_FILE, self.videos)
+        self.createTestCSV(self.STORE_FILE, self.videos)     
+        self.fakeVideos = self.initDatabase(self.STORE_FILE)
         self.linker = CardToVideoLinker(self.fakeVideos, self.FILE)
         self.linker.init()
     
-    def initDatabase(self, name, data):
-        self.createTestCSV(name, data)     
+    def initDatabase(self, name):
         db = Database(CSVImplementation())
         db.init()
         db.load(name)

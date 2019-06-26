@@ -19,7 +19,7 @@ class EditorPilot(EditorController):
         self.env.update()
         self.videos.save(self.env.VideoList)
         self.cards.save(self.env.UuidTable)
-        self.linker.save(self.env.LinkedTable)
+        self.linker.save()
 
     def quit(self):
         ans = self.messenger.showSaveAndExit()
@@ -45,6 +45,7 @@ class EditorPilot(EditorController):
         self.resolveEntry(entry)
 
     def resolveEntry(self, entry):
+        self.lastSelection = None
         if entry == self.linker.CardNotLinked:
             self.messenger.showCardIsNotPaired()
             return
@@ -61,10 +62,20 @@ class EditorPilot(EditorController):
 
     def highlightMatchingVideo(self, video):
         self.gui.setListBoxSelection(video.name)
+        self.lastSelection = video.name
             
     def videoSelectedEvent(self, event):
         if self.gui.getCurrentCard() != "":
-            self.linker.pair(self.gui.getCurrentCard(), event)
+            self.linkVideo(self.gui.getCurrentCard(), event, self.handleUnlinkedCard)
     
+    def linkVideo(self, card, videoName, handler):
+        try:
+            self.linker.pair(card, videoName)
+        except self.linker.CannotPairToInactiveVideo:
+            handler()
+    
+    def handleUnlinkedCard(self):
+        self.gui.setListBoxSelection(self.lastSelection)
+
     def updateRepository(self):
         pass

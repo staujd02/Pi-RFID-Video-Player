@@ -34,6 +34,9 @@ class TestableCardScanPilot(EditorPilot):
         wasCleared = False
         selectedVideo = ""
 
+        def getTextOfCurrentListBoxSelection(self):
+            return self.selectedVideo
+
         def setCurrentCard(self, card):
             self.currentCard = card
 
