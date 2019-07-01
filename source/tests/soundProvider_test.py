@@ -1,6 +1,6 @@
 import unittest
 
-from soundProvider import SoundProvider
+from source.providers.soundProvider import SoundProvider
 
 class SoundProvider_test(unittest.TestCase):
 

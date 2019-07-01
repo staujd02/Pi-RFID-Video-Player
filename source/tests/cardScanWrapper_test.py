@@ -1,7 +1,7 @@
 import unittest
 import time
 
-from cardScanWrapper import CardScanWrapper
+from source.wrapper.cardScanWrapper import CardScanWrapper
 
 class CardScanWrapper_test(unittest.TestCase):
 

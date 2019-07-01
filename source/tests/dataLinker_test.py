@@ -1,9 +1,9 @@
 import unittest
 import os
 
-from database import Database
-from csvImplementation import CSVImplementation
-from dataLinker import DataLinker
+from source.informationManagers.dataStorageMethods.database import Database
+from source.informationManagers.dataStorageMethods.csvImplementation import CSVImplementation
+from source.informationManagers.dataStorageMethods.dataLinker import DataLinker
 
 class DataLinker_test(unittest.TestCase):
 

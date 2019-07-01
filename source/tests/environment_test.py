@@ -2,7 +2,7 @@
 import unittest
 import os
 
-from environment import Environment
+from source.environment.environment import Environment
 
 class Environment_test(unittest.TestCase):
     

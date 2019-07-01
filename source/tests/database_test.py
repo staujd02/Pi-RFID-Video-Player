@@ -1,6 +1,6 @@
 import unittest
 
-from database import Database
+from source.informationManagers.dataStorageMethods.database import Database
 
 class Database_test(unittest.TestCase):
 

@@ -1,6 +1,6 @@
 import unittest
 
-from rfidScannerProvider import RFIDScannerProvider
+from source.providers.rfidScannerProvider import RFIDScannerProvider
 
 class RFIDScannerProvider_test(unittest.TestCase):
 

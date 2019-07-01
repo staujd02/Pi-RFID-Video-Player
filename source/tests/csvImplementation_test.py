@@ -1,8 +1,8 @@
 import unittest
 import os
 
-from csvImplementation import CSVImplementation
-from database import Database
+from source.informationManagers.dataStorageMethods.csvImplementation import CSVImplementation
+from source.informationManagers.dataStorageMethods.database import Database
 
 class CSVImplementation_test(unittest.TestCase):
 

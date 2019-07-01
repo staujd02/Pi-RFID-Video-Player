@@ -1,6 +1,6 @@
 import unittest
 
-from screenProvider import ScreenProvider
+from source.providers.screenProvider import ScreenProvider
 
 
 class ScreenProvider_test(unittest.TestCase):

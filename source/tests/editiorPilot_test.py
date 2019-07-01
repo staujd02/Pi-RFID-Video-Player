@@ -2,12 +2,12 @@
 import unittest
 import os
 
-from editorPilot import EditorPilot
-from testDoubles.testableCardScanPilot import TestableCardScanPilot
+from source.editorPilot import EditorPilot
+from source.tests.testDoubles.testableCardScanPilot import TestableCardScanPilot
 from source.dataStructures import Video
-from informationManagers.cardToVideoLinker import CardToVideoLinker
-from informationManagers.dataStorageMethods.database import Database
-from informationManagers.dataStorageMethods.csvImplementation import CSVImplementation
+from source.informationManagers.cardToVideoLinker import CardToVideoLinker
+from source.informationManagers.dataStorageMethods.database import Database
+from source.informationManagers.dataStorageMethods.csvImplementation import CSVImplementation
 
 class EditorGUI_test(unittest.TestCase):
     FILE = 'test.csv'
@@ -127,3 +127,5 @@ class EditorGUI_test(unittest.TestCase):
             os.remove(self.FILE)
         if os.path.isfile(self.STORE_FILE):
             os.remove(self.STORE_FILE)
+        if os.path.isfile(self.KILLER_FILE):
+            os.remove(self.KILLER_FILE)

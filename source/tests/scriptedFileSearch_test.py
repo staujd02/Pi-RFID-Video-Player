@@ -1,7 +1,7 @@
 import unittest
 import os
 
-from scriptedFileSearch import ScriptedFileSearch 
+from source.informationManagers.search.scriptedFileSearch import ScriptedFileSearch 
 
 class ScriptProvider_test(unittest.TestCase):
 

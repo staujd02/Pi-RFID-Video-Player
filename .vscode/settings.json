@@ -2,14 +2,14 @@
     "python.testing.unittestArgs": [
         "-v",
         "-s",
-        "./source",
+        "./source/tests",
         "-p",
         "*_test.py"
     ],
-    "python.testing.pyTestEnabled": true,
+    "python.testing.pytestEnabled": false,
     "python.testing.nosetestsEnabled": false,
-    "python.testing.unittestEnabled": false,
-    "python.testing.pyTestArgs": [
+    "python.testing.unittestEnabled": true,
+    "python.testing.pytestArgs": [
         "source"
     ],
     "cSpell.words": [
@@ -18,5 +18,6 @@
         "rfid",
         "shutil",
         "tkinter"
-    ]
+    ],
+    "python.pythonPath": "C:\\Users\\Joel\\AppData\\Local\\Programs\\Python\\Python36-32\\python.exe"
 }

@@ -2,7 +2,7 @@ import unittest
 import time
 from tkinter import Tk
 
-from editorGUI import EditorGUI
+from source.editorGUI import EditorGUI
 
 class EditorGUI_test(unittest.TestCase):
 

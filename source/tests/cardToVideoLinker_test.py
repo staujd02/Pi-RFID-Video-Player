@@ -1,10 +1,10 @@
 import unittest
 import os
 
-from cardToVideoLinker import CardToVideoLinker
+from source.informationManagers.cardToVideoLinker import CardToVideoLinker
 
-from dataStorageMethods.database import Database
-from dataStorageMethods.csvImplementation import CSVImplementation
+from source.informationManagers.dataStorageMethods.database import Database
+from source.informationManagers.dataStorageMethods.csvImplementation import CSVImplementation
 
 class CardToVideoLinker_test(unittest.TestCase):
     
@@ -29,7 +29,7 @@ class CardToVideoLinker_test(unittest.TestCase):
         self.linker.pair("Green_Card", self.linker.KillCode)
         self.linker.save()
         self.fakeVideos = self.initDatabase(self.STORE_FILE)
-        self.linker = CardToVideoLinker(self.fakeVideos, self.FILE)
+        self.linker = CardToVideoLinker(self.fakeVideos, self.killers, self.FILE)
         self.linker.init()
         self.assertEqual(self.linker.KillCode, self.linker.resolve("Green_Card"))
 
@@ -69,3 +69,5 @@ class CardToVideoLinker_test(unittest.TestCase):
             os.remove(self.FILE)
         if os.path.isfile(self.STORE_FILE):
             os.remove(self.STORE_FILE)
+        if os.path.isfile(self.KILLER_FILE):
+            os.remove(self.KILLER_FILE)

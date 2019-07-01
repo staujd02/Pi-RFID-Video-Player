@@ -1,6 +1,6 @@
 import unittest
 
-from imageWrapper import ImageWrapper
+from source.wrapper.imageWrapper import ImageWrapper
 
 class ImageWrapper_test(unittest.TestCase):
 
