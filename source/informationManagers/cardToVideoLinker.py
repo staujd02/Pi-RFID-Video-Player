@@ -5,10 +5,14 @@ class CardToVideoLinker(DataLinker):
     KillCode = "<STOP APPLICATION>"
     
     @staticmethod
-    def openFullInstance(primaryDb, path):
-        l = CardToVideoLinker(primaryDb, path)
+    def openFullInstance(primaryDb, killerDb, path):
+        l = CardToVideoLinker(primaryDb, killerDb, path)
         l.init()
         return l
+
+    def __init__(self, videos, killers, file):
+        super(CardToVideoLinker, self).__init__(videos, file)
+        self.killerStore = killers
 
     def resolve(self, key):
         try:

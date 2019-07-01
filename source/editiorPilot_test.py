@@ -12,9 +12,11 @@ from informationManagers.dataStorageMethods.csvImplementation import CSVImplemen
 class EditorGUI_test(unittest.TestCase):
     FILE = 'test.csv'
     STORE_FILE = 'videos.csv'
+    KILLER_FILE = 'killers.csv'
     videos = ["1,Jurassic Park,C:/Videos,True\n",
               "2,Star Wars,C:/DVDs,False\n",
               "5,Indiana Jones,C:/Videos,True"]
+    killers = []
 
     def setUp(self):
         self.createTest("DUMMY_CARD_ID")
@@ -103,7 +105,8 @@ class EditorGUI_test(unittest.TestCase):
     def createTestDouble(self, card):
         testDouble = TestableCardScanPilot(card)
         testDouble.videos = self.initDatabase(self.STORE_FILE, self.videos)
-        testDouble.linker = CardToVideoLinker(testDouble.videos, self.FILE)
+        testDouble.killers = self.initDatabase(self.KILLER_FILE, self.killers)
+        testDouble.linker = CardToVideoLinker(testDouble.videos, testDouble.killers, self.FILE)
         testDouble.linker.init()
         return testDouble
 

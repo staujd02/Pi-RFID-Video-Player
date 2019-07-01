@@ -10,12 +10,14 @@ class CardToVideoLinker_test(unittest.TestCase):
     
     FILE='test.csv'
     STORE_FILE='videos.csv'
+    KILLER_FILE='killers.csv'
     videos = ["1,Jurassic Park,C:/Videos,True\n", "2,Star Wars,C:/DVDs,False\n", "5,Indiana Jones,C:/Videos,True"]
+    killers = []
     
     def test_linker_can_loads_an_existing_list(self):
         self.linker.pair("Red_Card", "Indiana Jones")
         self.linker.save()
-        self.linker = CardToVideoLinker(self.fakeVideos, self.FILE)
+        self.linker = CardToVideoLinker(self.fakeVideos, self.killers, self.FILE)
         self.linker.init()
         self.assertEqual(["Indiana Jones", "C:/Videos","True"], self.linker.resolve("Red_Card"))
 
@@ -45,8 +47,10 @@ class CardToVideoLinker_test(unittest.TestCase):
 
     def setUp(self):
         self.createTestCSV(self.STORE_FILE, self.videos)     
+        self.createTestCSV(self.KILLER_FILE, self.killers)     
         self.fakeVideos = self.initDatabase(self.STORE_FILE)
-        self.linker = CardToVideoLinker(self.fakeVideos, self.FILE)
+        self.fakeKillers = self.initDatabase(self.KILLER_FILE)
+        self.linker = CardToVideoLinker(self.fakeVideos, self.fakeKillers, self.FILE)
         self.linker.init()
     
     def initDatabase(self, name):
