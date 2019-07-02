@@ -10,7 +10,7 @@ class Video(object):
     def __extractVideoFromList(self, list):
         self.name = list[0] 
         self.path = list[1]
-        self.isActive = list[2]
+        self.isActive = bool(list[2])
 
     def __mapArgumentsToMembers(self, name, path, isActive):
        self.name = name 

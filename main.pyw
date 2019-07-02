@@ -20,4 +20,5 @@ class DummyRFID(object):
 root = Tk()
 root.wm_title('RFID Editor')
 app = EditorPilot(root, pygame, DummyRFID())
+app.init()
 root.mainloop()

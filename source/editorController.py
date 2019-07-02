@@ -21,15 +21,20 @@ from source.wrapper.cardScanWrapper import CardScanWrapper
 class EditorController:
 
     def __init__(self, master, SoundResource, RFIDResource):
+        self.master = master
+        self.soundResource = SoundResource
+        self.RFIDResource = RFIDResource
+
+    def init(self):
         self.env = Environment()
-        self.configureDataProviders()
-        self.configureScanners(SoundResource, RFIDResource)
         self.messenger = Messenger(logging, messagebox)
-        self.configureGUI(master)
+        self.configureGUI(self.master)
+        self.configureScanners(self.soundResource, self.RFIDResource)
+        self.configureDataProviders()
+        self.gui.start()
 
     def configureGUI(self, master):
         self.gui = EditorGUI(master, self.events(), self.env.Usb)
-        self.gui.start()
 
     def configureScanners(self, SoundResource, RFIDResource):
         sound = self.configureSoundProvider(SoundResource)
