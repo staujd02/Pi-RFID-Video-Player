@@ -19,6 +19,9 @@ class EditorGUI_test(unittest.TestCase):
     def setUp(self):
         self.createTest("DUMMY_CARD_ID")
 
+    def test_on_initialize_video_db_populates_the_list(self):
+        pass
+
     def test_cards_can_be_scanned(self):
         self.createTest(None)
         self.test.scanButtonHandler()
@@ -82,11 +85,24 @@ class EditorGUI_test(unittest.TestCase):
         self.test.videoSelectedEvent("Star Wars")
         self.assertEqual(None, self.test.gui.selectedVideo)
     
+    def test_when_a_valid_kill_card_is_assigned_no_video_is_active(self):
+        self.test.lastSelection = "Ghost Busters"
+        self.test.linker.pair("DUMMY_CARD_ID", "Jurassic Park")
+        self.test.scanButtonHandler()
+        self.test.assignKill()
+        self.assertEqual(True, self.test.gui.wasCleared)
+    
     def test_when_a_valid_kill_card_is_scanned_it_shows_a_message(self):
         self.test.linker.pair("DUMMY_CARD_ID", self.test.linker.KillCode)
         self.test.scanButtonHandler()
         self.assertTrue(self.test.messenger.showedCardMessage)
-
+    
+    def test_when_a_card_is_linked_to_an_inactive_video_a_message_is_displayed(self):
+        self.test.linker.pair("DUMMY_CARD_ID", "Jurassic Park")
+        self.test.scanButtonHandler()
+        self.test.videoSelectedEvent("Star Wars")
+        self.assertTrue(self.test.messenger.showedInactiveMessage)
+    
     def test_when_a_valid_card_is_scanned_it_highlights_a_video_pair(self):
         self.test.linker.pair("DUMMY_CARD_ID", "Jurassic Park")
         self.test.scanButtonHandler()

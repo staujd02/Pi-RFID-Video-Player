@@ -18,7 +18,6 @@ class EditorPilot(EditorController):
     def save(self):
         self.env.update()
         self.videos.save(self.env.VideoList)
-        self.cards.save(self.env.UuidTable)
         self.linker.save()
 
     def quit(self):
@@ -28,6 +27,7 @@ class EditorPilot(EditorController):
         exit(0)
     
     def assignKill(self):
+        self.gui.clearCurrentSelection()
         currentCard = self.gui.getCurrentCard()
         if currentCard:
             self.linker.pair(currentCard, self.linker.KillCode)
@@ -76,6 +76,7 @@ class EditorPilot(EditorController):
     
     def handleUnlinkedCard(self):
         self.gui.setListBoxSelection(self.lastSelection)
+        self.messenger.showCannotPairToInactiveVideos()
 
     def updateRepository(self):
         pass

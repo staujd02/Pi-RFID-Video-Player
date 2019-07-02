@@ -164,7 +164,7 @@ class EditorGUI:
         try:
             return self.videoList.get(0, END).index(name)
         except ValueError:
-            raise self.VideoUnavailable(name, "Video was not contained in the video list")
+            raise self.VideoUnavailable(name, "Video was not found in the video list")
 
     class VideoUnavailable(Exception):
 

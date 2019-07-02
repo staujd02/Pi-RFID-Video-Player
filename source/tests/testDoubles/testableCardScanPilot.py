@@ -10,6 +10,10 @@ class TestableCardScanPilot(EditorPilot):
     class TestableMessenger(object):
         showedMessage = False
         showedCardMessage = False
+        showedInactiveMessage = False
+        
+        def showCannotPairToInactiveVideos(self):
+            self.showedInactiveMessage = True
 
         def showCardScannedIsAKiller(self):
             self.showedCardMessage = True

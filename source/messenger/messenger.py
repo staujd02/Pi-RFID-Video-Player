@@ -12,6 +12,10 @@ class Messenger(object):
     def showCardIsNotPaired(self):
         self.messageDisplay.showinfo('Card Unassigned',
                                      'Card is not currently assigned to a video')
+    
+    def showCannotPairToInactiveVideos(self):
+        self.messageDisplay.showinfo('Video Is Not Active',
+                                     'This video\'s file wasn\'t found on the last scan. Please rescan, and pair again.')
 
     def showCardScannedIsAKiller(self):
         self.messageDisplay.showinfo(

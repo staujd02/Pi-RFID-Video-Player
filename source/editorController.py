@@ -28,10 +28,18 @@ class EditorController:
     def init(self):
         self.env = Environment()
         self.messenger = Messenger(logging, messagebox)
+        self.configure()
+        self.postConfiguration()
+
+    def configure(self):
         self.configureGUI(self.master)
         self.configureScanners(self.soundResource, self.RFIDResource)
         self.configureDataProviders()
+    
+    def postConfiguration(self):
         self.gui.start()
+        detailList = [self.videos.query(vid)[0] for vid in self.videos.iterate()]
+        self.gui.setVideoList(detailList)
 
     def configureGUI(self, master):
         self.gui = EditorGUI(master, self.events(), self.env.Usb)
@@ -42,7 +50,6 @@ class EditorController:
         self.cardScan = CardScanWrapper(sound, self.rfid)
 
     def configureDataProviders(self):
-        self.cards = CSVImplementation.openDB(Database, self.env.UuidTable)
         self.videos = CSVImplementation.openDB(Database, self.env.VideoList)
         self.linker = CardToVideoLinker.openFullInstance(self.videos, self.env.LinkedTable)
 
