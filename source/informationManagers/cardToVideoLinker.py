@@ -39,7 +39,7 @@ class CardToVideoLinker(DataLinker):
             cardID, videoName, self.__checkVideoIsActive)
     
     def __killCodePair(self, cardID):
-        self.linkage.update(cardID, [self.KillCode])
+        self.linkage.update(cardID, self.KillCode)
         self.linkage.save(self.dataFile)
 
     def __checkVideoIsActive(self, video):

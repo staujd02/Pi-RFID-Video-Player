@@ -17,6 +17,8 @@ class CSVImplementation(object):
         return self.data[key]
 
     def update(self, key, value):
+        if not isinstance(value, list):
+            value = [value]
         self.data[key] = value
     
     def save(self, name):
@@ -41,7 +43,22 @@ class CSVImplementation(object):
         entries = line.split(',')
         if self.__lastEntryEndsInNewline(entries):
             self.__removeLastCharacterFromLastEntry(entries)
-        self.data[entries[0]] = entries[1:]
+        self.__storeEntriesToData(entries)
+    
+    def __storeEntriesToData(self, entries):
+        if len(entries) == 2:
+            self.data[self.__getKey(entries)] = self.__nestSecondItemInAList(entries)
+        else:
+            self.data[self.__getKey(entries)] = self.__getAListOfAllButTheFirstItem(entries)
+
+    def __getKey(self, entries):
+        return entries[0]
+
+    def __getAListOfAllButTheFirstItem(self, entries):
+        return entries[1:]
+
+    def __nestSecondItemInAList(self, entries):
+        return [entries[1]]
 
     def __lastEntryEndsInNewline(self, entries):
         return entries[-1][-1] == '\n'

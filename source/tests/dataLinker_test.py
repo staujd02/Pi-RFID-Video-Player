@@ -35,6 +35,10 @@ class DataLinker_test(unittest.TestCase):
     def test_datalinker_can_pair_entries(self):
         self.linker.pair("Green_card", "Indiana Jones")
         self.assertEqual(["Indiana Jones", "C:/Videos","True"], self.linker.resolve("Green_card"))
+    
+    def test_datalinker_can_pair_entries_beyond_nine(self):
+        self.linker.pair("Green_card", "Mario")
+        self.assertEqual(["Mario", "C:/Vids/Mario","True"], self.linker.resolve("Green_card"))
 
     def test_datalinker_can_overwrite_a_previous_pair(self):
         self.linker.pair("Green_card", "Indiana Jones")
@@ -42,13 +46,13 @@ class DataLinker_test(unittest.TestCase):
         self.assertEqual(["Star Wars", "C:/DVDs", "False"], self.linker.resolve("Green_card"))
 
     def test_datalinker_can_loads_an_existing_list(self):
-        self.linker.pair("Red_Card", "Indiana Jones")
+        self.linker.pair("Red_Card", "Mario")
         self.linker.save()
         self.linker = DataLinker(self.fakeVideos, self.FILE)
         self.linker.init()
-        self.assertEqual(["Indiana Jones", "C:/Videos","True"], self.linker.resolve("Red_Card"))
+        self.assertEqual(["Mario", "C:/Vids/Mario","True"], self.linker.resolve("Red_Card"))
     
-    def test_datalinker_only_saves_when_told_too(self):
+    def test_datalinker_only_saves_when_told_to_do_so(self):
         self.linker.pair("Red_Card", "Indiana Jones")
         self.linker = DataLinker(self.fakeVideos, self.FILE)
         self.linker.init()
@@ -71,7 +75,7 @@ class DataLinker_test(unittest.TestCase):
         self.assertEqual(["Indiana Jones", "C:/Videos","True"], self.linker.resolve("Green_card"))
         self.assertEqual(["Star Wars", "C:/DVDs", "False"], self.linker.resolve("Red_Card"))
 
-    videos = ["1,Jurassic Park,C:/Videos,True\n", "2,Star Wars,C:/DVDs,False\n", "5,Indiana Jones,C:/Videos,True"]
+    videos = ["1,Jurassic Park,C:/Videos,True\n", "2,Star Wars,C:/DVDs,False\n", "5,Indiana Jones,C:/Videos,True\n","12,Mario,C:/Vids/Mario,True"]
 
     def initDatabase(self, name, data):
         self.createTestCSV(name, data)     
