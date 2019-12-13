@@ -5,16 +5,6 @@ from source.dataStructures import Video
 
 class EditorPilot(EditorController):
     
-    def events(self):
-        return {
-            "save": self.save,
-            "quit": self.quit,
-            "assignKill": self.assignKill,
-            "beginCardScan": self.scanButtonHandler,
-            "updateRepository": self.updateRepository,
-            "videoSelectedEvent": self.videoSelectedEvent
-        }
-
     def save(self):
         self.env.update()
         self.videos.save(self.env.VideoList)
@@ -80,3 +70,22 @@ class EditorPilot(EditorController):
 
     def updateRepository(self):
         pass
+    
+    # Implementation Hooks
+
+    def events(self):
+        return {
+            "save": self.save,
+            "quit": self.quit,
+            "assignKill": self.assignKill,
+            "beginCardScan": self.scanButtonHandler,
+            "updateRepository": self.updateRepository,
+            "videoSelectedEvent": self.videoSelectedEvent
+        }
+    
+    def postConfiguration(self):
+        # self.gui.start()
+        # detailList = [self.videos.query(vid)[0] for vid in self.videos.iterate()]
+        # self.gui.setVideoList(detailList)
+        if self.gui.currentDeviceName() == self.env.DEFAULT_Usb:
+            self.messenger.showDefaultDeviceWarning()

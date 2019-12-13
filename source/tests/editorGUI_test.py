@@ -58,7 +58,7 @@ class EditorGUI_test(unittest.TestCase):
         self.assertEqual(None, self.itemAfterClearingSelection)
         self.assertEqual("Extra Device", self.gui.currentDeviceName())
         self.assertEqual("Lost World", self.itemAfterMakingSelection)
-        self.assertEqual(True, self.threwCustomError)
+        self.assertEqual(False, self.threwCustomError)
         self.assertEqual("Jurassic Park", self.selectionSuccessfullyMade)
 
     def eventDictionary(self):

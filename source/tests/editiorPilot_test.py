@@ -19,8 +19,16 @@ class EditorGUI_test(unittest.TestCase):
     def setUp(self):
         self.createTest("DUMMY_CARD_ID")
 
-    def test_on_initialize_video_db_populates_the_list(self):
-        pass
+    def test_when_the_default_source_is_active_a_warning_is_shown(self):
+        self.createTest("NEW_DUMMY_CARD_ID")
+        self.test.gui.setCurrentDeviceName(self.test.env.DEFAULT_Usb)
+        self.test.postConfiguration()
+        self.assertTrue(self.test.messenger.showedDefaultDeviceWarning)
+    
+    def test_when_a_non_default_source_is_set_a_warning_is_NOT_shown(self):
+        self.createTest("NEW_DUMMY_CARD_ID")
+        self.test.postConfiguration()
+        self.assertFalse(self.test.messenger.showedDefaultDeviceWarning)
 
     def test_cards_can_be_scanned(self):
         self.createTest(None)

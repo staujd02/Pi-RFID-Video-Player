@@ -6,11 +6,19 @@ class TestableCardScanPilot(EditorPilot):
         self.cardScan = self.TestableCardScan(cardBits)
         self.gui = self.TestableGui()
         self.messenger = self.TestableMessenger()
+        self.env = self.TestableEnvironment()
+
+    class TestableEnvironment(object):
+        DEFAULT_Usb = "not set"
 
     class TestableMessenger(object):
         showedMessage = False
         showedCardMessage = False
         showedInactiveMessage = False
+        showedDefaultDeviceWarning = False
+
+        def showDefaultDeviceWarning(self):
+            self.showedDefaultDeviceWarning = True
         
         def showCannotPairToInactiveVideos(self):
             self.showedInactiveMessage = True
@@ -37,6 +45,7 @@ class TestableCardScanPilot(EditorPilot):
         currentCard = ""
         wasCleared = False
         selectedVideo = ""
+        device = "< Not Set >"
 
         def getTextOfCurrentListBoxSelection(self):
             return self.selectedVideo
@@ -52,3 +61,9 @@ class TestableCardScanPilot(EditorPilot):
 
         def clearCurrentSelection(self):
             self.wasCleared = True
+        
+        def setCurrentDeviceName(self, _device):
+            self.device = _device
+
+        def currentDeviceName(self):
+            return self.device

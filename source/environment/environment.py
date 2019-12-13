@@ -2,12 +2,14 @@ import logging
 
 class Environment(object):
 
+    DEFAULT_Usb = "< Not Set >"
+
     ENVIRONMENT_LOG = "environment.log"
     SCAN_SOUND = '/opt/sonic-pi/etc/samples/ambi_soft_buzz.flac'
     KillCommand = "-255"
     VideoList = "../data/vids.csv"
     LinkedTable = "../data/CardsToVideos.csv"
-    Usb = "< Not Set >"
+    Usb = DEFAULT_Usb
     CHIP_SELECT_PIN = "18"
     MASTER_OUTPUT_SLAVE_INPUT_PIN = "23"
     MASTER_INPUT_SLAVE_OUTPUT_PIN = "24"
