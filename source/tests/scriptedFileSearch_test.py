@@ -29,7 +29,7 @@ class ScriptProvider_test(unittest.TestCase):
         provider = self.ProcessProvider()
         s = ScriptedFileSearch(provider)
         s.scan("MyScript.sh")
-        self.assertEqual("../MyScript.sh > temp.list",
+        self.assertEqual("../MyScript.sh > " + self.tempFileName,
                          provider.scriptCalledWith)
 
     def test_scanner_script_can_find_videos(self):
@@ -41,12 +41,13 @@ class ScriptProvider_test(unittest.TestCase):
     def test_class_removes_temp_file_after_running(self):
         s = ScriptedFileSearch(self.ProcessProvider())
         s.scan("MyScript.sh")
-        self.assertEqual(False, os.path.isfile("temp.list"))
+        self.assertEqual(False, os.path.isfile(self.tempFileName))
 
     def setUp(self):
+        self.tempFileName = "temp.list.csv"
         self.createTempFile()
     
     def createTempFile(self):
-        f = open("temp.list", "w")
+        f = open(self.tempFileName, "w")
         f.write("1,Cheeta Queen,./some_dir/Cheeta Queen.mp4")
         f.close()

@@ -34,7 +34,17 @@ class EditorGUI_test(unittest.TestCase):
         self.createTest(None)
         self.test.scanButtonHandler()
         self.assertTrue(self.test.cardScan.scanWasCalled)
+
+    def test_after_the_program_has_loaded_it_starts_the_gui(self):
+        self.createTest(None)
+        self.test.postConfiguration()
+        self.assertTrue(self.test.gui.startWasCalled)
     
+    def test_after_the_program_has_loaded_it_loads_the_video_list(self):
+        self.createTest(None)
+        self.test.postConfiguration()
+        self.assertEqual(['Jurassic Park', 'Star Wars', 'Indiana Jones'], self.test.gui.setVideoListWasCalledWith)
+
     def test_given_a_card_was_scanned_whenAVideoIsSelected_its_linked(self):
         self.test.scanButtonHandler()
         self.test.videoSelectedEvent("Jurassic Park")

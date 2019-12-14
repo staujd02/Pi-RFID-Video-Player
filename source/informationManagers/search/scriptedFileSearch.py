@@ -5,6 +5,8 @@ from source.informationManagers.dataStorageMethods.csvImplementation import CSVI
 
 class ScriptedFileSearch:
 
+    TEMP_LIST = "temp.list.csv"
+
     # processProvider = subprocess  ==> Main Class Consideration
     def __init__(self, processProvider):
         self.db = Database(CSVImplementation())
@@ -16,13 +18,13 @@ class ScriptedFileSearch:
     def scan(self, scriptFile):
         self.scanComplete = True
         self.processProvider.call(
-            '../' + scriptFile + ' > temp.list', shell=True)
-        self.db.load("temp.list")
-        self.delete("temp.list")
+            '../' + scriptFile + ' > ' + self.TEMP_LIST, shell=True)
+        self.db.load(self.TEMP_LIST)
+        self.delete(self.TEMP_LIST)
 
     def delete(self, fileName):
-        if os.path.isfile("temp.list"):
-            os.remove("temp.list")
+        if os.path.isfile(self.TEMP_LIST):
+            os.remove(self.TEMP_LIST)
 
     def getList(self):
         return self.db.iterate()

@@ -46,6 +46,14 @@ class TestableCardScanPilot(EditorPilot):
         wasCleared = False
         selectedVideo = ""
         device = "< Not Set >"
+        startWasCalled = False
+        setVideoListWasCalledWith = False
+
+        def setVideoList(self, videoList):
+            self.setVideoListWasCalledWith = videoList
+
+        def start(self):
+            self.startWasCalled = True
 
         def getTextOfCurrentListBoxSelection(self):
             return self.selectedVideo
