@@ -1,21 +1,14 @@
 class Migrator(object):
 
-    def __init__(self):
+    def __init__(self, fileSearch, videoDatabase, copyMethod):
+        self.fileSearch = fileSearch
+        self.videoDatabase = videoDatabase
+        self.copyMethod = copyMethod
+
+    def migrate(self, sourceDeviceName):
         pass
 
 # Scan Result List, Video Database, Copy Location, Source Device
-
-# -----> Create one test service, initial master list state --> end state (track copy calls)
-#  --: Cases :--
-#       Record in MasterList and not on local device, but is on external device (0,1)
-#       Record in MasterList and not on any device (0,0)
-#       Record in MasterList and on local device and on external device (1,1)
-#       Record in MasterList and only on local device (1,0)
-#       Record in MasterList and on local device, different location and on external device
-#       Record in MasterList and only on local device, different location
-#       Record not in MasterList and not on local device, but is on external device (0,1)
-#       Record not in MasterList and on local device and on external device (1,1)
-#       Record not in MasterList and only on local device (1,0)
 
 #    -- Scan psudeo --
 #    PreflightChecks() ==> is the source usb actually among connected devices?
