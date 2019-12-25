@@ -1,3 +1,5 @@
+from source.dataStructures import Video, ScanEntry
+
 class Migrator(object):
 
     def __init__(self, fileSearch, videoDatabase, copyMethod):
@@ -6,7 +8,59 @@ class Migrator(object):
         self.copyMethod = copyMethod
 
     def migrate(self, sourceDeviceName):
-        pass
+        self.__markAllRecordsAsInactive()
+        self.__scanAndParse()
+        self.__splitList(sourceDeviceName)
+        existingTitles = self.__removeOnDeviceDuplicates()
+        self.__reduceExternalListToNewTitles(existingTitles)
+
+    def __markAllRecordsAsInactive(self):
+        keys = list(self.videoDatabase.iterate())
+        for key in keys:
+            self.__setVideoActiveStatus(key, False)
+
+    def __setVideoActiveStatus(self, key, status):
+        entry = Video(self.videoDatabase.query(key))
+        entry.setIsActive(status)
+        self.videoDatabase.update(key, entry.toList())
+
+    def __scanAndParse(self):
+        self.fileSearch.scan("dummy")
+        self.scannedEntries = [ScanEntry(self.fileSearch.getFile(i))
+                                for i in self.fileSearch.getList()]
+    
+    def __splitList(self, sourceDeviceName):
+        self.onDevice = []
+        self.notOnDevice = []
+        for entry in self.scannedEntries:
+            if entry.getPath().find(sourceDeviceName, 0) != -1:
+                self.onDevice.append(entry)
+            else:
+                self.notOnDevice.append(entry)
+
+    def __removeOnDeviceDuplicates(self):
+        reducedList = [] 
+        reducedListTitles = [] 
+        for entry in self.onDevice: 
+            if entry.getName() not in reducedListTitles: 
+                reducedList.append(entry) 
+                reducedListTitles.append(entry.getName()) 
+        self.onDevice = reducedList
+        return reducedListTitles
+
+    def __reduceExternalListToNewTitles(self, reducedListTitles):
+        reducedList = [] 
+        for entry in self.notOnDevice: 
+            if entry.getName() not in reducedListTitles: 
+                reducedList.append(entry) 
+                reducedListTitles.append(entry.getName()) 
+        self.notOnDevice = reducedList
+    
+    def __updateOnDeviceEntries(self):
+        for entry in self.onDevice:
+            pass
+        # backwards query from title to key
+        # ability to insert an entry to the database (probably return the key)
 
 # Scan Result List, Video Database, Copy Location, Source Device
 
@@ -19,6 +73,7 @@ class Migrator(object):
 #                                                            ---> group by title and remove all external references that appear in local
 #                                                               ---> otherwise take the first title record
 #    for each record onDevice:
+#        AddRecordOrFindExisting(record)
 #        UpdateFilePath(record)
 #        MarkRecordAsActive(record)
 #    for each record notOnDevice:

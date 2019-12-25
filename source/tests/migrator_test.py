@@ -7,7 +7,6 @@ from source.informationManagers.dataStorageMethods.csvImplementation import CSVI
 from source.informationManagers.search.scriptedFileSearch import ScriptedFileSearch
 from source.informationManagers.dataStorageMethods.database import Database
 
-
 class Migrator_test(unittest.TestCase):
 
     TEST_DB = "TestDb.csv"
@@ -38,15 +37,15 @@ class Migrator_test(unittest.TestCase):
         self.migrator.migrate("sourceDevice")
         l = [self.videoDatabase.query(i) for i in self.videoDatabase.iterate()]
         self.assertEqual(l, [
-            ["Title 1","/media/pi/sourceDevice/Title_1",True],
-            ["Title 2","/media/pi/sourceDevice/Title_2",False],
-            ["Title 3","/media/pi/sourceDevice/Title_3",True],
-            ["Title 4","/media/pi/sourceDevice/Title_4",True],
-            ["Title 5","/media/pi/sourceDevice/sub_folder/Title_5",True],
-            ["Title 6","/media/pi/sourceDevice/sub_folder/Title_6",True],
-            ["Title 7","/media/pi/sourceDevice/Title_7",True],
-            ["Title 8","/media/pi/sourceDevice/Title_8",True],
-            ["Title 9","/media/pi/sourceDevice/Title_9",True]
+            ["Title 1","/media/pi/sourceDevice/Title 1",True],
+            ["Title 2","/media/pi/sourceDevice/Title 2",False],
+            ["Title 3","/media/pi/sourceDevice/Title 3",True],
+            ["Title 4","/media/pi/sourceDevice/Title 4",True],
+            ["Title 5","/media/pi/sourceDevice/sub_folder/Title 5",True],
+            ["Title 6","/media/pi/sourceDevice/sub_folder/Title 6",True],
+            ["Title 7","/media/pi/sourceDevice/Title 7",True],
+            ["Title 8","/media/pi/sourceDevice/Title 8",True],
+            ["Title 9","/media/pi/sourceDevice/Title 9",True]
         ])
 
     def setUp(self):
@@ -59,12 +58,12 @@ class Migrator_test(unittest.TestCase):
     def createTestCSVs(self):
         f = open(self.TEST_DB, "w")
         f.writelines([
-            "1,Title 1,/media/pi/sourceDevice/Title 1,True",
-            "2,Title 2,/media/pi/sourceDevice/Title 2,True",
-            "3,Title 3,/media/pi/sourceDevice/Title 3,True",
-            "4,Title 4,/media/pi/sourceDevice/Title 4,True",
-            "5,Title 5,/media/pi/sourceDevice/Title 5,True",
-            "6,Title 6,/media/pi/sourceDevice/Title 6,True"
+            "1,Title 1,/media/pi/sourceDevice/Title 1,True\n",
+            "2,Title 2,/media/pi/sourceDevice/Title 2,True\n",
+            "3,Title 3,/media/pi/sourceDevice/Title 3,True\n",
+            "4,Title 4,/media/pi/sourceDevice/Title 4,True\n",
+            "5,Title 5,/media/pi/sourceDevice/Title 5,True\n",
+            "6,Title 6,/media/pi/sourceDevice/Title 6,True\n"
         ])
         f.close()
         f = open(self.TEST_SCAN_OUTPUT, "w")

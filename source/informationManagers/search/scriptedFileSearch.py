@@ -20,9 +20,9 @@ class ScriptedFileSearch:
         self.processProvider.call(
             '../' + scriptFile + ' > ' + self.TEMP_LIST, shell=True)
         self.db.load(self.TEMP_LIST)
-        self.delete(self.TEMP_LIST)
+        self.__delete(self.TEMP_LIST)
 
-    def delete(self, fileName):
+    def __delete(self, fileName):
         if os.path.isfile(self.TEMP_LIST):
             os.remove(self.TEMP_LIST)
 
