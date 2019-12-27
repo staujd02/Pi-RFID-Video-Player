@@ -2,6 +2,8 @@ from source.dataStructures import Video, ScanEntry
 
 class Migrator(object):
 
+    largestKey = 0
+
     def __init__(self, fileSearch, videoDatabase, copyMethod):
         self.fileSearch = fileSearch
         self.videoDatabase = videoDatabase
@@ -13,11 +15,19 @@ class Migrator(object):
         self.__splitList(sourceDeviceName)
         existingTitles = self.__removeOnDeviceDuplicates()
         self.__reduceExternalListToNewTitles(existingTitles)
+        self.__updateOnDeviceEntries()
+        self.__integrateOffDeviceRecords(sourceDeviceName)
 
     def __markAllRecordsAsInactive(self):
         keys = list(self.videoDatabase.iterate())
         for key in keys:
             self.__setVideoActiveStatus(key, False)
+            self.__upsertLargestKey(key)
+    
+    def __upsertLargestKey(self, key):
+        numKey = int(key)
+        if self.largestKey < numKey:
+            self.largestKey = numKey
 
     def __setVideoActiveStatus(self, key, status):
         entry = Video(self.videoDatabase.query(key))
@@ -58,9 +68,46 @@ class Migrator(object):
     
     def __updateOnDeviceEntries(self):
         for entry in self.onDevice:
-            pass
-        # backwards query from title to key
-        # ability to insert an entry to the database (probably return the key)
+            self.__upsertEntry(entry, True)
+    
+    def __upsertEntry(self, entry, active):
+        index = self.__find(entry)
+        if index != -1:
+            self.videoDatabase.update(index, [entry.getName(), entry.getPath(), active])
+        else:
+            self.videoDatabase.update(self.largestKey + 1, [entry.getName(), entry.getPath(), active])
+            self.largestKey = self.largestKey + 1
+        
+    def __find(self, entry):
+        for key in self.videoDatabase.iterate():
+            video = self.videoDatabase.query(key)
+            if Video(video).getName() == entry.getName():
+                return key
+        return -1
+    
+    def __integrateOffDeviceRecords(self, sourceDeviceName):
+        for entry in self.notOnDevice:
+            key = self.__find(entry)
+            if key == -1:
+                path = entry.getPath()
+                externalDeviceName = self.__extractDeviceNameFromPath(path)
+                destination = path.replace(externalDeviceName, sourceDeviceName)
+                entry.setPath(destination)
+                self.copyMethod.copyfile(path, destination)
+                self.__upsertEntry(entry, False)
+                self.__setVideoActiveStatus(self.largestKey, True)
+            else:
+                record = Video(self.videoDatabase.query(key))
+                path = record.getPath()
+                self.copyMethod.copyfile(entry.getPath(), record.getPath())
+                self.__setVideoActiveStatus(key, True)
+
+
+
+    def __extractDeviceNameFromPath(self, path):
+        device = path.replace('/media/pi/', '')
+        device = device[0:device.find('/')]
+        return device
 
 # Scan Result List, Video Database, Copy Location, Source Device
 

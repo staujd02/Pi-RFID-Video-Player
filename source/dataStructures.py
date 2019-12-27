@@ -40,24 +40,22 @@ class Video(object):
 
 class ScanEntry(object):
 
-    def __init__(self, arg1, arg2=None, arg3=None):
-        if arg2 == None or arg3 == None:
+    def __init__(self, arg1, arg2=None):
+        if arg2 == None:
             self.__extractEntryFromList(arg1)
         else:
-            self.__mapArgumentsToMembers(arg1, arg2, arg3)
+            self.__mapArgumentsToMembers(arg1, arg2)
 
     def __extractEntryFromList(self, list):
-        self.id = list[0] 
-        self.name = list[1]
+        self.name = list[0]
         self.path = list[1]
 
-    def __mapArgumentsToMembers(self, id, name, path):
-       self.id = id
+    def __mapArgumentsToMembers(self, name, path):
        self.name = name 
        self.path = path
 
     def toList(self):
-        return [self.id, self.name, self.path]
+        return [self.name, self.path]
     
     def getName(self):
         return self.name
@@ -65,14 +63,8 @@ class ScanEntry(object):
     def getPath(self):
         return self.path
     
-    def getId(self):
-        return self.id
-    
     def setName(self, name):
         self.name = name
     
     def setPath(self, path):
         self.path = path
-    
-    def setId(self, id):
-        self.id = id

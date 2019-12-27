@@ -43,9 +43,9 @@ class Migrator_test(unittest.TestCase):
             ["Title 4","/media/pi/sourceDevice/Title 4",True],
             ["Title 5","/media/pi/sourceDevice/sub_folder/Title 5",True],
             ["Title 6","/media/pi/sourceDevice/sub_folder/Title 6",True],
-            ["Title 7","/media/pi/sourceDevice/Title 7",True],
             ["Title 8","/media/pi/sourceDevice/Title 8",True],
-            ["Title 9","/media/pi/sourceDevice/Title 9",True]
+            ["Title 9","/media/pi/sourceDevice/Title 9",True],
+            ["Title 7","/media/pi/sourceDevice/Title 7",True],
         ])
 
     def setUp(self):
@@ -53,7 +53,7 @@ class Migrator_test(unittest.TestCase):
         self.videoDatabase = CSVImplementation.openDB(Database, self.TEST_DB)
         self.scriptedFileSearch = ScriptedFileSearch(self.ProcessProvider())
         self.migrator = Migrator(
-            self.scriptedFileSearch, self.videoDatabase, self.CopyProvider)
+            self.scriptedFileSearch, self.videoDatabase, self.CopyProvider())
 
     def createTestCSVs(self):
         f = open(self.TEST_DB, "w")
