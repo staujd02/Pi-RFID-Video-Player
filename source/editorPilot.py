@@ -87,7 +87,10 @@ class EditorPilot(EditorController):
     
     def postConfiguration(self):
         self.gui.start()
-        detailList = [self.videos.query(vid)[0] for vid in self.videos.iterate()]
-        self.gui.setVideoList(detailList)
+        self.__setVideoList()
         if self.gui.currentDeviceName() == self.env.DEFAULT_Usb:
             self.messenger.showDefaultDeviceWarning()
+
+    def __setVideoList(self):
+        detailList = [self.videos.query(vid)[0] for vid in self.videos.iterate()]
+        self.gui.setVideoList(detailList)

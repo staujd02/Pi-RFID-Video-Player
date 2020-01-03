@@ -1,5 +1,7 @@
 import logging
 from tkinter import messagebox
+import subprocess
+import shutil
 
 from source.environment.environment import Environment
 from source.editorGUI import EditorGUI
@@ -10,6 +12,8 @@ from source.informationManagers.dataStorageMethods.database import Database
 from source.informationManagers.dataStorageMethods.csvImplementation import CSVImplementation
 from source.informationManagers.cardToVideoLinker import CardToVideoLinker
 from source.wrapper.cardScanWrapper import CardScanWrapper
+from source.migrators.migrator import Migrator
+from source.informationManagers.search.scriptedFileSearch import ScriptedFileSearch
 
 class EditorController:
 
@@ -28,6 +32,7 @@ class EditorController:
         self.configureGUI(self.master)
         self.configureScanners(self.soundResource, self.RFIDResource)
         self.configureDataProviders()
+        self.configureMigrators()
 
     def configureGUI(self, master):
         self.gui = EditorGUI(master, self.events(), self.env.Usb)
@@ -55,6 +60,10 @@ class EditorController:
         scanSound = SoundProvider.mixer.Sound(self.env.SCAN_SOUND)
         scanSound.set_volume(1)
         return scanSound
+
+    def configureMigrators(self):
+        scriptedFileSearch = ScriptedFileSearch(subprocess)
+        self.migrator = Migrator(scriptedFileSearch, self.videos, shutil)
 
     # Abstract Overridables Hooks
 

@@ -7,6 +7,7 @@ class Environment(object):
     ENVIRONMENT_LOG = "environment.log"
     SCAN_SOUND = '../resources/sound/ambi_soft_buzz.flac'
     MEDIA_ROOT = '/media/pi/'
+    SCAN_SCRIPT = 'scanner.sh'
     KillCommand = "-255"
     VideoList = "../data/vids.csv"
     LinkedTable = "../data/CardsToVideos.csv"
