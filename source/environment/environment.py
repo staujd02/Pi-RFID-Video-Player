@@ -5,7 +5,8 @@ class Environment(object):
     DEFAULT_Usb = "< Not Set >"
 
     ENVIRONMENT_LOG = "environment.log"
-    SCAN_SOUND = '/opt/sonic-pi/etc/samples/ambi_soft_buzz.flac'
+    SCAN_SOUND = '../resources/sound/ambi_soft_buzz.flac'
+    MEDIA_ROOT = '/media/pi/'
     KillCommand = "-255"
     VideoList = "../data/vids.csv"
     LinkedTable = "../data/CardsToVideos.csv"

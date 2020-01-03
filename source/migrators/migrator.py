@@ -9,14 +9,14 @@ class Migrator(object):
         self.videoDatabase = videoDatabase
         self.copyMethod = copyMethod
 
-    def migrate(self, sourceDeviceName):
+    def migrate(self, sourceDeviceName, mediaRoot, scriptFile):
         self.__markAllRecordsAsInactive()
-        self.__scanAndParse()
+        self.__scanAndParse(scriptFile, mediaRoot)
         self.__splitList(sourceDeviceName)
         existingTitles = self.__removeOnDeviceDuplicates()
         self.__reduceExternalListToNewTitles(existingTitles)
         self.__updateOnDeviceEntries()
-        self.__integrateOffDeviceRecords(sourceDeviceName)
+        self.__integrateOffDeviceRecords(sourceDeviceName, mediaRoot)
 
     def __markAllRecordsAsInactive(self):
         keys = list(self.videoDatabase.iterate())
@@ -34,8 +34,8 @@ class Migrator(object):
         entry.setIsActive(status)
         self.videoDatabase.update(key, entry.toList())
 
-    def __scanAndParse(self):
-        self.fileSearch.scan("dummy")
+    def __scanAndParse(self, scriptFile, mediaRoot):
+        self.fileSearch.scan(scriptFile, mediaRoot)
         self.scannedEntries = [ScanEntry(self.fileSearch.getFile(i))
                                 for i in self.fileSearch.getList()]
     
@@ -85,12 +85,12 @@ class Migrator(object):
                 return key
         return -1
     
-    def __integrateOffDeviceRecords(self, sourceDeviceName):
+    def __integrateOffDeviceRecords(self, sourceDeviceName, mediaRoot):
         for entry in self.notOnDevice:
             key = self.__find(entry)
             if key == -1:
                 path = entry.getPath()
-                externalDeviceName = self.__extractDeviceNameFromPath(path)
+                externalDeviceName = self.__extractDeviceNameFromPath(path, mediaRoot)
                 destination = path.replace(externalDeviceName, sourceDeviceName)
                 entry.setPath(destination)
                 self.copyMethod.copyfile(path, destination)
@@ -102,28 +102,9 @@ class Migrator(object):
                 self.copyMethod.copyfile(entry.getPath(), record.getPath())
                 self.__setVideoActiveStatus(key, True)
 
-
-
-    def __extractDeviceNameFromPath(self, path):
-        device = path.replace('/media/pi/', '')
+    def __extractDeviceNameFromPath(self, path, mediaRoot):
+        device = path.replace(mediaRoot, '')
         device = device[0:device.find('/')]
         return device
 
 # Scan Result List, Video Database, Copy Location, Source Device
-
-#    -- Scan psudeo --
-#    PreflightChecks() ==> is the source usb actually among connected devices?
-#    MarkAllRecordsAsInactive()
-#    list = ScanAndParse { title, and path parse into video records }
-#   (onDevice, notOnDevice) = SplitList(list) ---> sorts between records on device and not
-#    notOnDevice = FilterDuplicates(onDevice, notOnDevice) ---> remove records in external devices that also appear in local device 
-#                                                            ---> group by title and remove all external references that appear in local
-#                                                               ---> otherwise take the first title record
-#    for each record onDevice:
-#        AddRecordOrFindExisting(record)
-#        UpdateFilePath(record)
-#        MarkRecordAsActive(record)
-#    for each record notOnDevice:
-#        cpLocation = AddRecordOrFindExisting(record) -> adds/finds id: returns copy destinatation (does not mark as Active!)
-#        Copy(source: record.loc, dst: cpLocation) // copy first so not adding bad records
-#        MarkRecordAsActive(record)

@@ -10,7 +10,7 @@ from source.informationManagers.dataStorageMethods.database import Database
 class Migrator_test(unittest.TestCase):
 
     TEST_DB = "TestDb.csv"
-    TEST_SCAN_OUTPUT = "temp.list.csv"
+    TEST_SCAN_OUTPUT = "temp.test.csv"
 
     class CopyProvider(object):
         filesCopied = []
@@ -19,22 +19,51 @@ class Migrator_test(unittest.TestCase):
             self.filesCopied.append([source, dest])
 
     class ProcessProvider(object):
+        cmdCalled = "not called"
+
         def call(self, cmd, shell=False):
-            pass
+            self.cmdCalled = cmd
+
+    class FakeScriptedFileSearch:
+
+        TEMP_LIST = "temp.test.csv"
+
+        def __init__(self, processProvider):
+            self.db = Database(CSVImplementation())
+            self.db.init()
+
+        def scan(self, scriptFile, mediaRoot):
+            self.calledWithScriptFile = scriptFile 
+            self.calledWithMediaRoot = mediaRoot 
+            self.db.load(self.TEMP_LIST)
+
+        def getList(self):
+            return self.db.iterate()
+
+        def getFile(self, key):
+            return self.db.query(key)
+
+        def scanHasRun(self):
+            return True
+    
+    def test_migrator_correctly_interfaces_with_the_scanner(self):
+        self.migrator.migrate("sourceDevice", "/media/pi/", "scriptMe.sh")
+        self.assertEqual(self.scriptedFileSearch.calledWithScriptFile, "scriptMe.sh")
+        self.assertEqual(self.scriptedFileSearch.calledWithMediaRoot, "/media/pi/")
 
     def test_migrator_throws_exception_when_source_usb_not_found_in_results(self):
-        self.migrator.migrate("sourceDevice")
+        self.migrator.migrate("sourceDevice", "/media/pi/", "scanner.sh")
         self.assertIsNotNone(self.migrator)
 
     def test_migrator_copies_the_right_files(self):
-        self.migrator.migrate("sourceDevice")
+        self.migrator.migrate("sourceDevice", "/media/pi/", "scanner.sh")
         self.assertEqual(self.CopyProvider.filesCopied, [
             ["/media/pi/usb2/Title 1", "/media/pi/sourceDevice/Title 1"],
             ["/media/pi/usb2/Title 7", "/media/pi/sourceDevice/Title 7"]
         ])
 
     def test_migrator_updates_the_database_appropriately(self):
-        self.migrator.migrate("sourceDevice")
+        self.migrator.migrate("sourceDevice", "/media/pi/", "scanner.sh")
         l = [self.videoDatabase.query(i) for i in self.videoDatabase.iterate()]
         self.assertEqual(l, [
             ["Title 1","/media/pi/sourceDevice/Title 1",True],
@@ -51,7 +80,7 @@ class Migrator_test(unittest.TestCase):
     def setUp(self):
         self.createTestCSVs()
         self.videoDatabase = CSVImplementation.openDB(Database, self.TEST_DB)
-        self.scriptedFileSearch = ScriptedFileSearch(self.ProcessProvider())
+        self.scriptedFileSearch = self.FakeScriptedFileSearch(self.ProcessProvider())
         self.migrator = Migrator(
             self.scriptedFileSearch, self.videoDatabase, self.CopyProvider())
 

@@ -5,6 +5,8 @@ from source.informationManagers.search.scriptedFileSearch import ScriptedFileSea
 
 class ScriptProvider_test(unittest.TestCase):
 
+    mediaRoot = "/media/root/"
+
     class ProcessProvider(object):
         scriptCalledWith = None
 
@@ -22,25 +24,25 @@ class ScriptProvider_test(unittest.TestCase):
 
     def test_scanner_can_scan(self):
         s = ScriptedFileSearch(self.ProcessProvider())
-        s.scan("MyScript.sh")
+        s.scan("MyScript.sh", self.mediaRoot)
         self.assertEqual(True, s.scanHasRun())
 
     def test_scanner_calls_my_subprocess_provider_with_my_script(self):
         provider = self.ProcessProvider()
         s = ScriptedFileSearch(provider)
-        s.scan("MyScript.sh")
-        self.assertEqual("../MyScript.sh > " + self.tempFileName,
+        s.scan("MyScript.sh", "/scan/root")
+        self.assertEqual("../MyScript.sh /scan/root > " + self.tempFileName,
                          provider.scriptCalledWith)
 
     def test_scanner_script_can_find_videos(self):
         s = ScriptedFileSearch(self.ProcessProvider())
-        s.scan("MyScript.sh")
+        s.scan("MyScript.sh", self.mediaRoot)
         self.assertEqual(["Cheeta Queen", "./some_dir/Cheeta Queen.mp4"], s.getFile("1"))
         self.assertEqual("1", next(s.getList()))
 
     def test_class_removes_temp_file_after_running(self):
         s = ScriptedFileSearch(self.ProcessProvider())
-        s.scan("MyScript.sh")
+        s.scan("MyScript.sh", self.mediaRoot)
         self.assertEqual(False, os.path.isfile(self.tempFileName))
 
     def setUp(self):

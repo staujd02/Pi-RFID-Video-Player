@@ -15,10 +15,10 @@ class ScriptedFileSearch:
         self.scanComplete = False
 
     # SCANNER = 'scanner.sh'  ==> Main Class Consideration
-    def scan(self, scriptFile):
+    def scan(self, scriptFile, mediaRoot):
         self.scanComplete = True
         self.processProvider.call(
-            '../' + scriptFile + ' > ' + self.TEMP_LIST, shell=True)
+            '../' + scriptFile + ' ' + mediaRoot + ' > ' + self.TEMP_LIST, shell=True)
         self.db.load(self.TEMP_LIST)
         self.__delete(self.TEMP_LIST)
 
