@@ -69,9 +69,8 @@ class EditorPilot(EditorController):
         self.messenger.showCannotPairToInactiveVideos()
 
     def updateRepository(self):
-        # call migrate here...
-        # update with results? reload?
-        pass
+        self.migrator.migrate(self.gui.currentDeviceName(), self.env.MEDIA_ROOT, self.env.SCAN_SCRIPT)
+        self.__setVideoList()
     
     # Implementation Hooks
 

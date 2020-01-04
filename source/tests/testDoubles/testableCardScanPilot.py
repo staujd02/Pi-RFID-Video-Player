@@ -7,9 +7,18 @@ class TestableCardScanPilot(EditorPilot):
         self.gui = self.TestableGui()
         self.messenger = self.TestableMessenger()
         self.env = self.TestableEnvironment()
+        self.migrator = self.TestableMigrator()
 
     class TestableEnvironment(object):
         DEFAULT_Usb = "not set"
+        MEDIA_ROOT = 'mediaRoot'
+        SCAN_SCRIPT = 'scriptFile'
+
+    class TestableMigrator(object):
+        def migrate(self, sourceDeviceName, mediaRoot, scriptFile):
+            self.sourceDeviceName = sourceDeviceName
+            self.mediaRoot = mediaRoot
+            self.scriptFile = scriptFile
 
     class TestableMessenger(object):
         showedMessage = False

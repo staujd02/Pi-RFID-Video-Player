@@ -44,6 +44,18 @@ class EditorGUI_test(unittest.TestCase):
         self.createTest(None)
         self.test.postConfiguration()
         self.assertEqual(['Jurassic Park', 'Star Wars', 'Indiana Jones'], self.test.gui.setVideoListWasCalledWith)
+    
+    def test_given_the_user_triggered_a_migration_itSuccessfullyStartsMigrating(self):
+        self.createTest(None)
+        self.test.updateRepository()
+        self.assertEqual(self.test.migrator.scriptFile, self.test.env.SCAN_SCRIPT)
+        self.assertEqual(self.test.migrator.mediaRoot, self.test.env.MEDIA_ROOT)
+        self.assertEqual(self.test.migrator.sourceDeviceName, self.test.gui.device)
+
+    def test_given_the_user_triggered_a_migration_itSuccessfullySetsTheNewVideoList(self):
+        self.createTest(None)
+        self.test.updateRepository()
+        self.assertEqual(['Jurassic Park', 'Star Wars', 'Indiana Jones'], self.test.gui.setVideoListWasCalledWith)
 
     def test_given_a_card_was_scanned_whenAVideoIsSelected_its_linked(self):
         self.test.scanButtonHandler()
