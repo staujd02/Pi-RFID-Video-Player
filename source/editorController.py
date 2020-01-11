@@ -14,6 +14,7 @@ from source.informationManagers.cardToVideoLinker import CardToVideoLinker
 from source.wrapper.cardScanWrapper import CardScanWrapper
 from source.migrators.migrator import Migrator
 from source.informationManagers.search.scriptedFileSearch import ScriptedFileSearch
+from source.utilities.devices import Devices
 
 class EditorController:
 
@@ -64,6 +65,7 @@ class EditorController:
     def configureMigrators(self):
         scriptedFileSearch = ScriptedFileSearch(subprocess)
         self.migrator = Migrator(scriptedFileSearch, self.videos, shutil)
+        self.devices = Devices(scriptedFileSearch)
 
     # Abstract Overridables Hooks
 

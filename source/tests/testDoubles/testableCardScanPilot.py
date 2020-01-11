@@ -8,11 +8,18 @@ class TestableCardScanPilot(EditorPilot):
         self.messenger = self.TestableMessenger()
         self.env = self.TestableEnvironment()
         self.migrator = self.TestableMigrator()
+        self.devices = self.TestableDeviceUtilities()
 
     class TestableEnvironment(object):
         DEFAULT_Usb = "not set"
         MEDIA_ROOT = 'mediaRoot'
         SCAN_SCRIPT = 'scriptFile'
+
+    class TestableDeviceUtilities(object):
+        def getList(self, mediaList, scriptFile):
+            self.mediaList = mediaList
+            self.scriptFile = scriptFile
+            return ["usb1", "usb2"]
 
     class TestableMigrator(object):
         def migrate(self, sourceDeviceName, mediaRoot, scriptFile):
@@ -57,6 +64,10 @@ class TestableCardScanPilot(EditorPilot):
         device = "< Not Set >"
         startWasCalled = False
         setVideoListWasCalledWith = False
+        deviceList = []
+
+        def setDeviceList(self, l):
+            self.deviceList = l
 
         def setVideoList(self, videoList):
             self.setVideoListWasCalledWith = videoList

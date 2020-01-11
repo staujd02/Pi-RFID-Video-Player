@@ -87,6 +87,7 @@ class EditorPilot(EditorController):
     def postConfiguration(self):
         self.gui.start()
         self.__setVideoList()
+        self.gui.setDeviceList(self.devices.getList(self.env.MEDIA_ROOT, self.env.SCAN_SCRIPT))
         if self.gui.currentDeviceName() == self.env.DEFAULT_Usb:
             self.messenger.showDefaultDeviceWarning()
 

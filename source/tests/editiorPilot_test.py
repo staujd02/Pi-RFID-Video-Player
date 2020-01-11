@@ -39,6 +39,13 @@ class EditorGUI_test(unittest.TestCase):
         self.createTest(None)
         self.test.postConfiguration()
         self.assertTrue(self.test.gui.startWasCalled)
+
+    def test_after_the_program_has_loaded_it_loads_the_device_list(self):
+        self.createTest(None)
+        self.test.postConfiguration()
+        self.assertEqual(self.test.gui.deviceList, ["usb1", "usb2"])
+        self.assertEqual(self.test.devices.mediaList, "mediaRoot")
+        self.assertEqual(self.test.devices.scriptFile, "scriptFile")
     
     def test_after_the_program_has_loaded_it_loads_the_video_list(self):
         self.createTest(None)
