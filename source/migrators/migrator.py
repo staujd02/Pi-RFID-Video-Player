@@ -1,4 +1,5 @@
 from source.dataStructures import Video, ScanEntry
+from source.utilities.devices import Devices
 
 class Migrator(object):
 
@@ -8,6 +9,7 @@ class Migrator(object):
         self.fileSearch = fileSearch
         self.videoDatabase = videoDatabase
         self.copyMethod = copyMethod
+        self.devices = Devices(fileSearch)
 
     def migrate(self, sourceDeviceName, mediaRoot, scriptFile):
         self.__markAllRecordsAsInactive()
@@ -90,7 +92,7 @@ class Migrator(object):
             key = self.__find(entry)
             if key == -1:
                 path = entry.getPath()
-                externalDeviceName = self.__extractDeviceNameFromPath(path, mediaRoot)
+                externalDeviceName = self.devices.extractDeviceNameFromPath(path, mediaRoot)
                 destination = path.replace(externalDeviceName, sourceDeviceName)
                 entry.setPath(destination)
                 self.copyMethod.copyfile(path, destination)
@@ -101,10 +103,3 @@ class Migrator(object):
                 path = record.getPath()
                 self.copyMethod.copyfile(entry.getPath(), record.getPath())
                 self.__setVideoActiveStatus(key, True)
-
-    def __extractDeviceNameFromPath(self, path, mediaRoot):
-        device = path.replace(mediaRoot, '')
-        device = device[0:device.find('/')]
-        return device
-
-# Scan Result List, Video Database, Copy Location, Source Device

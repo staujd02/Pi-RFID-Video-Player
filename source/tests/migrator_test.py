@@ -113,6 +113,7 @@ class Migrator_test(unittest.TestCase):
 
     def tearDown(self):
         os.remove(self.TEST_DB)
+        os.remove(self.TEST_SCAN_OUTPUT)
 
 #  --: Cases :--
 # Title 1: Record in MasterList and not on local device, but is on external device [CC]
