@@ -18,6 +18,17 @@ class Migrator_test(unittest.TestCase):
         def copyfile(self, source, dest):
             self.filesCopied.append([source, dest])
 
+    class FakeMessenger(object):
+        def __init__(self):
+            self.messages = []
+            self.updates = []
+
+        def sendMessage(self, message):
+            self.messages.append(message)
+        
+        def sendUpdate(self, message):
+            self.updates.append(message)
+
     class ProcessProvider(object):
         cmdCalled = "not called"
 
@@ -50,6 +61,29 @@ class Migrator_test(unittest.TestCase):
         self.migrator.migrate("sourceDevice", "/media/pi/", "scriptMe.sh")
         self.assertEqual(self.scriptedFileSearch.calledWithScriptFile, "scriptMe.sh")
         self.assertEqual(self.scriptedFileSearch.calledWithMediaRoot, "/media/pi/")
+    
+    def test_migrator_correctly_projects_its_activities(self):
+        self.migrator.migrate("sourceDevice", "/media/pi/", "scriptMe.sh")
+        self.assertEqual(self.messenger.updates, [
+            "Scanning...",
+            "Copying Title 1",
+            "Copying Title 7",
+            "Done"
+        ])
+    
+    def test_migrator_correctly_records_its_activities(self):
+        self.migrator.migrate("sourceDevice", "/media/pi/", "scriptMe.sh")
+        self.assertEqual(self.messenger.messages, [
+            "Marking all records as inactive...",
+            "Scanning media devices...",
+            "Found 6 record(s) on source device",
+            "Found 5 record(s) on non-source devices",
+            "6 unique record(s) confirmed on the source device",
+            "2 new title(s) discovered",
+            "Copying Title 1 from /media/pi/sourceDevice/Title 1 to /media/pi/sourceDevice/Title 1",
+            "Copying Title 7 from /media/pi/usb2/Title 7 to /media/pi/sourceDevice/Title 7",
+            "Migration complete"
+        ])
 
     def test_migrator_throws_exception_when_source_usb_not_found_in_results(self):
         self.migrator.migrate("sourceDevice", "/media/pi/", "scanner.sh")
@@ -81,8 +115,10 @@ class Migrator_test(unittest.TestCase):
         self.createTestCSVs()
         self.videoDatabase = CSVImplementation.openDB(Database, self.TEST_DB)
         self.scriptedFileSearch = self.FakeScriptedFileSearch(self.ProcessProvider())
+        self.messenger = self.FakeMessenger()
         self.migrator = Migrator(
-            self.scriptedFileSearch, self.videoDatabase, self.CopyProvider())
+            self.scriptedFileSearch, self.videoDatabase, self.CopyProvider(), self.messenger
+        )
 
     def createTestCSVs(self):
         f = open(self.TEST_DB, "w")

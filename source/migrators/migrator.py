@@ -5,20 +5,30 @@ class Migrator(object):
 
     largestKey = 0
 
-    def __init__(self, fileSearch, videoDatabase, copyMethod):
+    def __init__(self, fileSearch, videoDatabase, copyMethod, messenger):
         self.fileSearch = fileSearch
         self.videoDatabase = videoDatabase
         self.copyMethod = copyMethod
+        self.messenger = messenger
         self.devices = Devices(fileSearch)
 
     def migrate(self, sourceDeviceName, mediaRoot, scriptFile):
+        self.messenger.sendMessage("Marking all records as inactive...")
+        self.messenger.sendUpdate("Scanning...")
         self.__markAllRecordsAsInactive()
+        self.messenger.sendMessage("Scanning media devices...")
         self.__scanAndParse(scriptFile, mediaRoot)
         self.__splitList(sourceDeviceName)
+        self.messenger.sendMessage("Found " + str(len(self.onDevice)) + " record(s) on source device")
+        self.messenger.sendMessage("Found " + str(len(self.notOnDevice)) + " record(s) on non-source devices")
         existingTitles = self.__removeOnDeviceDuplicates()
+        self.messenger.sendMessage(str(len(existingTitles)) + " unique record(s) confirmed on the source device")
         self.__reduceExternalListToNewTitles(existingTitles)
+        self.messenger.sendMessage(str(len(self.notOnDevice)) + " new title(s) discovered")
         self.__updateOnDeviceEntries()
         self.__integrateOffDeviceRecords(sourceDeviceName, mediaRoot)
+        self.messenger.sendMessage("Migration complete")
+        self.messenger.sendUpdate("Done")
 
     def __markAllRecordsAsInactive(self):
         keys = list(self.videoDatabase.iterate())
@@ -95,11 +105,17 @@ class Migrator(object):
                 externalDeviceName = self.devices.extractDeviceNameFromPath(path, mediaRoot)
                 destination = path.replace(externalDeviceName, sourceDeviceName)
                 entry.setPath(destination)
+                self.__notifyCopyActivity(entry, path, destination)
                 self.copyMethod.copyfile(path, destination)
                 self.__upsertEntry(entry, False)
                 self.__setVideoActiveStatus(self.largestKey, True)
             else:
                 record = Video(self.videoDatabase.query(key))
                 path = record.getPath()
+                self.__notifyCopyActivity(entry, path, record.getPath())
                 self.copyMethod.copyfile(entry.getPath(), record.getPath())
                 self.__setVideoActiveStatus(key, True)
+
+    def __notifyCopyActivity(self, entry, path, dest):
+        self.messenger.sendMessage("Copying " + str(entry.getName()) + " from " + path + " to " + str(dest))
+        self.messenger.sendUpdate("Copying " + str(entry.getName()))
