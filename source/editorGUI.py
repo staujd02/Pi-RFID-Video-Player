@@ -45,7 +45,8 @@ class EditorGUI:
 
     def updateSpinBox(self):
         self.deviceSpin.config(values=self.activeDevices)
-        self.setActiveDevice(self.activeDevices[0])
+        if len(self.activeDevices) > 0:
+            self.setActiveDevice(self.activeDevices[0])
 
     def setActiveDevice(self, device):
         self.verifyDeviceExistence(device)

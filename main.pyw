@@ -2,8 +2,7 @@ from tkinter import *
 from source.editorPilot import EditorPilot
 
 import pygame
-# import Adafruit_PN532 as PN532
-import source.standIns.DummyPN532 as PN532
+import Adafruit_PN532 as PN532
 
 root = Tk()
 root.wm_title('RFID Editor')

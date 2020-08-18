@@ -64,7 +64,7 @@ class EditorController:
 
     def configureMigrators(self):
         scriptedFileSearch = ScriptedFileSearch(subprocess)
-        self.migrator = Migrator(scriptedFileSearch, self.videos, shutil)
+        self.migrator = Migrator(scriptedFileSearch, self.videos, shutil, self.messenger)
         self.devices = Devices(scriptedFileSearch)
 
     # Abstract Overridables Hooks
