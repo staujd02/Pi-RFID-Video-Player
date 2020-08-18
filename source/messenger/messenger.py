@@ -5,6 +5,10 @@ class Messenger(object):
         self.logger = logger
         self.messageDisplay = messageDisplay
 
+    #Test this...
+    def sendMessage(self, message):
+        self.messageDisplay.showinfo(message)
+
     def showSaveAndExit(self):
         return self.messageDisplay.askquestion(
             'Save And Quit', 'Would you like to save your changes?')
