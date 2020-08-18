@@ -19,5 +19,5 @@
         "shutil",
         "tkinter"
     ],
-    "python.pythonPath": "C:\\Users\\Joel\\AppData\\Local\\Programs\\Python\\Python36-32\\python.exe"
+    "python.pythonPath": "D:\\Anaconda3\\python.exe"
 }

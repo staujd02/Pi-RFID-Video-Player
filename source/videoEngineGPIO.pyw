@@ -18,30 +18,26 @@ import Adafruit_PN532 as PN532
 import RPi.GPIO as GPIO
 import uinput
 
-# Configuration for a Raspberry Pi:
 CS   = 18
 MOSI = 23
 MISO = 24
 SCLK = 25
 
-# Define mapping of GPIO presses to keyboard button presses.
 KEY_ACTION = {
-                "quit": uinput.KEY_Q,     # Stop Button
-                "skip": uinput.KEY_LEFT,  # Skip forward
-                "play": uinput.KEY_SPACE, # Play/Pause
-                "ff": uinput.KEY_DOT,   # Fast Forward
-                "rewind": uinput.KEY_RIGHT  #, # Rewind
-                #0: uinput.KEY_UP,    # Fast Skip
-              }
-KEY_PINS = {
-                "quit":16,     # Stop Button
-                "skip":15,  # Skip forward
-                "play":14, # Play/Pause
-                "ff":13,   # Fast Forward
-                "rewind":12  #, # Rewind
-                #0: uinput.KEY_UP,    # Fast Skip
-              }
+    "quit": uinput.KEY_Q,     
+    "skip": uinput.KEY_LEFT, 
+    "play": uinput.KEY_SPACE, 
+    "ff": uinput.KEY_DOT,   
+    "rewind": uinput.KEY_RIGHT  
+}
 
+KEY_PINS = {
+    "quit":16, 
+    "skip":15, 
+    "play":14, 
+    "ff":13,  
+    "rewind":12 
+}
 
 # Pause Delays
 EQL_DELAY = .85

@@ -20,41 +20,19 @@ import Adafruit_MPR121.MPR121 as MPR121
 import RPi.GPIO as GPIO
 import uinput
 
-# Configuration for a Raspberry Pi:
 CS   = 18
 MOSI = 23
 MISO = 24
 SCLK = 25
-
-# Input pin connected to the capacitive touch sensor's IRQ output.
-# For the capacitive touch HAT this should be pin 26!
 IRQ_PIN = 26
-
-# Define mapping of capacitive touch pin presses to keyboard button presses.
 KEY_MAPPING = {
-                0: uinput.KEY_Q,     # 
-                1: uinput.KEY_LEFT,  # that maps the capacitive touch input number
-                2: uinput.KEY_SPACE, # to an appropriate key press.
-                3: uinput.KEY_DOT,   #
-                4: uinput.KEY_RIGHT, # For reference the list of possible uinput.KEY_*
-                5: uinput.KEY_UP,   # values you can specify is defined in linux/input.h:
-                #6: uinput.KEY_Q,     # http://www.cs.fsu.edu/~baker/devices/lxr/http/source/linux/include/linux/input.h?v=2.6.11.8
-                #7: uinput.KEY_SPACE, #
-              }                      # Make sure a cap touch input is defined only
-                                     # once or else the program will fail to run!
-
-##
-##0:              0: uinput.KEY_UP,     # 
-##                1: uinput.KEY_DOWN,  # that maps the capacitive touch input number
-##                2: uinput.KEY_LEFT,  # to an appropriate key press.
-##                3: uinput.KEY_RIGHT, #
-##                4: uinput.KEY_COMMA, # For reference the list of possible uinput.KEY_*
-##                5: uinput.KEY_DOT,   # values you can specify is defined in linux/input.h:
-##                6: uinput.KEY_Q,     # http://www.cs.fsu.edu/~baker/devices/lxr/http/source/linux/include/linux/input.h?v=2.6.11.8
-##                7: uinput.KEY_SPACE, 
-
-# Don't change the below values unless you know what you're doing.  These help
-# adjust the load on the CPU vs. responsiveness of the key detection.
+                0: uinput.KEY_Q,    
+                1: uinput.KEY_LEFT, 
+                2: uinput.KEY_SPACE,
+                3: uinput.KEY_DOT,  
+                4: uinput.KEY_RIGHT,
+                5: uinput.KEY_UP
+              }
 MAX_EVENT_WAIT_SECONDS = 0.25
 EVENT_WAIT_SLEEP_SECONDS = 0.01
 EQL_DELAY = .85
