@@ -8,6 +8,10 @@ class Messenger(object):
     #Test this...
     def sendMessage(self, message):
         self.messageDisplay.showinfo(message)
+    
+    def sendUpdate(self, message):
+        # this should update the button text -- probably does not belong on this object
+        pass
 
     def showSaveAndExit(self):
         return self.messageDisplay.askquestion(
