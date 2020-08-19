@@ -6,14 +6,14 @@ class Environment(object):
 
     ENVIRONMENT_LOG = "environment.log"
     LOG_FILE='engine.log'
-    TOUCH_SOUND = '/opt/sonic-pi/etc/samples/elec_plip.flac'
-    BROKE_SOUND = '/opt/sonic-pi/etc/samples/bass_dnb_f.flac'
+    TOUCH_SOUND = './resources/sound/elec_plip.flac'
+    BROKE_SOUND = './resources/sound/bass_dnb_f.flac'
     IDLE = './resources/images/bg.jpg'
     BROKE = './resources/images/broke.png'
     BROKE_LINK = './resources/images/brokenLink.png'
     SCAN_SOUND = './resources/sound/ambi_soft_buzz.flac'
     MEDIA_ROOT = '/media/pi/'
-    SCAN_SCRIPT = 'scanner.sh'
+    SCAN_SCRIPT = './scanner.sh'
     KillCommand = "-255"
     VideoList = "./data/vids.csv"
     LinkedTable = "./data/CardsToVideos.csv"

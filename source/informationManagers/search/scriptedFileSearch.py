@@ -18,7 +18,7 @@ class ScriptedFileSearch:
     def scan(self, scriptFile, mediaRoot):
         self.scanComplete = True
         self.processProvider.call(
-            '../' + scriptFile + ' ' + mediaRoot + ' > ' + self.TEMP_LIST, shell=True)
+            scriptFile + ' ' + mediaRoot + ' > ' + self.TEMP_LIST, shell=True)
         self.db.load(self.TEMP_LIST)
         self.__delete(self.TEMP_LIST)
 
