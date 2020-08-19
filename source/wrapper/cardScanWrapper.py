@@ -23,8 +23,6 @@ class CardScanWrapper:
 
     def getFormattedResult(self):
         if self.uid:
-            # return self.HEX_CODE_PREFIX + binascii.hexlify(self.uid)
-            # return '0x' + binascii.hexlify(self.uid)
             return '0x' + str(binascii.hexlify(self.uid), 'ascii')
         return None
 

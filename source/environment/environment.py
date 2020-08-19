@@ -5,12 +5,18 @@ class Environment(object):
     DEFAULT_Usb = "< Not Set >"
 
     ENVIRONMENT_LOG = "environment.log"
-    SCAN_SOUND = '../resources/sound/ambi_soft_buzz.flac'
+    LOG_FILE='engine.log'
+    TOUCH_SOUND = '/opt/sonic-pi/etc/samples/elec_plip.flac'
+    BROKE_SOUND = '/opt/sonic-pi/etc/samples/bass_dnb_f.flac'
+    IDLE = './resources/images/bg.jpg'
+    BROKE = './resources/images/broke.png'
+    BROKE_LINK = './resources/images/brokenLink.png'
+    SCAN_SOUND = './resources/sound/ambi_soft_buzz.flac'
     MEDIA_ROOT = '/media/pi/'
     SCAN_SCRIPT = 'scanner.sh'
     KillCommand = "-255"
-    VideoList = "../data/vids.csv"
-    LinkedTable = "../data/CardsToVideos.csv"
+    VideoList = "./data/vids.csv"
+    LinkedTable = "./data/CardsToVideos.csv"
     Usb = DEFAULT_Usb
     CHIP_SELECT_PIN = "18"
     MASTER_OUTPUT_SLAVE_INPUT_PIN = "23"
