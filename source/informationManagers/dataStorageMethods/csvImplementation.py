@@ -77,13 +77,13 @@ class CSVImplementation(object):
         return string + self.__getLastColumn(key)
     
     def __getFirstColumn(self, key):
-        return key + ','
+        return str(key) + ','
 
     def __getAllButLastColumn(self, key):
         body = ''
         for item in self.data[key][:-1]:
-            body += item + ','
+            body += str(item) + ','
         return body
     
     def __getLastColumn(self, key):
-        return self.data[key][-1] + '\n'
+        return str(self.data[key][-1]) + '\n'
