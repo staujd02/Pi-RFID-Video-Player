@@ -9,9 +9,10 @@ import pygame
 import os.path
 import psutil as util
 
-import Tkinter
+from tkinter import *
 from PIL import Image
 from PIL import ImageTk
+#from PIL import ImageTk
 
 # New Imports
 from source.wrapper.cardScanWrapper import CardScanWrapper
@@ -64,14 +65,14 @@ VIDEO_LIST='../vids.csv'
 UUID_MAP='../UUID_Table.csv'
 FK_KILL = -255
 
+
 # Read ini file for file names
 try:
-    env = Environment()
+    env = Environment(logFile="engine.log")
 except Exception as e:
-    logging.error('Failed to read ini file, exiting...')
+    print('Failed to read ini file, exiting...')
     sys.exit(1)
 
-logging.basicConfig(filename=env.LOG_FILE,level=logging.INFO)
 logging.info('Initializing Program...')
 
 # Declare statics
@@ -146,14 +147,14 @@ def rewindKey(evt):
 try:
     # Load GUI screen
     logging.info('Creating GUI background...')
-    root = Tkinter.Tk()
+    root = Tk()
     root.overrideredirect(True)
     root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(),root.winfo_screenheight()))
     root.config(background = 'black')
     img = ImageTk.PhotoImage(Image.open(env.IDLE))
     imgBroke = ImageTk.PhotoImage(Image.open(env.BROKE))
     imgBrokeV = ImageTk.PhotoImage(Image.open(env.BROKE_LINK))
-    panel = Tkinter.Label(root, image = img)
+    panel = Label(root, image = img)
     panel.config(background = 'black')
     panel.pack(side = 'bottom', fill = 'both', expand = 'yes')
     root.update()
@@ -188,7 +189,7 @@ try:
     # Configure GPIO pins 
     logging.info('Configuring GPIO pins...')
     GPIO.setmode(GPIO.BCM)
-    for key, pin in iter(KEY_PINS):
+    for key, pin in KEY_PINS.items():
         GPIO.setup(pin,GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
     GPIO.add_event_detect(KEY_PINS.get("quit"),GPIO.FALLING,callback=quitKey,bouncetime=BOUNCE)
@@ -229,7 +230,7 @@ try:
     # Endless Process Loop
     while (run==0):
         # Run a scan on the card
-        uid = pn532.read_passive_target(pn532.read_passive_target.func_defaults[0],.5)
+        uid = pn532.read_passive_target(0, .5)
         if uid is None:
             # Card Not Found: Process keys
             Instance.KEY_GATE=1
@@ -301,7 +302,7 @@ try:
                 # Tell omxplayer to quit
                 Instance.device.emit_click(uinput.KEY_Q)
                 try:
-                    entry=linker.resolve('0x' + uidt)
+                    entry=linker.resolve('0x' + uidt.decode())
                     # i=linker.resolve('0x' + uidt)
                     if entry == linker.KillCode:
                         # Kill card was scanned, cleanup and exit

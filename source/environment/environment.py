@@ -4,8 +4,6 @@ class Environment(object):
 
     DEFAULT_Usb = "< Not Set >"
 
-    ENVIRONMENT_LOG = "environment.log"
-    LOG_FILE='engine.log'
     TOUCH_SOUND = './resources/sound/elec_plip.flac'
     BROKE_SOUND = './resources/sound/bass_dnb_f.flac'
     IDLE = './resources/images/bg.jpg'
@@ -23,8 +21,8 @@ class Environment(object):
     MASTER_INPUT_SLAVE_OUTPUT_PIN = "24"
     SERIAL_CLOCK_PIN = "25"
 
-    def __init__(self, fileName=".env"):
-        self.__configureLogging()
+    def __init__(self, fileName=".env", logFile="environment.log"):
+        self.__configureLogging(logFile)
         self.__initializeEnvironment(fileName)
 
 
@@ -52,8 +50,8 @@ class Environment(object):
             key, value = self.__separateKeyValuePair(line)
             setattr(self, key, value)
     
-    def __configureLogging(self):
-        logging.basicConfig(filename=self.ENVIRONMENT_LOG, level=logging.INFO)
+    def __configureLogging(self, fileName):
+        logging.basicConfig(filename=fileName, level=logging.INFO)
 
     def __separateKeyValuePair(self, pair):
         pieces = pair.split('=')
