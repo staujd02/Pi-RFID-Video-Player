@@ -77,7 +77,7 @@ class CSVImplementation(object):
         return string + self.__getLastColumn(key)
     
     def __getFirstColumn(self, key):
-        return key + ','
+        return str(key) + ','
 
     def __getAllButLastColumn(self, key):
         body = ''
