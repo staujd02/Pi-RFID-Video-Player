@@ -31,7 +31,7 @@ class ScriptProvider_test(unittest.TestCase):
         provider = self.ProcessProvider()
         s = ScriptedFileSearch(provider)
         s.scan("MyScript.sh", "/scan/root")
-        self.assertEqual("../MyScript.sh /scan/root > " + self.tempFileName,
+        self.assertEqual("MyScript.sh /scan/root > " + self.tempFileName,
                          provider.scriptCalledWith)
 
     def test_scanner_script_can_find_videos(self):

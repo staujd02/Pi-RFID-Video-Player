@@ -7,7 +7,7 @@ class Messenger(object):
 
     #Test this...
     def sendMessage(self, message):
-        self.messageDisplay.showinfo(message)
+        self.logger.info(message)
     
     def sendUpdate(self, message):
         # this should update the button text -- probably does not belong on this object

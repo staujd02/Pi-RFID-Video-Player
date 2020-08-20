@@ -13,21 +13,21 @@ class Migrator(object):
         self.devices = Devices(fileSearch)
 
     def migrate(self, sourceDeviceName, mediaRoot, scriptFile):
-        self.messenger.sendUpdate("Marking all records as inactive...")
+        self.messenger.sendMessage("Marking all records as inactive...")
         self.messenger.sendUpdate("Scanning...")
         self.__markAllRecordsAsInactive()
-        self.messenger.sendUpdate("Scanning media devices...")
+        self.messenger.sendMessage("Scanning media devices...")
         self.__scanAndParse(scriptFile, mediaRoot)
         self.__splitList(sourceDeviceName)
-        self.messenger.sendUpdate("Found " + str(len(self.onDevice)) + " record(s) on source device")
-        self.messenger.sendUpdate("Found " + str(len(self.notOnDevice)) + " record(s) on non-source devices")
+        self.messenger.sendMessage("Found " + str(len(self.onDevice)) + " record(s) on source device")
+        self.messenger.sendMessage("Found " + str(len(self.notOnDevice)) + " record(s) on non-source devices")
         existingTitles = self.__removeOnDeviceDuplicates()
-        self.messenger.sendUpdate(str(len(existingTitles)) + " unique record(s) confirmed on the source device")
+        self.messenger.sendMessage(str(len(existingTitles)) + " unique record(s) confirmed on the source device")
         self.__reduceExternalListToNewTitles(existingTitles)
-        self.messenger.sendUpdate(str(len(self.notOnDevice)) + " new title(s) discovered")
+        self.messenger.sendMessage(str(len(self.notOnDevice)) + " new title(s) discovered")
         self.__updateOnDeviceEntries()
         self.__integrateOffDeviceRecords(sourceDeviceName, mediaRoot)
-        self.messenger.sendUpdate("Migration complete")
+        self.messenger.sendMessage("Migration complete")
         self.messenger.sendUpdate("Done")
 
     def __markAllRecordsAsInactive(self):
@@ -80,7 +80,7 @@ class Migrator(object):
     
     def __updateOnDeviceEntries(self):
         for entry in self.onDevice:
-            self.__upsertEntry(entry, True)
+            self.__upsertEntry(entry, 'True')
     
     def __upsertEntry(self, entry, active):
         index = self.__find(entry)

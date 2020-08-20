@@ -100,15 +100,15 @@ class Migrator_test(unittest.TestCase):
         self.migrator.migrate("sourceDevice", "/media/pi/", "scanner.sh")
         l = [self.videoDatabase.query(i) for i in self.videoDatabase.iterate()]
         self.assertEqual(l, [
-            ["Title 1","/media/pi/sourceDevice/Title 1",True],
-            ["Title 2","/media/pi/sourceDevice/Title 2",False],
-            ["Title 3","/media/pi/sourceDevice/Title 3",True],
-            ["Title 4","/media/pi/sourceDevice/Title 4",True],
-            ["Title 5","/media/pi/sourceDevice/sub_folder/Title 5",True],
-            ["Title 6","/media/pi/sourceDevice/sub_folder/Title 6",True],
-            ["Title 8","/media/pi/sourceDevice/Title 8",True],
-            ["Title 9","/media/pi/sourceDevice/Title 9",True],
-            ["Title 7","/media/pi/sourceDevice/Title 7",True],
+            ["Title 1","/media/pi/sourceDevice/Title 1",'True'],
+            ["Title 2","/media/pi/sourceDevice/Title 2",'False'],
+            ["Title 3","/media/pi/sourceDevice/Title 3",'True'],
+            ["Title 4","/media/pi/sourceDevice/Title 4",'True'],
+            ["Title 5","/media/pi/sourceDevice/sub_folder/Title 5",'True'],
+            ["Title 6","/media/pi/sourceDevice/sub_folder/Title 6",'True'],
+            ["Title 8","/media/pi/sourceDevice/Title 8",'True'],
+            ["Title 9","/media/pi/sourceDevice/Title 9",'True'],
+            ["Title 7","/media/pi/sourceDevice/Title 7",'True'],
         ])
 
     def setUp(self):
