@@ -82,8 +82,8 @@ class CSVImplementation(object):
     def __getAllButLastColumn(self, key):
         body = ''
         for item in self.data[key][:-1]:
-            body += item + ','
+            body += str(item) + ','
         return body
     
     def __getLastColumn(self, key):
-        return self.data[key][-1] + '\n'
+        return str(self.data[key][-1]) + '\n'
