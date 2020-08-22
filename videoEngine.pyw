@@ -1,4 +1,4 @@
-# SOFTWARE
+# Python Packages
 import atexit
 import logging
 import subprocess
@@ -7,24 +7,34 @@ import binascii
 import time
 import pygame
 import os.path
+import uinput
 import psutil as util
 
-import Tkinter
+# GUI Packages
+from tkinter import *
 from PIL import Image
 from PIL import ImageTk
 
-# HARDWARE LIBRARIES
+# 3rd Party Hardware Libraries
 import Adafruit_PN532 as PN532
-
 import Adafruit_MPR121.MPR121 as MPR121
 import RPi.GPIO as GPIO
-import uinput
+
+# Internal Libraries
+from source.wrapper.cardScanWrapper import CardScanWrapper
+from source.providers.rfidScannerProvider import RFIDScannerProvider
+from source.informationManagers.dataStorageMethods.database import Database
+from source.informationManagers.dataStorageMethods.csvImplementation import CSVImplementation
+from source.informationManagers.cardToVideoLinker import CardToVideoLinker
+from source.environment.environment import Environment
+from source.dataStructures import Video
 
 CS   = 18
 MOSI = 23
 MISO = 24
 SCLK = 25
 IRQ_PIN = 26
+
 KEY_MAPPING = {
                 0: uinput.KEY_Q,    
                 1: uinput.KEY_LEFT, 
@@ -38,145 +48,98 @@ EVENT_WAIT_SLEEP_SECONDS = 0.01
 EQL_DELAY = .85
 VIDEO_SCAN_RELIEF = 2
 
-# Ini Info
-INI_FILE = 'library.ini'
-KILL_DEF='KillCommand'
-VIDEO_DEF='VideoList'
-UUID_DEF='UuidTable'
-
-# Info Defaults
-VIDEO_LIST='vids.csv'
-UUID_MAP='UUID_Table.csv'
-FK_KILL = -255
-
-# Program Constants
-LOG_FILE='engine.log'
-IDLE = 'bg.jpg'
-BROKE = 'broke.png'
-BROKE_LINK = 'brokenLink.png'
-TOUCH_SOUND = '/opt/sonic-pi/etc/samples/elec_plip.flac'
-BROKE_SOUND = '/opt/sonic-pi/etc/samples/bass_dnb_f.flac'
-
 # Begin setup Operations
+
+# Read ini file for file names
 try:
-    logging.basicConfig(filename=LOG_FILE,level=logging.INFO)
-    logging.info('Initializing Program...')
-    
-    # Load GUI screen
+    env = Environment(logFile="engine.log")
+except Exception as e:
+    print('Failed to read ini file, exiting...')
+    sys.exit(1)
+
+logging.info('Initializing Program...')
+
+# Load GUI screen
+try:
     logging.info('Creating GUI background...')
-    root = Tkinter.Tk()
+    root = Tk()
     root.overrideredirect(True)
     root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(),root.winfo_screenheight()))
     root.config(background = 'black')
-    img = ImageTk.PhotoImage(Image.open(IDLE))
-    imgBroke = ImageTk.PhotoImage(Image.open(BROKE))
-    imgBrokeV = ImageTk.PhotoImage(Image.open(BROKE_LINK))
-    panel = Tkinter.Label(root, image = img)
+    img = ImageTk.PhotoImage(Image.open(env.IDLE))
+    imgBroke = ImageTk.PhotoImage(Image.open(env.BROKE))
+    imgBrokeV = ImageTk.PhotoImage(Image.open(env.BROKE_LINK))
+    panel = Label(root, image = img)
     panel.config(background = 'black')
     panel.pack(side = 'bottom', fill = 'both', expand = 'yes')
     root.update()
-    
+except Exception as e:
+    logging.critical('Setup Failed: ' + str(e))
+    sys.exit(1)
+
+try:
     # Load Sounds
     logging.info('Loading Sound Files...')
     pygame.mixer.pre_init(44100, -16, 12, 512)
     pygame.init()
-    sound = pygame.mixer.Sound(TOUCH_SOUND)
-    soundBroke = pygame.mixer.Sound(BROKE_SOUND)
+    sound = pygame.mixer.Sound(env.TOUCH_SOUND)
+    soundBroke = pygame.mixer.Sound(env.BROKE_SOUND)
     sound.set_volume(4)
-    
-    # Load Keyboard Interface
-    logging.info('Loading uinput keyboard interface...')
-    # Make sure uinput kernel module is loaded.
-    subprocess.check_call(['modprobe', 'uinput'])
-    # Configure virtual keyboard.
-    device = uinput.Device(KEY_MAPPING.values())
-    
-    # Setup MPR121 Hardware
-    logging.info('Mounting MPR121 device...')
-    cap = MPR121.MPR121()
-    if not cap.begin():
-        raise Exception('Failed to initialize MPR121, check your wiring!')
-    
-    # Setup PN532 Hardware
-    logging.info('Mounting PN532 device...')
-    pn532 = PN532.PN532(cs=CS, sclk=SCLK, mosi=MOSI, miso=MISO)
-    pn532.begin()
-    # Configure PN532 to communicate with MiFare cards.
-    pn532.SAM_configuration()
-    
-    # Configure GPIO pins
-    logging.info('Configuring GPIO pins...')
-    # Be sure to configure pin with a pull-up because it is open collector when not
-    # enabled.
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(IRQ_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.add_event_detect(IRQ_PIN, GPIO.FALLING)
-    atexit.register(GPIO.cleanup)
-    
-    # Mark completion
-    logging.info('Setup Complete')
 except Exception as e:
     logging.critical('Setup Failed: ' + str(e))
     sys.exit(1)
 
 
-# Read ini file for file names
+# Load Keyboard Interface
 try:
-    logging.info("Loading ini file...")
-    f = open(INI_FILE,'r')
-    lines = f.read().splitlines()
-    f.close()
-    for setting in lines:
-        s = setting.split('=')
-        if s[0] == KILL_DEF:
-            FK_KILL = int(s[1])
-        elif s[0] == VIDEO_DEF:
-            VIDEO_LIST = s[1]
-        elif s[0] == UUID_DEF:
-            UUID_MAP = s[1]
+    logging.info('Loading uinput keyboard interface...')
+    subprocess.check_call(['modprobe', 'uinput'])
+    device = uinput.Device(KEY_MAPPING.values())
 except Exception as e:
-    logging.error('Failed to read ini file, using defaults...')
+    logging.critical('Setup Failed: ' + str(e))
+    sys.exit(1)
 
+# Setup MPR121 Hardware
 try:
-    # Load video CSV into active memory
-    logging.info('Loading Video References...')
-    f = open(VIDEO_LIST,'r')
-    vids = f.read().splitlines()
-    f.close()
-    # Fracture array
-    vidPK = []
-    vidPATH = []
-    vidNAME = []
-    i=0
-    while(i<len(vids)):
-        split = vids[i].split(',')
-        vidNAME.append(split[1])
-        vidPATH.append(split[2])
-        vidPK.append(int(split[0]))
-        i=i+1
-    
-    # Load RFID cards' uuids into active memory
-    logging.info('Loading RFID Card References...')
-    f = open(UUID_MAP,'r')
-    rfid = f.read().splitlines()
-    f.close()
-    # Fracture array
-    uuid = []
-    uuidFK = []
-    i=0
-    l = len(rfid)
-    while (i < l):
-        split = rfid[i].split(',')
-        uuid.append(split[0])
-        uuidFK.append(int(split[1]))
-        i=i+1
-    
-    # Log completion
-    logging.info('Files loaded')
+    logging.info('Mounting MPR121 device...')
+    cap = MPR121.MPR121()
+    if not cap.begin():
+        raise Exception('Failed to initialize MPR121, check your wiring!')
+except Exception as e:
+    logging.critical('Setup Failed: ' + str(e))
+    sys.exit(1)
+
+# Setup PN532 Hardware
+try:
+    logging.info('Mounting PN532 device...')
+    pn532 = PN532.PN532(cs=CS, sclk=SCLK, mosi=MOSI, miso=MISO)
+    pn532.begin()
+    pn532.SAM_configuration()
+except Exception as e:
+    logging.critical('Setup Failed: ' + str(e))
+    sys.exit(1)
+
+
+# Configure GPIO pins
+try:
+    logging.info('Configuring GPIO pins...')
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(IRQ_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.add_event_detect(IRQ_PIN, GPIO.FALLING)
+    atexit.register(GPIO.cleanup)
+except Exception as e:
+    logging.critical('Setup Failed: ' + str(e))
+    sys.exit(1)
+
+# Load videos and cards
+try:
+    videos = CSVImplementation.openDB(Database, env.VideoList)
+    linker = CardToVideoLinker.openFullInstance(videos, env.LinkedTable)
 except Exception as e:
     logging.critical('File Setup Failed: ' + str(e))
     sys.exit(1)
 
+logging.info('Setup Complete')
 
 # Start Processing ------------------------------------
 
@@ -270,8 +233,8 @@ try:
                 # Tell omxplayer to quit
                 device.emit_click(uinput.KEY_Q)
                 try:
-                    i=uuid.index('0x' + uidt)
-                    if uuidFK[i] == FK_KILL:
+                    entry=linker.resolve('0x' + uidt.decode())
+                    if entry == linker.KillCode:
                         # Kill card was scanned, cleanup and exit
                         logging.info('Quit Command Recieved!')
                         for proc in util.process_iter():                            
@@ -283,11 +246,12 @@ try:
                                 if 'omxplayer' == pinfo['name']:
                                     proc.kill()
                         sys.exit(0)
-                    i=vidPK.index(uuidFK[i])
-                    logging.info('Playing Video: ' + vidNAME[i])
-                    if not os.path.isfile(vidPATH[i]):
+                    video = Video(entry)
+                    # i=vidPK.index(uuidFK[i])
+                    logging.info('Playing Video: ' + video.getName())
+                    if not os.path.isfile(video.getPath()):
                         raise IOError('Video link did not resolve.')
-                    subprocess.call('gnome-terminal -x omxplayer -b -o hdmi ' + vidPATH[i],shell=True)
+                    subprocess.call('gnome-terminal -x omxplayer -b -o hdmi ' + video.getPath(),shell=True)
                 except IOError as o:
                     # Video File is broken...
                     panel.config(image = imgBrokeV)
@@ -319,7 +283,7 @@ try:
             # Read touch state.
             touched = cap.touched()
             # Emit key presses for any touched keys.
-            for pin, key in KEY_MAPPING.iteritems():
+            for pin, key in KEY_MAPPING.items():
                 # Check if pin is touched.
                 pin_bit = 1 << pin
                 if touched & pin_bit:
