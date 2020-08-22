@@ -39,7 +39,7 @@ class Video(object):
         self.isActive = isActive
 
 class ScanEntry(object):
-
+    
     def __init__(self, arg1, arg2=None):
         if arg2 == None:
             self.__extractEntryFromList(arg1)
