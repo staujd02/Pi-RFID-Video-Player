@@ -43,7 +43,7 @@ class Migrator(object):
 
     def __setVideoActiveStatus(self, key, status):
         entry = Video(self.videoDatabase.query(key))
-        entry.setIsActive(status)
+        entry.setIsActive(str(status))
         self.videoDatabase.update(key, entry.toList())
 
     def __scanAndParse(self, scriptFile, mediaRoot):

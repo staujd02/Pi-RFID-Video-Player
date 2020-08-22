@@ -15,6 +15,7 @@ from source.wrapper.cardScanWrapper import CardScanWrapper
 from source.migrators.migrator import Migrator
 from source.informationManagers.search.scriptedFileSearch import ScriptedFileSearch
 from source.utilities.devices import Devices
+from source.utilities.fileManager import FileManager
 
 class EditorController:
 
@@ -44,6 +45,7 @@ class EditorController:
         self.cardScan = CardScanWrapper(sound, self.rfid)
 
     def configureDataProviders(self):
+        FileManager().guaranteeListOfFilesExist([self.env.VideoList, self.env.LinkedTable])
         self.videos = CSVImplementation.openDB(Database, self.env.VideoList)
         self.linker = CardToVideoLinker.openFullInstance(self.videos, self.env.LinkedTable)
 
