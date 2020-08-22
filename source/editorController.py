@@ -45,9 +45,7 @@ class EditorController:
         self.cardScan = CardScanWrapper(sound, self.rfid)
 
     def configureDataProviders(self):
-        # Untested
         FileManager().guaranteeListOfFilesExist([self.env.VideoList, self.env.LinkedTable])
-        # Untested
         self.videos = CSVImplementation.openDB(Database, self.env.VideoList)
         self.linker = CardToVideoLinker.openFullInstance(self.videos, self.env.LinkedTable)
 
