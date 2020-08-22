@@ -2,6 +2,7 @@ import logging
 from tkinter import messagebox
 import subprocess
 import shutil
+import os
 
 from source.environment.environment import Environment
 from source.editorGUI import EditorGUI
@@ -44,8 +45,16 @@ class EditorController:
         self.cardScan = CardScanWrapper(sound, self.rfid)
 
     def configureDataProviders(self):
+        # Untested
+        self.handleMissingDataFiles([self.env.VideoList, self.env.LinkedTable])
+        # Untested
         self.videos = CSVImplementation.openDB(Database, self.env.VideoList)
         self.linker = CardToVideoLinker.openFullInstance(self.videos, self.env.LinkedTable)
+
+    def handleMissingDataFiles(self, fileList):
+        for file in fileList:
+            if not os.path.isfile(file):
+                open(file, 'a').close() 
 
     def configureScannerProvider(self, rfidScanner):
         provider = RFIDScannerProvider(rfidScanner)
