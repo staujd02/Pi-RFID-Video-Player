@@ -44,7 +44,7 @@ class Migrator_test(unittest.TestCase):
         def scanHasRun(self):
             return True
     
-    def test_devices_can_provide_a_list_of_devices(self):
+    def test_devices_wont_crash_given_no_devices_are_found(self):
         devices = self.devices.getList("/media/pi/", "returnNothing.sh")
         self.assertEqual(devices, [])
     
@@ -52,7 +52,7 @@ class Migrator_test(unittest.TestCase):
         device = self.devices.extractDeviceNameFromPath("/media/pi/usb4/file/some/odd.tst", "/media/pi/")
         self.assertEqual(device, "usb4")
     
-    def test_devices_wont_crash_given_no_devices_are_found(self):
+    def test_devices_can_provide_a_list_of_devices(self):
         devices = self.devices.getList("/media/pi/", "scriptMe.sh")
         self.assertEqual(devices, [ "usb2", "usb3", "sourceDevice"])
 
@@ -71,7 +71,9 @@ class Migrator_test(unittest.TestCase):
             "11,Title 9,/media/pi/sourceDevice/Title 9\n"
         ])
         f.close()
-        f = open(self.EMPTY_FILE, "a").close()
+        f = open(self.EMPTY_FILE, "w")
+        f.writelines(["\n"])
+        f.close()
 
     def tearDown(self):
         os.remove(self.TEST_SCAN_OUTPUT)
