@@ -1,11 +1,9 @@
-from source.dataStructures import ScanEntry
+import os
 
 class FileManager(object):
 
-    def __init__(self):
-        pass
-
-    def handleMissingDataFiles(self, fileList):
+    @staticmethod
+    def guaranteeListOfFilesExist(fileList):
         for file in fileList:
             if not os.path.isfile(file):
                 open(file, 'a').close() 

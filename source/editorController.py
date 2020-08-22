@@ -2,7 +2,6 @@ import logging
 from tkinter import messagebox
 import subprocess
 import shutil
-import os
 
 from source.environment.environment import Environment
 from source.editorGUI import EditorGUI
@@ -47,7 +46,7 @@ class EditorController:
 
     def configureDataProviders(self):
         # Untested
-        FileManager().handleMissingDataFiles([self.env.VideoList, self.env.LinkedTable])
+        FileManager().guaranteeListOfFilesExist([self.env.VideoList, self.env.LinkedTable])
         # Untested
         self.videos = CSVImplementation.openDB(Database, self.env.VideoList)
         self.linker = CardToVideoLinker.openFullInstance(self.videos, self.env.LinkedTable)
