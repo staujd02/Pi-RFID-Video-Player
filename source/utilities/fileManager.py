@@ -5,7 +5,7 @@ class FileManager(object):
     @staticmethod
     def guaranteeListOfFilesExist(listOfFileNames):
         for fileName in listOfFileNames:
-            self.guaranteeFileExist(fileName)
+            FileManager.guaranteeFileExist(fileName)
 
     @staticmethod
     def guaranteeFileExist(fileName):

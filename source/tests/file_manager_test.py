@@ -18,5 +18,7 @@ class FileManager_test(unittest.TestCase):
         self.assertTrue(os.path.isfile(self.EXTRA_TEST_FILE))
     
     def tearDown(self):
-        os.remove(self.TEST_FILE)
-        os.remove(self.EXTRA_TEST_FILE)
+        if os.path.isfile(self.TEST_FILE):
+            os.remove(self.TEST_FILE)
+        if os.path.isfile(self.EXTRA_TEST_FILE):
+            os.remove(self.EXTRA_TEST_FILE)
