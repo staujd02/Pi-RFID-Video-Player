@@ -16,6 +16,7 @@ from source.wrapper.cardScanWrapper import CardScanWrapper
 from source.migrators.migrator import Migrator
 from source.informationManagers.search.scriptedFileSearch import ScriptedFileSearch
 from source.utilities.devices import Devices
+from source.utilities.fileManager import FileManager
 
 class EditorController:
 
@@ -46,15 +47,10 @@ class EditorController:
 
     def configureDataProviders(self):
         # Untested
-        self.handleMissingDataFiles([self.env.VideoList, self.env.LinkedTable])
+        FileManager().handleMissingDataFiles([self.env.VideoList, self.env.LinkedTable])
         # Untested
         self.videos = CSVImplementation.openDB(Database, self.env.VideoList)
         self.linker = CardToVideoLinker.openFullInstance(self.videos, self.env.LinkedTable)
-
-    def handleMissingDataFiles(self, fileList):
-        for file in fileList:
-            if not os.path.isfile(file):
-                open(file, 'a').close() 
 
     def configureScannerProvider(self, rfidScanner):
         provider = RFIDScannerProvider(rfidScanner)
