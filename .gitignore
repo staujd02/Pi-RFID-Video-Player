@@ -2,7 +2,8 @@
 ####################
 *.log
 *.csv
-*.ini
+.env
+ssh.sh
 
 # and OS generated files #
 ######################
@@ -13,3 +14,9 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Binaries #
+############
+*.pyc
+__pycache__
+.pytest_cache

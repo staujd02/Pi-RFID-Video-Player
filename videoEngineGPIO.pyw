@@ -9,39 +9,45 @@ import pygame
 import os.path
 import psutil as util
 
-import Tkinter
+from tkinter import *
 from PIL import Image
 from PIL import ImageTk
+#from PIL import ImageTk
+
+# New Imports
+from source.wrapper.cardScanWrapper import CardScanWrapper
+from source.providers.rfidScannerProvider import RFIDScannerProvider
+from source.informationManagers.dataStorageMethods.database import Database
+from source.informationManagers.dataStorageMethods.csvImplementation import CSVImplementation
+from source.informationManagers.cardToVideoLinker import CardToVideoLinker
+from source.environment.environment import Environment
+from source.dataStructures import Video
 
 # HARDWARE LIBRARIES
 import Adafruit_PN532 as PN532
 import RPi.GPIO as GPIO
 import uinput
 
-# Configuration for a Raspberry Pi:
 CS   = 18
 MOSI = 23
 MISO = 24
 SCLK = 25
 
-# Define mapping of GPIO presses to keyboard button presses.
 KEY_ACTION = {
-                "quit": uinput.KEY_Q,     # Stop Button
-                "skip": uinput.KEY_LEFT,  # Skip forward
-                "play": uinput.KEY_SPACE, # Play/Pause
-                "ff": uinput.KEY_DOT,   # Fast Forward
-                "rewind": uinput.KEY_RIGHT  #, # Rewind
-                #0: uinput.KEY_UP,    # Fast Skip
-              }
-KEY_PINS = {
-                "quit":16,     # Stop Button
-                "skip":15,  # Skip forward
-                "play":14, # Play/Pause
-                "ff":13,   # Fast Forward
-                "rewind":12  #, # Rewind
-                #0: uinput.KEY_UP,    # Fast Skip
-              }
+    "quit": uinput.KEY_Q,     
+    "skip": uinput.KEY_LEFT, 
+    "play": uinput.KEY_SPACE, 
+    "ff": uinput.KEY_DOT,   
+    "rewind": uinput.KEY_RIGHT  
+}
 
+KEY_PINS = {
+    "quit":16, 
+    "skip":15, 
+    "play":14, 
+    "ff":13,  
+    "rewind":12 
+}
 
 # Pause Delays
 EQL_DELAY = .85
@@ -55,17 +61,19 @@ VIDEO_DEF='VideoList'
 UUID_DEF='UuidTable'
 
 # Info Defaults
-VIDEO_LIST='vids.csv'
-UUID_MAP='UUID_Table.csv'
+VIDEO_LIST='../vids.csv'
+UUID_MAP='../UUID_Table.csv'
 FK_KILL = -255
 
-# Program Constants
-LOG_FILE='engine.log'
-IDLE = 'bg.jpg'
-BROKE = 'broke.png'
-BROKE_LINK = 'brokenLink.png'
-TOUCH_SOUND = '/opt/sonic-pi/etc/samples/elec_plip.flac'
-BROKE_SOUND = '/opt/sonic-pi/etc/samples/bass_dnb_f.flac'
+
+# Read ini file for file names
+try:
+    env = Environment(logFile="engine.log")
+except Exception as e:
+    print('Failed to read ini file, exiting...')
+    sys.exit(1)
+
+logging.info('Initializing Program...')
 
 # Declare statics
 class Instance:
@@ -77,6 +85,19 @@ class Instance:
 
 # Establish new intstance of the class
 inst = Instance()
+
+try:
+    # Load Sounds
+    logging.info('Loading Sound Files...')
+    pygame.mixer.pre_init(44100, -16, 12, 512)
+    pygame.init()
+    Instance.sound = pygame.mixer.Sound(env.TOUCH_SOUND)
+    soundBroke = pygame.mixer.Sound(env.BROKE_SOUND)
+    Instance.sound.set_volume(4)
+    Instance.sound.play()
+except Exception as e:
+    logging.critical('Setup Failed: ' + str(e))
+    sys.exit(1)
 
 # Define Button Function
 def quitKey(evt):
@@ -121,81 +142,54 @@ def rewindKey(evt):
         Instance.sound.play()
         Instance.device.emit_click(KEY_ACTION.get("rewind"))
 
-##def buttonEventHandler(pin):
-##    key = KEY_MAPPING.get(pin)
-##    if KEY_GATE == 1:
-##        sound.play()
-##        if key == uinput.KEY_DOT:
-##            if ff:
-##                ff = False
-##                device.emit_click(uinput.KEY_SPACE)
-##                time.sleep(.15)
-##                device.emit_click(uinput.KEY_SPACE)
-##            else:
-##                ff = True
-##                device.emit_click(key)
-##                time.sleep(.15)
-##                device.emit_click(key)
-##        elif key == uinput.KEY_SPACE:
-##            if ff:
-##                device.emit_click(key)
-##                time.sleep(.15)
-##            ff = False
-##            device.emit_click(key)
-##        else:
-##            device.emit_click(key)
-##        if key == uinput.KEY_Q:
-##            lastplay=''
-##            p = None
-##            logging.info('Video Ended by user.')
-##        time.sleep(0.1)        
-
 # Begin setup Operations
-try:
-    logging.basicConfig(filename=LOG_FILE,level=logging.INFO)
-    logging.info('Initializing Program...')
     
+try:
     # Load GUI screen
     logging.info('Creating GUI background...')
-    root = Tkinter.Tk()
+    root = Tk()
     root.overrideredirect(True)
     root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(),root.winfo_screenheight()))
     root.config(background = 'black')
-    img = ImageTk.PhotoImage(Image.open(IDLE))
-    imgBroke = ImageTk.PhotoImage(Image.open(BROKE))
-    imgBrokeV = ImageTk.PhotoImage(Image.open(BROKE_LINK))
-    panel = Tkinter.Label(root, image = img)
+    img = ImageTk.PhotoImage(Image.open(env.IDLE))
+    imgBroke = ImageTk.PhotoImage(Image.open(env.BROKE))
+    imgBrokeV = ImageTk.PhotoImage(Image.open(env.BROKE_LINK))
+    panel = Label(root, image = img)
     panel.config(background = 'black')
     panel.pack(side = 'bottom', fill = 'both', expand = 'yes')
     root.update()
+except Exception as e:
+    logging.critical('Setup Failed: ' + str(e))
+    sys.exit(1)
+
     
-    # Load Sounds
-    logging.info('Loading Sound Files...')
-    pygame.mixer.pre_init(44100, -16, 12, 512)
-    pygame.init()
-    Instance.sound = pygame.mixer.Sound(TOUCH_SOUND)
-    soundBroke = pygame.mixer.Sound(BROKE_SOUND)
-    Instance.sound.set_volume(4)
-    Instance.sound.play()
-    
+try:
     # Load Keyboard Interface
     logging.info('Loading uinput keyboard interface...')
     # Make sure uinput kernel module is loaded.
     subprocess.check_call(['modprobe', 'uinput'])
     # Configure virtual keyboard.
     Instance.device = uinput.Device(KEY_ACTION.values())
+except Exception as e:
+    logging.critical('Setup Failed: ' + str(e))
+    sys.exit(1)
     
+try:
     # Setup PN532 Hardware
     logging.info('Mounting PN532 device...')
     pn532 = PN532.PN532(cs=CS, sclk=SCLK, mosi=MOSI, miso=MISO)
     pn532.begin()
     # Configure PN532 to communicate with MiFare cards.
     pn532.SAM_configuration()
+except Exception as e:
+    logging.critical('Setup Failed: ' + str(e))
+    sys.exit(1)
     
+try:
     # Configure GPIO pins 
     logging.info('Configuring GPIO pins...')
     GPIO.setmode(GPIO.BCM)
-    for key,pin in KEY_PINS.iteritems():
+    for key, pin in KEY_PINS.items():
         GPIO.setup(pin,GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
     GPIO.add_event_detect(KEY_PINS.get("quit"),GPIO.FALLING,callback=quitKey,bouncetime=BOUNCE)
@@ -203,72 +197,19 @@ try:
     GPIO.add_event_detect(KEY_PINS.get("play"),GPIO.FALLING,callback=playKey,bouncetime=BOUNCE)
     GPIO.add_event_detect(KEY_PINS.get("ff"),GPIO.FALLING,callback=ffKey,bouncetime=BOUNCE)
     GPIO.add_event_detect(KEY_PINS.get("rewind"),GPIO.FALLING,callback=rewindKey,bouncetime=BOUNCE)
-    #GPIO.add_event_detect(pin,GPIO.FALLING,callback=lambda x:buttonEventHandler(pin),bouncetime=1000)                     
-
-    # Mark completion
-    logging.info('Setup Complete')
 except Exception as e:
     logging.critical('Setup Failed: ' + str(e))
     sys.exit(1)
 
-
-# Read ini file for file names
 try:
-    logging.info("Loading ini file...")
-    f = open(INI_FILE,'r')
-    lines = f.read().splitlines()
-    f.close()
-    for setting in lines:
-        s = setting.split('=')
-        if s[0] == KILL_DEF:
-            FK_KILL = int(s[1])
-        elif s[0] == VIDEO_DEF:
-            VIDEO_LIST = s[1]
-        elif s[0] == UUID_DEF:
-            UUID_MAP = s[1]
-except Exception as e:
-    logging.error('Failed to read ini file, using defaults...')
-
-try:
-    # Load video CSV into active memory
-    logging.info('Loading Video References...')
-    f = open(VIDEO_LIST,'r')
-    vids = f.read().splitlines()
-    f.close()
-    # Fracture array
-    vidPK = []
-    vidPATH = []
-    vidNAME = []
-    i=0
-    while(i<len(vids)):
-        split = vids[i].split(',')
-        vidNAME.append(split[1])
-        vidPATH.append(split[2])
-        vidPK.append(int(split[0]))
-        i=i+1
-    
-    # Load RFID cards' uuids into active memory
-    logging.info('Loading RFID Card References...')
-    f = open(UUID_MAP,'r')
-    rfid = f.read().splitlines()
-    f.close()
-    # Fracture array
-    uuid = []
-    uuidFK = []
-    i=0
-    l = len(rfid)
-    while (i < l):
-        split = rfid[i].split(',')
-        uuid.append(split[0])
-        uuidFK.append(int(split[1]))
-        i=i+1
-    
-    # Log completion
-    logging.info('Files loaded')
+    # Load videos
+    videos = CSVImplementation.openDB(Database, env.VideoList)
+    linker = CardToVideoLinker.openFullInstance(videos, env.LinkedTable)
 except Exception as e:
     logging.critical('File Setup Failed: ' + str(e))
     sys.exit(1)
 
+logging.info('Setup Complete')
 
 # Start Processing ------------------------------------
 
@@ -289,7 +230,7 @@ try:
     # Endless Process Loop
     while (run==0):
         # Run a scan on the card
-        uid = pn532.read_passive_target(pn532.read_passive_target.func_defaults[0],.5)
+        uid = pn532.read_passive_target(0, .5)
         if uid is None:
             # Card Not Found: Process keys
             Instance.KEY_GATE=1
@@ -361,8 +302,9 @@ try:
                 # Tell omxplayer to quit
                 Instance.device.emit_click(uinput.KEY_Q)
                 try:
-                    i=uuid.index('0x' + uidt)
-                    if uuidFK[i] == FK_KILL:
+                    entry=linker.resolve('0x' + uidt.decode())
+                    # i=linker.resolve('0x' + uidt)
+                    if entry == linker.KillCode:
                         # Kill card was scanned, cleanup and exit
                         logging.info('Quit Command Recieved!')
                         for proc in util.process_iter():                            
@@ -374,11 +316,11 @@ try:
                                 if 'omxplayer' == pinfo['name']:
                                     proc.kill()
                         sys.exit(0)
-                    i=vidPK.index(uuidFK[i])
-                    logging.info('Playing Video: ' + vidNAME[i])
-                    if not os.path.isfile(vidPATH[i]):
+                    video = Video(entry)
+                    logging.info('Playing Video: ' + video.getName())
+                    if not os.path.isfile(video.getPath()):
                         raise IOError('Video link did not resolve.')
-                    subprocess.call('gnome-terminal -x omxplayer -b -o hdmi ' + vidPATH[i],shell=True)
+                    subprocess.call('gnome-terminal -x omxplayer -b -o hdmi ' + video.getPath(),shell=True)
                 except IOError as o:
                     # Video File is broken...
                     panel.config(image = imgBrokeV)

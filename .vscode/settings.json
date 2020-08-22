@@ -1,0 +1,23 @@
+{
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "./source/tests",
+        "-p",
+        "*_test.py"
+    ],
+    "python.testing.pytestEnabled": false,
+    "python.testing.nosetestsEnabled": false,
+    "python.testing.unittestEnabled": true,
+    "python.testing.pytestArgs": [
+        "source"
+    ],
+    "cSpell.words": [
+        "atexit",
+        "isfile",
+        "rfid",
+        "shutil",
+        "tkinter"
+    ],
+    "python.pythonPath": "D:\\Anaconda3\\python.exe"
+}
