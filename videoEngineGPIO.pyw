@@ -1,4 +1,4 @@
-# SOFTWARE
+# Python Packages
 import atexit
 import logging
 import subprocess
@@ -9,12 +9,17 @@ import pygame
 import os.path
 import psutil as util
 
+# GUI Packages
 from tkinter import *
 from PIL import Image
 from PIL import ImageTk
-#from PIL import ImageTk
 
-# New Imports
+# 3rd Party Hardware Libraries
+import Adafruit_PN532 as PN532
+import RPi.GPIO as GPIO
+import uinput
+
+# Internal Libraries
 from source.wrapper.cardScanWrapper import CardScanWrapper
 from source.providers.rfidScannerProvider import RFIDScannerProvider
 from source.informationManagers.dataStorageMethods.database import Database
@@ -23,10 +28,6 @@ from source.informationManagers.cardToVideoLinker import CardToVideoLinker
 from source.environment.environment import Environment
 from source.dataStructures import Video
 
-# HARDWARE LIBRARIES
-import Adafruit_PN532 as PN532
-import RPi.GPIO as GPIO
-import uinput
 
 CS   = 18
 MOSI = 23
@@ -53,18 +54,6 @@ KEY_PINS = {
 EQL_DELAY = .85
 VIDEO_SCAN_RELIEF = 2
 BOUNCE = 750
-
-# Ini Info
-INI_FILE = 'library.ini'
-KILL_DEF='KillCommand'
-VIDEO_DEF='VideoList'
-UUID_DEF='UuidTable'
-
-# Info Defaults
-VIDEO_LIST='../vids.csv'
-UUID_MAP='../UUID_Table.csv'
-FK_KILL = -255
-
 
 # Read ini file for file names
 try:
@@ -303,7 +292,6 @@ try:
                 Instance.device.emit_click(uinput.KEY_Q)
                 try:
                     entry=linker.resolve('0x' + uidt.decode())
-                    # i=linker.resolve('0x' + uidt)
                     if entry == linker.KillCode:
                         # Kill card was scanned, cleanup and exit
                         logging.info('Quit Command Recieved!')
