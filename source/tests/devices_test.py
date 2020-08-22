@@ -10,6 +10,7 @@ from source.informationManagers.dataStorageMethods.database import Database
 class Migrator_test(unittest.TestCase):
 
     TEST_SCAN_OUTPUT = "temp.test.csv"
+    EMPTY_FILE = "temp.test.empty.csv"
 
     class ProcessProvider(object):
         cmdCalled = "not called"
@@ -20,6 +21,7 @@ class Migrator_test(unittest.TestCase):
     class FakeScriptedFileSearch:
 
         TEMP_LIST = "temp.test.csv"
+        EMPTY_FILE = "temp.test.empty.csv"
 
         def __init__(self, processProvider):
             self.db = Database(CSVImplementation())
@@ -28,7 +30,10 @@ class Migrator_test(unittest.TestCase):
         def scan(self, scriptFile, mediaRoot):
             self.calledWithScriptFile = scriptFile 
             self.calledWithMediaRoot = mediaRoot 
-            self.db.load(self.TEMP_LIST)
+            if(scriptFile == 'returnNothing.sh'):
+                self.db.load(self.EMPTY_FILE)
+            else:
+                self.db.load(self.TEMP_LIST)
 
         def getList(self):
             return self.db.iterate()
@@ -40,12 +45,16 @@ class Migrator_test(unittest.TestCase):
             return True
     
     def test_devices_can_provide_a_list_of_devices(self):
-        devices = self.devices.getList("/media/pi/", "scriptMe.sh")
-        self.assertEqual(devices, [ "usb2", "usb3", "sourceDevice"])
+        devices = self.devices.getList("/media/pi/", "returnNothing.sh")
+        self.assertEqual(devices, [])
     
     def test_devices_can_extract_a_device_name_from_a_path(self):
         device = self.devices.extractDeviceNameFromPath("/media/pi/usb4/file/some/odd.tst", "/media/pi/")
         self.assertEqual(device, "usb4")
+    
+    def test_devices_wont_crash_given_no_devices_are_found(self):
+        devices = self.devices.getList("/media/pi/", "scriptMe.sh")
+        self.assertEqual(devices, [ "usb2", "usb3", "sourceDevice"])
 
     def setUp(self):
         self.createTestCSVs()
@@ -62,6 +71,8 @@ class Migrator_test(unittest.TestCase):
             "11,Title 9,/media/pi/sourceDevice/Title 9\n"
         ])
         f.close()
+        f = open(self.EMPTY_FILE, "a").close()
 
     def tearDown(self):
         os.remove(self.TEST_SCAN_OUTPUT)
+        os.remove(self.EMPTY_FILE)

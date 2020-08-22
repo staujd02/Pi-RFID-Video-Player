@@ -9,8 +9,9 @@ class Devices(object):
 
     def getList(self, mediaRoot, scriptFile):
         self.fileSearch.scan(scriptFile, mediaRoot)
-        scannedEntries = [ScanEntry(self.fileSearch.getFile(i))
-                                for i in self.fileSearch.getList()]
+        scannedEntries = []
+        for entry in self.fileSearch.getList():
+            scannedEntries.append(ScanEntry(self.fileSearch.getFile(entry)))
         deviceList = []
         for entry in scannedEntries:
             deviceName = self.extractDeviceNameFromPath(entry.getPath(), mediaRoot)
