@@ -116,11 +116,9 @@ class EditorGUI_test(unittest.TestCase):
         self.assertTrue(self.test.gui.wasCleared)
     
     def test_when_a_valid_kill_card_is_scanned_it_has_nothing_selected(self):
-        self.test.lastSelection = "Ghost Busters"
         self.test.linker.pair("DUMMY_CARD_ID", self.test.linker.KillCode)
         self.test.scanButtonHandler()
-        self.test.videoSelectedEvent("Star Wars")
-        self.assertEqual(None, self.test.gui.selectedVideo)
+        self.assertEqual('', self.test.gui.selectedVideo)
     
     def test_when_a_valid_kill_card_is_assigned_no_video_is_active(self):
         self.test.lastSelection = "Ghost Busters"

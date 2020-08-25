@@ -67,6 +67,8 @@ class EditorPilot(EditorController):
     def handleUnlinkedCard(self):
         if self.lastSelection is not None:
             self.gui.setListBoxSelection(self.lastSelection)
+        else:
+            self.gui.clearCurrentSelection()
         self.messenger.showCannotPairToInactiveVideos()
 
     def updateRepository(self):
