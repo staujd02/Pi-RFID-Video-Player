@@ -81,7 +81,8 @@ class EditorController:
             "assignKill": self.empty,
             "beginCardScan": self.empty,
             "updateRepository": self.empty,
-            "videoSelectedEvent": self.empty
+            "videoSelectedEvent": self.empty,
+            "handleActiveToggle": self.empty
         }
 
     def empty(self, opt="nothing"):

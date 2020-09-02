@@ -1,4 +1,4 @@
-from tkinter import Tk, messagebox, Frame, Label, Entry, Button, Listbox, Scrollbar, Spinbox, END, DISABLED, StringVar, VERTICAL, NORMAL
+from tkinter import Tk, messagebox, Frame, Checkbutton, Label, Entry, Button, Listbox, Scrollbar, Spinbox, END, DISABLED, StringVar, VERTICAL, NORMAL
 
 class EditorGUI:
 
@@ -102,11 +102,13 @@ class EditorGUI:
         Label(frame, text='Video').grid(row=0, column=2)
         Label(frame, text='Source USB').grid(row=4, column=0)
 
+
     def __createButtons(self, frame, events):
+        
         Button(frame, text='Save', command=events.get(
-            "save")).grid(row=6, column=2)
+            "save")).grid(row=7, column=2)
         Button(frame, text='Quit', command=events.get(
-            "quit")).grid(row=6, column=3)
+            "quit")).grid(row=7, column=3)
         Button(frame, text='Assign Kill Code', command=events.get(
             "assignKill")).grid(row=2, column=0)
 
@@ -119,6 +121,7 @@ class EditorGUI:
             self.frame, self.activeDevices, self.activeUSB.get())
         self.readCardButton, self.searchDevicesButton = self.__createStatusButtons(
             self.frame, self.eventDictionary)
+        self.showInactiveVideos = self.__createCheckbox(self.frame, self.eventDictionary)
 
     def __createStatusButtons(self, frame, events):
         readCardButton = Button(frame, text='Read Card',
@@ -134,6 +137,11 @@ class EditorGUI:
                   state=DISABLED, disabledforeground='black')
         e.grid(row=1, column=0)
         return e
+
+    def __createCheckbox(self, frame, events):
+        c = Checkbutton(frame, text='Show Inactive Videos', onvalue=False, offvalue=True, command=events.get("handleActiveToggle"))
+        c.grid(row=6, column=2)
+        return c
     
     def __createListbox(self, frame):
         ls = Listbox(frame)
