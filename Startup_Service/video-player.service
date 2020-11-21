@@ -1,0 +1,15 @@
+[Unit]
+Description=Auto-starts the video player on boot
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 videoEngine.pyw
+WorkingDirectory=/home/pi/repos/Pi-RFID-Video-Player
+StandardOutput=inherit
+StandardError=inherit
+Restart=no
+User=pi
+
+[Install]
+WantedBy=multi-user.target

@@ -38,6 +38,10 @@
  - Install required python libraries
      - `sudo pip3 install python-uinput`
 
+### Setting up auto-start service on boot
+
+ - Copy the appropriate service file into `/etc/systemd/system`
+
 ### There are three executable python programs
 
  - editor.pyw
