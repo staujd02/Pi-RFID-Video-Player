@@ -60,6 +60,25 @@ key. If the foreign key is not set during the editing process, the
 blank card error will occur if the card is scanned when the video 
 engine is running.
 
+### Setup Checklist
+ - Install required PN_532 library
+     - Download forked PN_532 library
+     - Run `sudo python3 setup.py install`
+ - Install required MPR_121 library
+     - Download forked MPR_121 library
+     - Run `sudo python3 setup.py install`
+     - Enable ic2
+     	- Open `/boot/config.txt`
+	- Uncomment `ic2_dev, i2s`
+ - Setup up video repository
+     - Ensure usb name has no spaces in it
+     - Ensure scanner.sh is saved in UNIX file endings
+     - Enable execute permissions for scanner.sh 
+ - Install required system libraries
+     - `sudo apt-get install libudev-dev`
+     - `sudo apt-get install python3-pil.imagetk`
+ - Install Required python libraries
+     - `sudo pip3 install python-uinput`
 
 ### Considerations for Configuration
 To edit which files are discoverd/copied:
