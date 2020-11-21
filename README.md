@@ -77,6 +77,7 @@ engine is running.
  - Install required system libraries
      - `sudo apt-get install libudev-dev`
      - `sudo apt-get install python3-pil.imagetk`
+     - `sudo apt-get install gnome-terminal`
  - Install Required python libraries
      - `sudo pip3 install python-uinput`
 
