@@ -1,38 +1,55 @@
-#### This software was developed by Joel Stauffer.
-- Developed: 08/25/2017
-- Engine Version: 1.1
-- Editor Version: 1.0
 
-## Change Log
-
-Engine 1.1
-- Kill Cards now kill all running oxmplayer processes
-- Card scan window was added to prevent rapid (millisecond) switches
-
-## ::REQUIRED HARDWARE::
+## REQUIRED HARDWARE
 
 - PN532 - RFID Reader (Configured for Mifare Format)
-- MPR121 - Capacitive Touch Sensor (Otherwise use GPIO Player)
 
-## ::REQUIRED SOFTWARE::
+## OPTIONAL HARDWARE
+
+- MPR121 - Capacitive Touch Sensor(Otherwise use GPIO Player)
+   - Note: If you don't have the MPR121, you will need to use the `videoEngineGPIO.pyw` to start the video player
+
+## REQUIRED SOFTWARE
 - Python library for Adafruit_PN532
-- Python library for Adafruit_MPR121
+- Python library for Adafruit_MPR121 (If you're using the MPR121 board)
 - Python library psutil, python-uinput
-- Linux Distros: Omxplayer, python-imaging, and python-imaging-tk
+- Linux Distros: Omxplayer, gnome-terminal, python-imaging, and python-imaging-tk
 - IMPORTS: atexit, logging, subprocess, sys, os, shutil, binascii, time
  pygame (for sound), Tkinter (GUIs), psutil, PIL.Image, PIL.ImageTk,
  uinput, RPi.GPIO
+ 
+### Setup Instructions
+ - Install the required python PN_532 library
+     - Download forked PN_532 library
+     - Run `sudo python3 setup.py install`
+ - Install the required MPR_121 library
+     - Download forked MPR_121 library
+     - Run `sudo python3 setup.py install`
+     - Enable ic2
+     	- Open `/boot/config.txt`
+	- Uncomment `ic2_dev, i2s`
+ - Setup up video repository scanner
+     - Ensure usb name has no spaces in it
+     - Ensure scanner.sh is saved with UNIX file endings
+     - Enable execute permissions for scanner.sh 
+ - Install required system libraries
+     - `sudo apt-get install libudev-dev`
+     - `sudo apt-get install python3-pil.imagetk`
+     - `sudo apt-get install gnome-terminal`
+ - Install required python libraries
+     - `sudo pip3 install python-uinput`
 
-### There are two python scripts contained with the engine files.
+### Setting up auto-start service on boot
+
+ - Copy the appropriate service file into `/etc/systemd/system`
+
+### There are three executable python programs
 
  - editor.pyw
+    - *This script launches a GUI used to edit the vids.csv and UUID_Table.csv, set the source USB, and copy videos from other USB's to the source USB.*
  - videoEngine.pyw
+    - *This script launches the video player using the MPR121 for interactive video control.*
  - videoEngineGPIO.pyw
-
-*editor.pyw*: This script launches a GUI used to edit the vids.csv and UUID_Table.csv, set the
-source USB, and copy videos from other USB's to the source USB.
-*videoEngine.pyw*: This script launches the video player.
-*videoEngineGPIO.pyw*: This script launches the video player using GPIO pins as substitutes for the MPR121 capacitive touch sensor.
+    - *This script launches the video player using GPIO pins as substitutes for the MPR121 capacitive touch sensors.*
 
 ### There are three info files.
 
@@ -60,7 +77,6 @@ key. If the foreign key is not set during the editing process, the
 blank card error will occur if the card is scanned when the video 
 engine is running.
 
-
 ### Considerations for Configuration
 To edit which files are discoverd/copied:
 
@@ -70,7 +86,7 @@ To edit which files are discoverd/copied:
        allow videos other than .mp4's to be scanned. Only .mp4 is 
        default, since omxplayer is touchy on codecs.
     - Altering the find path (/media/pi/) to a different directory would
-       allow for the discovery of different files. /media/pi is default
+       allow for the discovery of files in another location. /media/pi is default
        since usb directories appear as sub-directories in this location.
 
  - To modifiy the key assignements that control the video engine during
@@ -79,6 +95,10 @@ To edit which files are discoverd/copied:
  - Adding the a startup script  to /etc/profile.d is a way
 	auto start the video player on user login
 
+#### Problems?
+- Check the .log files for errors and/or warnings...
 
-#### ERRORS?
-=> check the .log file for the python script you ran...
+#### This software was developed by Joel Stauffer.
+- Developed: 08/25/2017
+- Engine Version: 2.1
+- Editor Version: 1.0

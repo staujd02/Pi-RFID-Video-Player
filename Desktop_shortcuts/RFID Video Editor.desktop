@@ -2,7 +2,7 @@
 Type=Application
 Name=RFID Tag Editor
 GenericName=Configuration Software
-Exec=python3 main.pyw
+Exec=sudo python3 main.pyw
 Comment=Edits the csv files to associate videos with Mifare cards.
 Icon=/home/pi/repos/Pi-RFID-Video-Player/resources/icons/e_icon.png
 Terminal=false
