@@ -41,7 +41,8 @@ KEY_MAPPING = {
                 2: uinput.KEY_SPACE,
                 3: uinput.KEY_DOT,  
                 4: uinput.KEY_RIGHT,
-                5: uinput.KEY_UP
+                5: uinput.KEY_UP,
+                6: uinput.KEY_X
               }
 MAX_EVENT_WAIT_SECONDS = 0.25
 EVENT_WAIT_SLEEP_SECONDS = 0.01
@@ -155,6 +156,18 @@ scanFQ = 0
 # Loop controller
 run=0
 
+def shutdown():
+    logging.info('Quit Command Recieved!')
+    for proc in util.process_iter():                            
+        try:                            
+            pinfo = proc.as_dict(attrs=['name'])
+        except util.NoSuchProcess:
+            pass
+        else:
+            if 'omxplayer' == pinfo['name']:
+                proc.kill()
+    sys.exit(0)
+
 try:
     # Clear any pending interrupts by reading touch state.
     cap.touched()
@@ -236,16 +249,7 @@ try:
                     entry=linker.resolve('0x' + uidt.decode())
                     if entry == linker.KillCode:
                         # Kill card was scanned, cleanup and exit
-                        logging.info('Quit Command Recieved!')
-                        for proc in util.process_iter():                            
-                            try:                            
-                                pinfo = proc.as_dict(attrs=['name'])
-                            except util.NoSuchProcess:
-                                pass
-                            else:
-                                if 'omxplayer' == pinfo['name']:
-                                    proc.kill()
-                        sys.exit(0)
+                        shutdown()
                     video = Video(entry)
                     # i=vidPK.index(uuidFK[i])
                     logging.info('Playing Video: ' + video.getName())
@@ -290,6 +294,8 @@ try:
                     # Emit sound
                     sound.play()
                     # Emit key event when touched.
+                    if key == uinput.X:
+                        shutdown()
                     if key == uinput.KEY_DOT:
                         if ff:
                             ff = False
