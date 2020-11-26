@@ -44,10 +44,10 @@ KEY_MAPPING = {
                 4: uinput.KEY_RIGHT,
                 5: uinput.KEY_UP
               }
-MAX_EVENT_WAIT_SECONDS = 0.25
+MAX_EVENT_WAIT_SECONDS = 0.10
 EVENT_WAIT_SLEEP_SECONDS = 0.01
 EQL_DELAY = .85
-VIDEO_SCAN_RELIEF = 2
+VIDEO_SCAN_RELIEF = 1
 
 # Begin setup Operations
 
