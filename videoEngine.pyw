@@ -166,7 +166,7 @@ def shutdown():
         else:
             if 'omxplayer' == pinfo['name']:
                 proc.kill()
-            if 'python3' == pinfo['name'] and 'videoEngine.pyw' == p.cmdline()[1]:
+            if 'python3' == pinfo['name']:
                 proc.kill()
     sys.exit(0)
 
