@@ -166,6 +166,8 @@ def shutdown():
         else:
             if 'omxplayer' == pinfo['name']:
                 proc.kill()
+            if 'python' == pinfo['name']:
+                proc.kill()
     sys.exit(0)
 
 def on_press(key):
