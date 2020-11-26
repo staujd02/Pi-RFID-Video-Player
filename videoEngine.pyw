@@ -41,8 +41,7 @@ KEY_MAPPING = {
                 2: uinput.KEY_SPACE,
                 3: uinput.KEY_DOT,  
                 4: uinput.KEY_RIGHT,
-                5: uinput.KEY_UP,
-                6: uinput.KEY_X
+                5: uinput.KEY_UP
               }
 MAX_EVENT_WAIT_SECONDS = 0.25
 EVENT_WAIT_SLEEP_SECONDS = 0.01
@@ -294,8 +293,6 @@ try:
                     # Emit sound
                     sound.play()
                     # Emit key event when touched.
-                    if key == uinput.X:
-                        shutdown()
                     if key == uinput.KEY_DOT:
                         if ff:
                             ff = False
