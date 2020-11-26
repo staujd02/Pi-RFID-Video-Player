@@ -175,9 +175,8 @@ def on_press(key):
     except AttributeError:
         pass
 
-# Collect events until released
-with keyboard.Listener(on_press=on_press) as listener:
-    listener.join()
+listener = keyboard.Listener(on_press=on_press)
+listener.start()
 
 try:
     # Clear any pending interrupts by reading touch state.
