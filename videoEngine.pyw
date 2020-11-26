@@ -9,6 +9,7 @@ import pygame
 import os.path
 import uinput
 import psutil as util
+from pynput import keyboard
 
 # GUI Packages
 from tkinter import *
@@ -166,6 +167,17 @@ def shutdown():
             if 'omxplayer' == pinfo['name']:
                 proc.kill()
     sys.exit(0)
+
+def on_press(key):
+    try:
+        if key.char == 'x':
+            shutdown()
+    except AttributeError:
+        pass
+
+# Collect events until released
+with keyboard.Listener(on_press=on_press) as listener:
+    listener.join()
 
 try:
     # Clear any pending interrupts by reading touch state.
