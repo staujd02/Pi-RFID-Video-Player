@@ -19,7 +19,7 @@
         "shutil",
         "tkinter"
     ],
-    "python.pythonPath": "D:\\Anaconda3\\python.exe",
+    "python.pythonPath": "C:\\Users\\altos\\AppData\\Local\\Programs\\Python\\Python39\\python.exe",
     "python.linting.enabled": true,
     "python.linting.pylintEnabled": false,
     "python.linting.mypyEnabled": true
