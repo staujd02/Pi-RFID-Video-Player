@@ -9,6 +9,7 @@ import pygame
 import os.path
 import uinput
 import psutil as util
+from pynput import keyboard
 
 # GUI Packages
 from tkinter import *
@@ -43,10 +44,10 @@ KEY_MAPPING = {
                 4: uinput.KEY_RIGHT,
                 5: uinput.KEY_UP
               }
-MAX_EVENT_WAIT_SECONDS = 0.25
+MAX_EVENT_WAIT_SECONDS = 0.10
 EVENT_WAIT_SLEEP_SECONDS = 0.01
 EQL_DELAY = .85
-VIDEO_SCAN_RELIEF = 2
+VIDEO_SCAN_RELIEF = 1
 
 # Begin setup Operations
 
@@ -155,6 +156,30 @@ scanFQ = 0
 # Loop controller
 run=0
 
+def shutdown():
+    logging.info('Quit Command Recieved!')
+    for proc in util.process_iter():                            
+        try:                            
+            pinfo = proc.as_dict(attrs=['name'])
+        except util.NoSuchProcess:
+            pass
+        else:
+            if 'omxplayer' == pinfo['name']:
+                proc.kill()
+            if 'python3' == pinfo['name']:
+                proc.kill()
+    sys.exit(0)
+
+def on_press(key):
+    try:
+        if key.char == 'x':
+            shutdown()
+    except AttributeError:
+        pass
+
+listener = keyboard.Listener(on_press=on_press)
+listener.start()
+
 try:
     # Clear any pending interrupts by reading touch state.
     cap.touched()
@@ -239,16 +264,7 @@ try:
                     entry=linker.resolve('0x' + uidt.decode())
                     if entry == linker.KillCode:
                         # Kill card was scanned, cleanup and exit
-                        logging.info('Quit Command Recieved!')
-                        for proc in util.process_iter():                            
-                            try:                            
-                                pinfo = proc.as_dict(attrs=['name'])
-                            except util.NoSuchProcess:
-                                pass
-                            else:
-                                if 'omxplayer' == pinfo['name']:
-                                    proc.kill()
-                        sys.exit(0)
+                        shutdown()
                     video = Video(entry)
                     # i=vidPK.index(uuidFK[i])
                     logging.info('Playing Video: ' + video.getName())
