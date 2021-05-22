@@ -165,10 +165,7 @@ try:
         try:
             uid = pn532.read_passive_target()
         except Exception as e:
-            logging.warn("Error emanated PN532: " + str(e))
-            pn532 = PN532.PN532(cs=CS, sclk=SCLK, mosi=MOSI, miso=MISO)
-            pn532.begin()
-            pn532.SAM_configuration()
+            logging.warn("Error emanated from PN532: " + str(e))
         if uid is None:
             # Card Not Found: Process keys
             keys=True
