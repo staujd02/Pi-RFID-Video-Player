@@ -148,7 +148,7 @@ class EditorGUI:
             "<<ListboxSelect>>", lambda event: self.__processListClickEvent(event, selectEvent))
         return videoListbox
 
-    def caseInsenstiveSort(e):
+    def caseInsenstiveSort(self, e):
         return e.lower()
     
     def __insertEntries(self, listBox, videoList):
