@@ -149,6 +149,7 @@ class EditorGUI:
         return videoListbox
     
     def __insertEntries(self, listBox, videoList):
+        videoList.sort()
         for entry in videoList:
             listBox.insert(END, entry)
     
