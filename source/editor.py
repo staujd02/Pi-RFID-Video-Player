@@ -369,8 +369,6 @@ class Editor:
         # pygame.init() IS this only for linux distribution?
         self.soundS = self.soundProvider.mixer.Sound(self.environment.SCAN_SOUND)
         self.soundS.set_volume(1)
-        # Create an instance of the PN532 class.
-        self.RFIDScannerProvider.begin())
         # Configure PN532 to communicate with MiFare cards.
         self.RFIDScannerProvider.SAM_configuration()
         self.loadFiles()
@@ -465,7 +463,7 @@ class Editor:
     def pullDeviceNamesFromPath(self, scan):
         for path in scan.PATH:
             try:
-                subpath = path.replace('/media/pi/', '')
+                subpath = path.replace('/home/athos/Videos/', '')
                 if subpath[0:subpath.find('/')] not in self.devices:
                     self.devices.append(subpath[0:subpath.find('/')])
             except:

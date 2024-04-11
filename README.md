@@ -16,14 +16,18 @@
 - IMPORTS: atexit, logging, subprocess, sys, os, shutil, binascii, time
  pygame (for sound), Tkinter (GUIs), psutil, PIL.Image, PIL.ImageTk,
  uinput, RPi.GPIO
- 
+
+### Fix GPIO Library for Pi 5
+sudo apt remove python3-rpi.gpio
+pip3 install rpi-lgpio
+
 ### Setup Instructions
  - Install the required python PN_532 library
      - Download forked PN_532 library
      - Run `sudo python3 setup.py install`
  - Install the required MPR_121 library
      - Download forked MPR_121 library
-     - Run `sudo python3 setup.py install`
+     - Run `python3 setup.py install`
      - Enable ic2
      	- Open `/boot/config.txt`
 	- Uncomment `ic2_dev, i2s`

@@ -1,25 +1,31 @@
+#!/home/athos/repos/bin/python3
+
 # Python Packages
 import atexit
 import logging
 import subprocess
-import sys
 import binascii
+import sys
 import time
-import pygame
 import os.path
-import uinput
-import psutil as util
-from pynput import keyboard
 
 # GUI Packages
 from tkinter import *
 from PIL import Image
 from PIL import ImageTk
 
+# Vidoe Player
+from vlc import Instance
+
 # 3rd Party Hardware Libraries
-import Adafruit_PN532 as PN532
-import Adafruit_MPR121.MPR121 as MPR121
+import board
+import busio
 import RPi.GPIO as GPIO
+
+from digitalio import DigitalInOut
+from adafruit_pn532.spi import PN532_SPI
+import adafruit_bitbangio as bitbangio
+import adafruit_mpr121 as MPR121
 
 # Internal Libraries
 from source.wrapper.cardScanWrapper import CardScanWrapper
@@ -37,12 +43,12 @@ SCLK = 25
 IRQ_PIN = 26
 
 KEY_MAPPING = {
-                0: uinput.KEY_Q,    
-                1: uinput.KEY_LEFT, 
-                2: uinput.KEY_SPACE,
-                3: uinput.KEY_DOT,  
-                4: uinput.KEY_RIGHT,
-                5: uinput.KEY_UP
+                0: "quit",    
+                1: "skip", 
+                2: "play",
+                3: "ff",  
+                4: "rewind",
+                5: "skip_back"
               }
 MAX_EVENT_WAIT_SECONDS = 0.10
 EVENT_WAIT_SLEEP_SECONDS = 0.01
@@ -78,34 +84,11 @@ except Exception as e:
     logging.critical('Setup Failed: ' + str(e))
     sys.exit(1)
 
-try:
-    # Load Sounds
-    logging.info('Loading Sound Files...')
-    pygame.mixer.pre_init(44100, -16, 12, 512)
-    pygame.init()
-    sound = pygame.mixer.Sound(env.TOUCH_SOUND)
-    soundBroke = pygame.mixer.Sound(env.BROKE_SOUND)
-    sound.set_volume(4)
-except Exception as e:
-    logging.critical('Setup Failed: ' + str(e))
-    sys.exit(1)
-
-
-# Load Keyboard Interface
-try:
-    logging.info('Loading uinput keyboard interface...')
-    subprocess.check_call(['modprobe', 'uinput'])
-    device = uinput.Device(KEY_MAPPING.values())
-except Exception as e:
-    logging.critical('Setup Failed: ' + str(e))
-    sys.exit(1)
-
 # Setup MPR121 Hardware
 try:
     logging.info('Mounting MPR121 device...')
-    cap = MPR121.MPR121()
-    if not cap.begin():
-        raise Exception('Failed to initialize MPR121, check your wiring!')
+    i2c = busio.I2C(board.SCL, board.SDA)
+    cap = MPR121.MPR121(i2c)
 except Exception as e:
     logging.critical('Setup Failed: ' + str(e))
     sys.exit(1)
@@ -113,8 +96,10 @@ except Exception as e:
 # Setup PN532 Hardware
 try:
     logging.info('Mounting PN532 device...')
-    pn532 = PN532.PN532(cs=CS, sclk=SCLK, mosi=MOSI, miso=MISO)
-    pn532.begin()
+    cs = DigitalInOut(board.D18)
+    cs.switch_to_output(value=True)
+    spi = bitbangio.SPI(board.D25, MOSI=board.D23, MISO=board.D24)  
+    pn532 = PN532_SPI(spi, cs, debug=False)
     pn532.SAM_configuration()
 except Exception as e:
     logging.critical('Setup Failed: ' + str(e))
@@ -140,6 +125,15 @@ except Exception as e:
     logging.critical('File Setup Failed: ' + str(e))
     sys.exit(1)
 
+# Start VLC Client
+try:
+    player = Instance('--loop')
+except Exception as e:
+    logging.critical('File Setup Failed: ' + str(e))
+    sys.exit(1)
+
+
+
 logging.info('Setup Complete')
 
 # Start Processing ------------------------------------
@@ -151,6 +145,7 @@ changeV = False
 sub = None
 p = None
 ff = False
+running = False
 scanFQ = 0
 
 # Loop controller
@@ -164,7 +159,7 @@ def shutdown():
         except util.NoSuchProcess:
             pass
         else:
-            if 'omxplayer' == pinfo['name']:
+            if 'vlc' == pinfo['name']:
                 proc.kill()
             if 'python3' == pinfo['name']:
                 proc.kill()
@@ -201,45 +196,7 @@ try:
             if uidt == lastplay:
                 # Reset scan effect window
                 scanFQ = time.time()
-                # Check to see if the video has ended...
-                running = False
-                # See if a process object is already set
-                if p is not None:
-                    # process is set, try querying status
-                    try:
-                        p.status()
-                    except util.NoSuchProcess:
-                        # Process is dead, check if another one is active
-                        p = None
-                        running = False
-                        for proc in util.process_iter():
-                            try:
-                                pinfo = proc.as_dict(attrs=['name'])
-                            except util.NoSuchProcess:
-                                pass
-                            else:
-                                if 'omxplayer' == pinfo['name']:
-                                    running = True
-                                    p = proc
-                                    break
-                        if p is not None:
-                            logging.info('Video Ended')
-                    else:
-                        running = True
-                        # Slight delay to match rfid timeout scenerio
-                        time.sleep(EQL_DELAY)
-                else:
-                    # process is not set, try to find it
-                    for proc in util.process_iter():
-                        try:
-                            pinfo = proc.as_dict(attrs=['name'])
-                        except util.NoSuchProcess:
-                            pass
-                        else:
-                            if 'omxplayer' == pinfo['name']:
-                                running = True
-                                p = proc
-                                break
+                time.sleep(EQL_DELAY)
                 changeV = not running
                 keys=True
             else:    
@@ -256,10 +213,10 @@ try:
             if changeV:
                 scanFQ = time.time()
                 keys=False
-                sound.play()
                 lastplay = uidt
-                # Tell omxplayer to quit
-                device.emit_click(uinput.KEY_Q)
+                # Tell vlc to quit
+                # device.emit_click(uinput.KEY_Q)
+                # Yeah, tell it to QUIT!
                 try:
                     entry=linker.resolve('0x' + uidt.decode())
                     if entry == linker.KillCode:
@@ -270,12 +227,12 @@ try:
                     logging.info('Playing Video: ' + video.getName())
                     if not os.path.isfile(video.getPath()):
                         raise IOError('Video link did not resolve.')
-                    subprocess.call('gnome-terminal -x omxplayer -b -o hdmi ' + video.getPath(),shell=True)
+                    #subprocess.call('gnome-terminal -- vlc --fullscreen ' + video.getPath(),shell=True)
+                    # Start Movice
                 except IOError as o:
                     # Video File is broken...
                     panel.config(image = imgBrokeV)
                     root.update()
-                    soundBroke.play()
                     time.sleep(3)
                     panel.config(image = img)
                     root.update()
@@ -286,7 +243,6 @@ try:
                     # RFID card is not properly linked...
                     panel.config(image = imgBroke)
                     root.update()
-                    soundBroke.play()
                     time.sleep(3)
                     panel.config(image = img)
                     root.update()
@@ -299,36 +255,27 @@ try:
             start = time.time()
             while (time.time() - start) < MAX_EVENT_WAIT_SECONDS and not GPIO.event_detected(IRQ_PIN):
                 time.sleep(EVENT_WAIT_SLEEP_SECONDS)
-            # Read touch state.
-            touched = cap.touched()
-            # Emit key presses for any touched keys.
             for pin, key in KEY_MAPPING.items():
                 # Check if pin is touched.
-                pin_bit = 1 << pin
-                if touched & pin_bit:
-                    # Emit sound
-                    sound.play()
-                    # Emit key event when touched.
-                    if key == uinput.KEY_DOT:
-                        if ff:
-                            ff = False
-                            device.emit_click(uinput.KEY_SPACE)
-                            time.sleep(.15)
-                            device.emit_click(uinput.KEY_SPACE)
-                        else:
-                            ff = True
-                            device.emit_click(key)
-                            time.sleep(.15)
-                            device.emit_click(key)
-                    elif key == uinput.KEY_SPACE:
-                        ff = False
-                        device.emit_click(key)
-                    else:
-                        device.emit_click(key)
-                    if key == uinput.KEY_Q:
-                        lastplay=''
-                        p = None
-                        logging.info('Video Ended by user.')                            
+                pin_touched = cap[pin].value
+                if not pin_touched: 
+                    continue
+                # Emit key event when touched.
+                if key == "ff":
+                    pass
+                elif key == "play":
+                    ff = False
+                    pass
+                elif key == "skip":
+                    pass
+                elif key == "skip_back":
+                    pass
+                elif key == "rewind":
+                    pass
+                if key == "quit":
+                    lastplay=''
+                    p = None
+                    logging.info('Video Ended by user.')                            
 except Exception as e:
     logging.critical('Unexpected Error: ' + str(e))
     sys.exit(1)
