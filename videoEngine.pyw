@@ -3,11 +3,11 @@
 # Python Packages
 import atexit
 import logging
-import subprocess
 import binascii
 import sys
 import time
 import os.path
+import psutil
 
 # GUI Packages
 from tkinter import *
@@ -80,6 +80,8 @@ try:
     panel.config(background = 'black')
     panel.pack(side = 'bottom', fill = 'both', expand = 'yes')
     root.update()
+    root.overrideredirect(False)
+    root.update()
 except Exception as e:
     logging.critical('Setup Failed: ' + str(e))
     sys.exit(1)
@@ -125,25 +127,17 @@ except Exception as e:
     logging.critical('File Setup Failed: ' + str(e))
     sys.exit(1)
 
-# Start VLC Client
-try:
-    player = Instance('--loop')
-except Exception as e:
-    logging.critical('File Setup Failed: ' + str(e))
-    sys.exit(1)
-
-
-
 logging.info('Setup Complete')
 
 # Start Processing ------------------------------------
 
 # Instance Trackers
+player = Instance()
+media=None
 lastplay=''
 keys=True
 changeV = False
 sub = None
-p = None
 ff = False
 running = False
 scanFQ = 0
@@ -153,10 +147,10 @@ run=0
 
 def shutdown():
     logging.info('Quit Command Recieved!')
-    for proc in util.process_iter():                            
+    for proc in psutil.process_iter():                            
         try:                            
             pinfo = proc.as_dict(attrs=['name'])
-        except util.NoSuchProcess:
+        except psutil.NoSuchProcess:
             pass
         else:
             if 'vlc' == pinfo['name']:
@@ -165,15 +159,6 @@ def shutdown():
                 proc.kill()
     sys.exit(0)
 
-def on_press(key):
-    try:
-        if key.char == 'x':
-            shutdown()
-    except AttributeError:
-        pass
-
-listener = keyboard.Listener(on_press=on_press)
-listener.start()
 
 try:
     # Clear any pending interrupts by reading touch state.
@@ -214,9 +199,8 @@ try:
                 scanFQ = time.time()
                 keys=False
                 lastplay = uidt
-                # Tell vlc to quit
-                # device.emit_click(uinput.KEY_Q)
-                # Yeah, tell it to QUIT!
+                if media != None:
+                    media.stop()
                 try:
                     entry=linker.resolve('0x' + uidt.decode())
                     if entry == linker.KillCode:
@@ -227,8 +211,12 @@ try:
                     logging.info('Playing Video: ' + video.getName())
                     if not os.path.isfile(video.getPath()):
                         raise IOError('Video link did not resolve.')
-                    #subprocess.call('gnome-terminal -- vlc --fullscreen ' + video.getPath(),shell=True)
                     # Start Movice
+                    media = player.media_player_new(video.getPath())
+                    time.sleep(.5)
+                    media.play()
+                    media.video_set_scale(1)
+                    media.set_fullscreen(1)
                 except IOError as o:
                     # Video File is broken...
                     panel.config(image = imgBrokeV)
@@ -237,7 +225,6 @@ try:
                     panel.config(image = img)
                     root.update()
                     lastplay = ''
-                    p = None
                     logging.error(o)
                 except Exception as e:
                     # RFID card is not properly linked...
@@ -247,7 +234,6 @@ try:
                     panel.config(image = img)
                     root.update()
                     lastplay = ''
-                    p = None
                     logging.error(str(e))
         if keys:
             # Wait for the IRQ pin to drop or too much time ellapses (to help prevent
@@ -274,7 +260,6 @@ try:
                     pass
                 if key == "quit":
                     lastplay=''
-                    p = None
                     logging.info('Video Ended by user.')                            
 except Exception as e:
     logging.critical('Unexpected Error: ' + str(e))
