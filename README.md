@@ -6,27 +6,23 @@
 ## OPTIONAL HARDWARE
 
 - MPR121 - Capacitive Touch Sensor(Otherwise use GPIO Player)
-   - Note: If you don't have the MPR121, you will need to use the `videoEngineGPIO.pyw` to start the video player
+   - Note: If you don't have the MPR121, you will need to use the `videoEngineGPIO.pyw` to use the video player
 
 ## REQUIRED SOFTWARE
 - Python library for Adafruit_PN532
 - Python library for Adafruit_MPR121 (If you're using the MPR121 board)
-- Python library psutil, python-uinput
-- Linux Distros: Omxplayer, gnome-terminal, python-imaging, and python-imaging-tk
+- Python library psutil
+- Linux Distros: VLC Player, python-imaging, and python-imaging-tk
 - IMPORTS: atexit, logging, subprocess, sys, os, shutil, binascii, time
- pygame (for sound), Tkinter (GUIs), psutil, PIL.Image, PIL.ImageTk,
- uinput, RPi.GPIO
+ pygame (for sound), Tkinter (GUIs), psutil, PIL.Image, PIL.ImageTk, RPi.GPIO
  
 ### Setup Instructions
  - Install the required python PN_532 library
-     - Download forked PN_532 library
-     - Run `pip install .`
+     - Run `pip3 install adafruit-circuitpython-pn532`
+     - Enable spi on Pi via settings
  - Install the required MPR_121 library
-     - Download forked MPR_121 library
-     - Run `pip install .`
-     - Enable ic2
-     	- Open `/boot/config.txt`
-	- Uncomment `ic2_dev, i2s`
+     - Run `pip3 install adafruit-circuitpython-mpr121`
+     - Enable ic2 on Pi via settings
  - Setup up video repository scanner
      - Ensure usb name has no spaces in it
      - Ensure scanner.sh is saved with UNIX file endings
@@ -34,9 +30,7 @@
  - Install required system libraries
      - `sudo apt-get install libudev-dev`
      - `sudo apt-get install python3-pil.imagetk`
-     - `sudo apt-get install gnome-terminal`
- - Install required python libraries
-     - `sudo pip3 install python-uinput`
+     - `pip3 install pillow`
 
 ### Setting up auto-start service on boot
 
@@ -49,7 +43,7 @@
  - videoEngine.pyw
     - *This script launches the video player using the MPR121 for interactive video control.*
  - videoEngineGPIO.pyw
-    - *This script launches the video player using GPIO pins as substitutes for the MPR121 capacitive touch sensors.*
+    - *This script launches the video player using GPIO switches as substitutes for the MPR121 capacitive touch sensors.*
 
 ### There are three info files.
 
