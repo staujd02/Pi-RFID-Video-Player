@@ -86,6 +86,18 @@ except Exception as e:
     logging.critical('Setup Failed: ' + str(e))
     sys.exit(1)
 
+try:
+    # Load Sounds
+    logging.info('Loading Sound Files...')
+    pygame.mixer.pre_init(44100, -16, 12, 512)
+    pygame.init()
+    scanSound = pygame.mixer.Sound(env.TOUCH_SOUND)
+    soundBroke = pygame.mixer.Sound(env.BROKE_SOUND)
+    scanSound.set_volume(4)
+except Exception as e:
+    logging.critical('Setup Failed: ' + str(e))
+    sys.exit(1)
+
 # Setup MPR121 Hardware
 try:
     logging.info('Mounting MPR121 device...')
@@ -221,6 +233,7 @@ try:
                     # Video File is broken...
                     panel.config(image = imgBrokeV)
                     root.update()
+                    soundBroke.play()
                     time.sleep(3)
                     panel.config(image = img)
                     root.update()
@@ -230,6 +243,7 @@ try:
                     # RFID card is not properly linked...
                     panel.config(image = imgBroke)
                     root.update()
+                    soundBroke.play()
                     time.sleep(3)
                     panel.config(image = img)
                     root.update()
@@ -246,6 +260,7 @@ try:
                 pin_touched = cap[pin].value
                 if not pin_touched: 
                     continue
+                scanSound.play()
                 # Emit key event when touched.
                 if key == "ff":
                     pass

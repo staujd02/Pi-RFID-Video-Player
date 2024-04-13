@@ -463,7 +463,7 @@ class Editor:
     def pullDeviceNamesFromPath(self, scan):
         for path in scan.PATH:
             try:
-                subpath = path.replace('/home/athos/Videos/', '')
+                subpath = path.replace(self.environment.MEDIA_ROOT, '')
                 if subpath[0:subpath.find('/')] not in self.devices:
                     self.devices.append(subpath[0:subpath.find('/')])
             except:
