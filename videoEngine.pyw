@@ -3,6 +3,7 @@
 # Python Packages
 import atexit
 import logging
+import pygame
 import binascii
 import sys
 import time
@@ -225,9 +226,8 @@ try:
                         raise IOError('Video link did not resolve.')
                     # Start Movice
                     media = player.media_player_new(video.getPath())
-                    time.sleep(.5)
                     media.play()
-                    media.video_set_scale(1)
+                    time.sleep(5)
                     media.set_fullscreen(1)
                 except IOError as o:
                     # Video File is broken...
