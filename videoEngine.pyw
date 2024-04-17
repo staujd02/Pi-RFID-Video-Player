@@ -81,8 +81,6 @@ try:
     panel.config(background = 'black')
     panel.pack(side = 'bottom', fill = 'both', expand = 'yes')
     root.update()
-    root.overrideredirect(False)
-    root.update()
 except Exception as e:
     logging.critical('Setup Failed: ' + str(e))
     sys.exit(1)
@@ -152,7 +150,6 @@ keys=True
 changeV = False
 sub = None
 ff = False
-running = False
 scanFQ = 0
 
 # Loop controller
@@ -172,6 +169,15 @@ def shutdown():
                 proc.kill()
     sys.exit(0)
 
+def maximize():
+    # root.overrideredirect(True)
+    root.deiconify()
+    root.update()
+
+def minimize():
+    # root.overrideredirect(False)
+    root.withdraw()
+    root.update()
 
 try:
     # Clear any pending interrupts by reading touch state.
@@ -179,6 +185,8 @@ try:
     
     # Endless Process Loop
     while (run==0):
+        if media is not None and not media.is_playing():
+            maximize()
         # Check if a card is available to read.
         try:
             uid = pn532.read_passive_target()
@@ -195,7 +203,7 @@ try:
                 # Reset scan effect window
                 scanFQ = time.time()
                 time.sleep(EQL_DELAY)
-                changeV = not running
+                changeV = media is None or not media.is_playing()
                 keys=True
             else:    
                 # Video is not playing or user has requested
@@ -205,6 +213,8 @@ try:
                     changeV = False
                     keys = True
                 else:
+                    scanSound.play()
+                    maximize()
                     changeV = True
             
             # Change the video
@@ -227,12 +237,14 @@ try:
                     # Start Movice
                     media = player.media_player_new(video.getPath())
                     media.play()
-                    time.sleep(5)
+                    time.sleep(2)
                     media.set_fullscreen(1)
+                    time.sleep(.2)
+                    minimize()
                 except IOError as o:
                     # Video File is broken...
                     panel.config(image = imgBrokeV)
-                    root.update()
+                    maximize()
                     soundBroke.play()
                     time.sleep(3)
                     panel.config(image = img)
@@ -242,6 +254,7 @@ try:
                 except Exception as e:
                     # RFID card is not properly linked...
                     panel.config(image = imgBroke)
+                    maximize()
                     root.update()
                     soundBroke.play()
                     time.sleep(3)
@@ -274,6 +287,7 @@ try:
                 elif key == "rewind":
                     pass
                 if key == "quit":
+                    media.stop()
                     lastplay=''
                     logging.info('Video Ended by user.')                            
 except Exception as e:
