@@ -1,6 +1,7 @@
 import board
 import digitalio
 import adafruit_bitbangio as bitbangio
+import busio
 
 class RFIDScannerProvider(object):
 
@@ -10,5 +11,5 @@ class RFIDScannerProvider(object):
     def PN532(self, CS, MOSI, MISO, SCLK):
         cs = digitalio.DigitalInOut(board.D18)
         cs.switch_to_output(value=True)
-        spi = bitbangio.SPI(board.D25, MOSI=board.D23, MISO=board.D24)
+        spi = busio.SPI(board.SCLK, board.MOSI, board.MISO)
         return self.concrete(spi, cs, debug=False)
