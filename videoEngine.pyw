@@ -111,13 +111,12 @@ try:
     logging.info('Mounting PN532 device...')
     cs = DigitalInOut(board.D18)
     cs.switch_to_output(value=True)
-    spi = bitbangio.SPI(board.D25, MOSI=board.D23, MISO=board.D24)  
+    spi = busio.SPI(board.SCLK, board.MOSI, board.MISO)
     pn532 = PN532_SPI(spi, cs, debug=False)
     pn532.SAM_configuration()
 except Exception as e:
     logging.critical('Setup Failed: ' + str(e))
     sys.exit(1)
-
 
 # Configure GPIO pins
 try:
