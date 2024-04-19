@@ -184,8 +184,6 @@ try:
     
     # Endless Process Loop
     while (run==0):
-        if media is not None and not media.is_playing():
-            maximize()
         # Check if a card is available to read.
         try:
             uid = pn532.read_passive_target()
@@ -277,16 +275,24 @@ try:
                 if key == "ff":
                     pass
                 elif key == "play":
-                    ff = False
-                    pass
+                    if media is None:
+                        continue
+                    elif media.is_playing():
+                        media.pause()
+                    else:
+                        media.play()
                 elif key == "skip":
-                    pass
+                    if media is not None:
+                        media.next_chapter() 
                 elif key == "skip_back":
-                    pass
+                    if media is not None:
+                        media.previous_chapter() 
                 elif key == "rewind":
                     pass
                 if key == "quit":
                     media.stop()
+                    media = None
+                    maximize()
                     lastplay=''
                     logging.info('Video Ended by user.')                            
 except Exception as e:
