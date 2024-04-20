@@ -5,9 +5,9 @@
 # Effect: Starts the video player on boot, but in a separate thread
 
 forked_start(){
-    sudo su pi
-    cd ~/repos/Pi-RFID-Video-Player
-    sudo python3 videoEngine.pyw
+    source /home/athos/repos/bin/activate
+    cd /home/athos/repos/Pi-RFID-Video-Player
+    python3 videoEngine.pyw
 }
 
 forked_start &

@@ -1,0 +1,17 @@
+# Install this here /etc/systemd/system/video-player.service
+# Reload so the daemon recognizes the service `sudo systemctl daemon-reload`
+# Enable it so it starts on load `sudo systemctl enable video-player.service`
+# Give it a try `sudo systemctl start video-player.service`
+[Unit]
+Description=Start Chromium
+After=graphical.target
+Wants=graphical.target
+
+[Service]
+User=athos
+Group=athos
+WorkingDirectory=/home/athos/repos/Pi-RFID-Video-Player
+ExecStart=/bin/bash -c "export DISPLAY=:0; export XAUTHORITY=/home/pi/.Xauthority; source /home/athos/repos/bin/activate; python3 videoEngine.pyw"
+
+[Install]
+WantedBy=graphical.target
