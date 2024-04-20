@@ -1,6 +1,7 @@
 #!/home/athos/repos/bin/python3
 
 # Python Packages
+from pynput import keyboard
 import atexit
 import logging
 import pygame
@@ -168,6 +169,16 @@ def shutdown():
                 proc.kill()
     sys.exit(0)
 
+def on_press(key):
+    try:
+        if key.char == 'x':
+            shutdown()
+    except AttributeError:
+        pass
+listener = keyboard.Listener(on_press=on_press)
+listener.start()
+
+
 def maximize():
     # root.overrideredirect(True)
     root.deiconify()
@@ -271,24 +282,28 @@ try:
                 if not pin_touched: 
                     continue
                 scanSound.play()
+                if media is None:
+                    continue
                 # Emit key event when touched.
                 if key == "ff":
-                    pass
+                    if media.get_rate() != 2:
+                        media.set_rate(2)
+                    else:
+                        media.set_rate(1)
                 elif key == "play":
-                    if media is None:
-                        continue
-                    elif media.is_playing():
+                    if media.is_playing():
                         media.pause()
                     else:
+                        media.set_rate(1)
                         media.play()
                 elif key == "skip":
-                    if media is not None:
-                        media.next_chapter() 
+                    media.set_rate(1)
+                    media.next_chapter() 
                 elif key == "skip_back":
-                    if media is not None:
-                        media.previous_chapter() 
+                    media.set_rate(1)
+                    media.previous_chapter() 
                 elif key == "rewind":
-                    pass
+                    media.set_rate(1)
                 if key == "quit":
                     media.stop()
                     media = None
