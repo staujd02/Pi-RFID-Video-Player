@@ -304,6 +304,7 @@ try:
                     media.previous_chapter() 
                 elif key == "rewind":
                     media.set_rate(1)
+                    media.set_time(media.get_time() - 5000)
                 if key == "quit":
                     media.stop()
                     media = None

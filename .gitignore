@@ -3,7 +3,8 @@
 *.log
 *.csv
 .env
-ssh.sh
+*.sh
+.lgd-nfy0
 
 # and OS generated files #
 ######################
