@@ -52,7 +52,7 @@ KEY_MAPPING = {
                 4: "rewind",
                 5: "skip_back"
               }
-MAX_EVENT_WAIT_SECONDS = 0.10
+MAX_EVENT_WAIT_SECONDS = 0.05
 EVENT_WAIT_SLEEP_SECONDS = 0.01
 EQL_DELAY = .85
 VIDEO_SCAN_RELIEF = 1
@@ -190,7 +190,7 @@ def minimize():
 
 try:
     # Clear any pending interrupts by reading touch state.
-    cap.touched()
+    # cap.touched()
     
     # Endless Process Loop
     while (run):
@@ -209,7 +209,7 @@ try:
             if uidt == lastplay:
                 # Reset scan effect window
                 scanFQ = time.time()
-                time.sleep(EQL_DELAY)
+                # time.sleep(EQL_DELAY)
                 changeV = media is None or not media.is_playing()
                 keys=True
             else:    
@@ -275,7 +275,8 @@ try:
             # missing an IRQ event and waiting forever).
             start = time.time()
             while (time.time() - start) < MAX_EVENT_WAIT_SECONDS and not GPIO.event_detected(IRQ_PIN):
-                time.sleep(EVENT_WAIT_SLEEP_SECONDS)
+                # time.sleep(EVENT_WAIT_SLEEP_SECONDS)
+                pass
             for pin, key in KEY_MAPPING.items():
                 # Check if pin is touched.
                 pin_touched = cap[pin].value
