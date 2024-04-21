@@ -1,21 +1,20 @@
-# Install this here /etc/systemd/system/video-player.service
-# Reload so the daemon recognizes the service `sudo systemctl daemon-reload`
-# Enable it so it starts on load `sudo systemctl enable video-player.service`
-# Give it a try `sudo systemctl start video-player.service`
+# Install this here $HOME/.config/systemd/user/
+# Reload so the daemon recognizes the service `systemctl daemon-reload`
+# Enable it so it starts on load `systemctl --user enable video-player.service`
+# Give it a try `systemctl --user start video-player.service`
 [Unit]
 Description=Start RFID Video Player
-Requires=graphical.target
-Requires=sound.target
-After=sound.target
-After=graphical.target
-Requires=display-manager.service
-After=display-manager.service
+PartOf=graphical-session.target
+After=graphical-session.target
 
 [Service]
-User=athos
-Group=athos
+Type=simple
+Environment=DISPLAY=:0.0
+Environment=XAUTHORITY=/home/athos/.Xauthority
+Environment=HOME=/home/athos/
+Restart=no
 WorkingDirectory=/home/athos/repos/Pi-RFID-Video-Player
-ExecStart=/bin/bash -c "export DISPLAY=:0; export XAUTHORITY=/home/athos/.Xauthority; source /home/athos/repos/bin/activate; python3 videoEngine.pyw"
+ExecStart=/home/athos/repos/Pi-RFID-Video-Player/launch-player.sh
 
 [Install]
-WantedBy=graphical.target
+WantedBy=graphical-session.target
