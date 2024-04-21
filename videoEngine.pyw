@@ -1,7 +1,7 @@
 #!/home/athos/repos/bin/python3
 
 # Python Packages
-from pynput import keyboard
+# from pynput import keyboard
 import atexit
 import logging
 import pygame
@@ -89,8 +89,9 @@ except Exception as e:
 try:
     # Load Sounds
     logging.info('Loading Sound Files...')
-    pygame.mixer.pre_init(44100, -16, 12, 512)
     pygame.init()
+    pygame.mixer.pre_init(44100, -16, 12, 512)
+    pygame.mixer.init()
     scanSound = pygame.mixer.Sound(env.TOUCH_SOUND)
     soundBroke = pygame.mixer.Sound(env.BROKE_SOUND)
     scanSound.set_volume(4)
@@ -169,14 +170,14 @@ def shutdown():
                 proc.kill()
     sys.exit(0)
 
-def on_press(key):
-    try:
-        if key.char == 'x':
-            shutdown()
-    except AttributeError:
-        pass
-listener = keyboard.Listener(on_press=on_press)
-listener.start()
+# def on_press(key):
+#     try:
+#         if key.char == 'x':
+#             shutdown()
+#     except AttributeError:
+#         pass
+# listener = keyboard.Listener(on_press=on_press)
+# listener.start()
 
 
 def maximize():
