@@ -1,11 +1,6 @@
 [Desktop Entry]
-Type=Application
-Name=RFID Video Player
-GenericName=Video Player
-Exec=sudo python3 videoEngineGPIO.pyw
-Comment=RFID Video Player uses the PN532 to play videos and control them using GPIO inputs
-Icon=/home/pi/repos/Pi-RFID-Video-Player/resources/icons/g_icon.png
+Name=Video Player
+Exec=/home/<user>/repos/Pi-RFID-Video-Player/launch-player.sh
 Terminal=false
-Categories=Application;Media;
-StartupNotify=true
-Path=/home/pi/repos/Pi-RFID-Video-Player
+Icon=/home/<user>/repos/Pi-RFID-Video-Player/resources/icons/g_icon.png
+Type=Application

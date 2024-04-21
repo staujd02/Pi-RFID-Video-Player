@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Card Editor
-Exec=/home/athos/repos/Pi-RFID-Video-Player/launch-editor.sh
+Exec=/home/<user>/repos/Pi-RFID-Video-Player/launch-editor.sh
 Comment=Launch RFID Editor
 Terminal=false
-Icon=/home/athos/repos/Pi-RFID-Video-Player/resources/icons/e_icon.png
+Icon=/home/<user>/repos/Pi-RFID-Video-Player/resources/icons/e_icon.png
 Type=Application

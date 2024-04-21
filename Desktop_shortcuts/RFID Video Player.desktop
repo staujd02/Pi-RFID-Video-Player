@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Video Player
-Exec=/home/athos/repos/Pi-RFID-Video-Player/launch-player.sh
+Exec=/home/<user>/repos/Pi-RFID-Video-Player/launch-player.sh
 Terminal=false
-Icon=/home/athos/repos/Pi-RFID-Video-Player/resources/icons/icon.png
+Icon=/home/<user>/repos/Pi-RFID-Video-Player/resources/icons/icon.png
 Type=Application

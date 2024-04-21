@@ -3,7 +3,6 @@
 *.log
 *.csv
 .env
-*.sh
 .lgd-nfy0
 
 # and OS generated files #
