@@ -153,10 +153,10 @@ ff = False
 scanFQ = 0
 
 # Loop controller
-run=0
+run=True
 
 def shutdown():
-    logging.info('Quit Command Recieved!')
+    logging.info('Keyboard command interrupt recieved!')
     for proc in psutil.process_iter():                            
         try:                            
             pinfo = proc.as_dict(attrs=['name'])
@@ -164,8 +164,6 @@ def shutdown():
             pass
         else:
             if 'vlc' == pinfo['name']:
-                proc.kill()
-            if 'python3' == pinfo['name']:
                 proc.kill()
     sys.exit(0)
 
@@ -195,7 +193,7 @@ try:
     cap.touched()
     
     # Endless Process Loop
-    while (run==0):
+    while (run):
         # Check if a card is available to read.
         try:
             uid = pn532.read_passive_target()
@@ -237,7 +235,8 @@ try:
                     entry=linker.resolve('0x' + uidt.decode())
                     if entry == linker.KillCode:
                         # Kill card was scanned, cleanup and exit
-                        shutdown()
+                        run = False
+                        break
                     video = Video(entry)
                     # i=vidPK.index(uuidFK[i])
                     logging.info('Playing Video: ' + video.getName())

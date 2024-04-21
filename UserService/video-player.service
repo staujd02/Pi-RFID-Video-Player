@@ -1,20 +1,19 @@
 # Install this here $HOME/.config/systemd/user/
-# Reload so the daemon recognizes the service `systemctl --user daemon-reload`
+# Reload so the daemon recognizes the service `systemctl daemon-reload`
 # Enable it so it starts on load `systemctl --user enable video-player.service`
 # Give it a try `systemctl --user start video-player.service`
 [Unit]
 Description=Start RFID Video Player
-PartOf=graphical-session.target
-After=graphical-session.target
+#Wants=pulseaudio.service
+#Wants=xdg-desktop-portal.service
+#After=xdg-desktop-portal.service
+#After=pulseaudio.service
 
 [Service]
 Type=simple
-Environment=DISPLAY=:0.0
-Environment=XAUTHORITY=/home/<user>/.Xauthority
-Environment=HOME=/home/<user>/
 Restart=no
-WorkingDirectory=/home/<user>/repos/Pi-RFID-Video-Player
-ExecStart=/home/<user>/repos/Pi-RFID-Video-Player/launch-player.sh
+WorkingDirectory=/home/athos/repos/Pi-RFID-Video-Player
+ExecStart=/home/athos/repos/Pi-RFID-Video-Player/launch-player.sh
 
 [Install]
-WantedBy=graphical-session.target
+WantedBy=default.target
