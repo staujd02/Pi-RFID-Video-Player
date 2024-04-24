@@ -5,9 +5,10 @@
 Description=Start RFID Video Player
 Wants=graphical.target
 Wants=pulseaudio.service
-Wants=xdg-desktop-portal.service
-After=xdg-desktop-portal.service
+Wants=display-manager.service
+After=graphical.target
 After=pulseaudio.service
+After=display-manager.service
 
 [Service]
 Type=simple
