@@ -165,18 +165,19 @@ def shutdown():
         else:
             if 'vlc' == pinfo['name']:
                 proc.kill()
+            if 'python3' == pinfo['name']:
+                proc.kill()
     sys.exit(0)
 
 def on_press(key):
    try:
      if key.char == 'x':
-         shutdown()
+        shutdown()
    except AttributeError:
         pass
 
 listener = keyboard.Listener(on_press=on_press)
 listener.start()
-
 
 def maximize():
     # root.overrideredirect(True)
