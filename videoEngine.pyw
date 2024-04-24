@@ -45,17 +45,17 @@ SCLK = 25
 IRQ_PIN = 26
 
 KEY_MAPPING = {
-                0: "quit",    
-                1: "skip", 
+                0: "skip_back",
+                1: "rewind",
                 2: "play",
                 3: "ff",  
-                4: "rewind",
-                5: "skip_back"
+                4: "skip", 
+                5: "quit",    
               }
-MAX_EVENT_WAIT_SECONDS = 0.10
+MAX_EVENT_WAIT_SECONDS = 0.01
 EVENT_WAIT_SLEEP_SECONDS = 0.01
-EQL_DELAY = .85
-VIDEO_SCAN_RELIEF = 1
+EQL_DELAY = .05
+VIDEO_SCAN_RELIEF = .25 
 
 # Begin setup Operations
 
